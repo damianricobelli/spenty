@@ -1,0 +1,18 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "home_page_title": "Control your expenses",
+  "home_page_description": "with Spenty",
+  "home_page_subtitle": "Record personal expenses or split bills with friends and family. No accounts, no complications.",
+  "home_page_top_title": "Simple. Fast. Shared.",
+  "home_page_expense_card_title": "Personal expenses",
+  "home_page_expense_card_description": "Track and control your personal expenses",
+  "home_page_split_card_title": "Split expenses",
+  "home_page_split_card_description": "Split expenses between people and calculate who owes whom",
+  "home_page_search_expense_by_code": "Already created expenses? Search for them by code",
+  "home_page_search_code_button": "I have a code",
+  "home_page_search_code_dialog_title": "Enter with code",
+  "home_page_search_code_dialog_description": "Enter the 8-character code to access the expense",
+  "home_page_search_code_label_link": "Link",
+  "home_page_search_code_cancel": "Cancel",
+  "home_page_search_code_submit": "Enter"
+}

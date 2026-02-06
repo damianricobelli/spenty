@@ -1,0 +1,18 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "home_page_title": "지출 관리",
+  "home_page_description": "Spenty와 함께",
+  "home_page_subtitle": "개인 지출을 기록하거나 친구, 가족과 비용을 나눠보세요. 계정 없이, 간단하게.",
+  "home_page_top_title": "간단. 빠름. 공유.",
+  "home_page_expense_card_title": "개인 지출",
+  "home_page_expense_card_description": "개인 지출을 추적하고 관리하세요",
+  "home_page_split_card_title": "비용 분할",
+  "home_page_split_card_description": "여러 사람이 비용을 나누고 누가 누구에게 갚아야 하는지 계산",
+  "home_page_search_expense_by_code": "이미 지출을 만들었나요? 코드로 검색하세요",
+  "home_page_search_code_button": "코드가 있어요",
+  "home_page_search_code_dialog_title": "코드로 들어가기",
+  "home_page_search_code_dialog_description": "8자리 코드를 입력하여 지출에 접근하세요",
+  "home_page_search_code_label_link": "링크",
+  "home_page_search_code_cancel": "취소",
+  "home_page_search_code_submit": "입장"
+}

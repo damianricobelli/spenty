@@ -1,0 +1,18 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "home_page_title": "支出を管理",
+  "home_page_description": "Spentyで",
+  "home_page_subtitle": "個人の支出を記録したり、友達や家族と割り勘。アカウント不要、シンプルに。",
+  "home_page_top_title": "シンプル。速い。共有。",
+  "home_page_expense_card_title": "個人の支出",
+  "home_page_expense_card_description": "個人の支出を追跡・管理",
+  "home_page_split_card_title": "割り勘",
+  "home_page_split_card_description": "複数人で支出を分けて、誰が誰にいくら払うか計算",
+  "home_page_search_expense_by_code": "すでに支出を作成しましたか？コードで検索",
+  "home_page_search_code_button": "コードを持っています",
+  "home_page_search_code_dialog_title": "コードで入る",
+  "home_page_search_code_dialog_description": "8文字のコードを入力して支出にアクセス",
+  "home_page_search_code_label_link": "リンク",
+  "home_page_search_code_cancel": "キャンセル",
+  "home_page_search_code_submit": "入る"
+}

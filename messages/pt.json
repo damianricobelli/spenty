@@ -1,0 +1,18 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "home_page_title": "Controle suas despesas",
+  "home_page_description": "com Spenty",
+  "home_page_subtitle": "Registre despesas pessoais ou divida contas com amigos e família. Sem contas, sem complicações.",
+  "home_page_top_title": "Simples. Rápido. Compartilhado.",
+  "home_page_expense_card_title": "Despesas pessoais",
+  "home_page_expense_card_description": "Acompanhe e controle suas despesas pessoais",
+  "home_page_split_card_title": "Dividir despesas",
+  "home_page_split_card_description": "Divida despesas entre pessoas e calcule quem deve a quem",
+  "home_page_search_expense_by_code": "Já criou despesas? Procure pelo código",
+  "home_page_search_code_button": "Tenho um código",
+  "home_page_search_code_dialog_title": "Entrar com código",
+  "home_page_search_code_dialog_description": "Digite o código de 8 caracteres para acessar a despesa",
+  "home_page_search_code_label_link": "Link",
+  "home_page_search_code_cancel": "Cancelar",
+  "home_page_search_code_submit": "Entrar"
+}

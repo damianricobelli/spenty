@@ -1,0 +1,18 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "home_page_title": "Beheer je uitgaven",
+  "home_page_description": "met Spenty",
+  "home_page_subtitle": "Registreer persoonlijke uitgaven of deel rekeningen met vrienden en familie. Geen account, geen gedoe.",
+  "home_page_top_title": "Eenvoudig. Snel. Gedeeld.",
+  "home_page_expense_card_title": "Persoonlijke uitgaven",
+  "home_page_expense_card_description": "Volg en beheer je persoonlijke uitgaven",
+  "home_page_split_card_title": "Uitgaven verdelen",
+  "home_page_split_card_description": "Deel uitgaven tussen mensen en bereken wie wat aan wie verschuldigd is",
+  "home_page_search_expense_by_code": "Al uitgaven aangemaakt? Zoek ze op met de code",
+  "home_page_search_code_button": "Ik heb een code",
+  "home_page_search_code_dialog_title": "Invoeren met code",
+  "home_page_search_code_dialog_description": "Voer de 8-karakters code in om bij de uitgave te komen",
+  "home_page_search_code_label_link": "Link",
+  "home_page_search_code_cancel": "Annuleren",
+  "home_page_search_code_submit": "Invoeren"
+}

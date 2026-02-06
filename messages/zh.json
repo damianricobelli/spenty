@@ -1,0 +1,18 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "home_page_title": "管理你的支出",
+  "home_page_description": "用 Spenty",
+  "home_page_subtitle": "记录个人支出或与亲友分摊账单。无需注册，简单省事。",
+  "home_page_top_title": "简单。快速。共享。",
+  "home_page_expense_card_title": "个人支出",
+  "home_page_expense_card_description": "追踪和管理你的个人支出",
+  "home_page_split_card_title": "分摊支出",
+  "home_page_split_card_description": "在多人之间分摊支出，计算谁该付谁",
+  "home_page_search_expense_by_code": "已经创建了支出？用代码搜索",
+  "home_page_search_code_button": "我有代码",
+  "home_page_search_code_dialog_title": "用代码进入",
+  "home_page_search_code_dialog_description": "输入8位代码以访问该支出",
+  "home_page_search_code_label_link": "链接",
+  "home_page_search_code_cancel": "取消",
+  "home_page_search_code_submit": "进入"
+}

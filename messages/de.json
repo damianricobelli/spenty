@@ -1,0 +1,18 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "home_page_title": "Kontrolliere deine Ausgaben",
+  "home_page_description": "mit Spenty",
+  "home_page_subtitle": "Erfasse persönliche Ausgaben oder teile Rechnungen mit Freunden und Familie. Keine Konten, keine Komplikationen.",
+  "home_page_top_title": "Einfach. Schnell. Geteilt.",
+  "home_page_expense_card_title": "Persönliche Ausgaben",
+  "home_page_expense_card_description": "Verfolge und kontrolliere deine persönlichen Ausgaben",
+  "home_page_split_card_title": "Kosten teilen",
+  "home_page_split_card_description": "Teile Ausgaben zwischen Personen und berechne, wer wem etwas schuldet",
+  "home_page_search_expense_by_code": "Bereits Ausgaben erstellt? Suche sie per Code",
+  "home_page_search_code_button": "Ich habe einen Code",
+  "home_page_search_code_dialog_title": "Mit Code eingeben",
+  "home_page_search_code_dialog_description": "Gib den 8-stelligen Code ein, um auf die Ausgabe zuzugreifen",
+  "home_page_search_code_label_link": "Link",
+  "home_page_search_code_cancel": "Abbrechen",
+  "home_page_search_code_submit": "Eingeben"
+}
