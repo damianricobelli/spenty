@@ -31,7 +31,7 @@ export const LocaleMenu = () => {
           onValueChange={handleLocaleChange}
         >
           {locales.map((locale) => (
-            <DropdownMenuRadioItem value={locale}>
+            <DropdownMenuRadioItem value={locale} key={locale}>
               {locale.toUpperCase()}
             </DropdownMenuRadioItem>
           ))}
