@@ -1,11 +1,7 @@
 import { redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import { serverDb } from "@/lib/supabase/server";
-
-export const CodeSchema = z.object({
-  code: z.string().min(8).max(8),
-});
+import { CodeSchema } from "./schema";
 
 export const validateCode = createServerFn({
   method: "GET",
