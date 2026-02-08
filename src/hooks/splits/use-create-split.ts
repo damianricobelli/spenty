@@ -1,4 +1,4 @@
-import { createNewSplit } from "@/routes/splits/api.create";
+import { createNewSplit } from "@/api/splits";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const useCreateSplit = () => {

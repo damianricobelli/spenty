@@ -1,4 +1,4 @@
-import { createNewExpense } from "@/routes/expenses/api.create";
+import { createNewExpense } from "@/api/expenses";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const useCreateExpense = () => {

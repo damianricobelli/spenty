@@ -1,9 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
-import { validateCode } from "@/routes/api.validate-code";
+import { validateCode } from "@/api/code";
+import { useMutation } from "@tanstack/react-query";
 
-export const useValidateCode = ({ code }: { code: string }) => {
-  return useQuery({
-    queryFn: () => validateCode({ data: { code } }),
-    queryKey: ["validate-code"],
+export const useValidateCode = () => {
+  return useMutation({
+    mutationFn: ({ code }: { code: string }) => {
+      return validateCode({ data: { code } });
+    },
+    mutationKey: ["validate-code"],
   });
 };
