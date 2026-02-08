@@ -20,7 +20,7 @@ import {
 import { Label } from "./ui/label";
 import { useValidateCode } from "@/hooks/use-validate-code";
 
-import { CodeSchema } from "@/api/code";
+import { CodeSchema } from "@/api/schema";
 
 export const SearchCode = () => {
   const validateCode = useValidateCode();
