@@ -12,6 +12,7 @@
   "home_page_search_code_button": "コードを持っています",
   "home_page_search_code_dialog_title": "コードで入る",
   "home_page_search_code_dialog_description": "8文字のコードを入力して支出にアクセス",
+  "home_page_search_code_not_found": "入力されたコードは存在しません",
   "home_page_search_code_label_link": "リンク",
   "home_page_search_code_cancel": "キャンセル",
   "home_page_search_code_submit": "入る"

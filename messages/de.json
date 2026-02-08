@@ -12,6 +12,7 @@
   "home_page_search_code_button": "Ich habe einen Code",
   "home_page_search_code_dialog_title": "Mit Code eingeben",
   "home_page_search_code_dialog_description": "Gib den 8-stelligen Code ein, um auf die Ausgabe zuzugreifen",
+  "home_page_search_code_not_found": "Code nicht gefunden",
   "home_page_search_code_label_link": "Link",
   "home_page_search_code_cancel": "Abbrechen",
   "home_page_search_code_submit": "Eingeben"

@@ -12,6 +12,7 @@
   "home_page_search_code_button": "Ho un codice",
   "home_page_search_code_dialog_title": "Entra con codice",
   "home_page_search_code_dialog_description": "Inserisci il codice di 8 caratteri per accedere alla spesa",
+  "home_page_search_code_not_found": "Il codice inserito non esiste",
   "home_page_search_code_label_link": "Link",
   "home_page_search_code_cancel": "Annulla",
   "home_page_search_code_submit": "Entra"

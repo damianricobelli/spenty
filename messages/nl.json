@@ -12,6 +12,7 @@
   "home_page_search_code_button": "Ik heb een code",
   "home_page_search_code_dialog_title": "Invoeren met code",
   "home_page_search_code_dialog_description": "Voer de 8-karakters code in om bij de uitgave te komen",
+  "home_page_search_code_not_found": "De ingevoerde code bestaat niet",
   "home_page_search_code_label_link": "Link",
   "home_page_search_code_cancel": "Annuleren",
   "home_page_search_code_submit": "Invoeren"

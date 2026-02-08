@@ -12,6 +12,7 @@
   "home_page_search_code_button": "Tengo un código",
   "home_page_search_code_dialog_title": "Ingresar con código",
   "home_page_search_code_dialog_description": "Ingresá el código de 8 caracteres para ingresar a la expensa",
+  "home_page_search_code_not_found": "El código ingresado no existe",
   "home_page_search_code_label_link": "Link",
   "home_page_search_code_cancel": "Cancelar",
   "home_page_search_code_submit": "Ingresar"

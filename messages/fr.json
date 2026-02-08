@@ -12,6 +12,7 @@
   "home_page_search_code_button": "J'ai un code",
   "home_page_search_code_dialog_title": "Entrer avec un code",
   "home_page_search_code_dialog_description": "Entrez le code à 8 caractères pour accéder à la dépense",
+  "home_page_search_code_not_found": "Le code entré n'existe pas",
   "home_page_search_code_label_link": "Lien",
   "home_page_search_code_cancel": "Annuler",
   "home_page_search_code_submit": "Entrer"

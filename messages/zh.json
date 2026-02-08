@@ -12,6 +12,7 @@
   "home_page_search_code_button": "我有代码",
   "home_page_search_code_dialog_title": "用代码进入",
   "home_page_search_code_dialog_description": "输入8位代码以访问该支出",
+  "home_page_search_code_not_found": "输入的代码不存在",
   "home_page_search_code_label_link": "链接",
   "home_page_search_code_cancel": "取消",
   "home_page_search_code_submit": "进入"

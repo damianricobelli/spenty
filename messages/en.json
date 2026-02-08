@@ -12,6 +12,7 @@
   "home_page_search_code_button": "I have a code",
   "home_page_search_code_dialog_title": "Enter with code",
   "home_page_search_code_dialog_description": "Enter the 8-character code to access the expense",
+  "home_page_search_code_not_found": "Code not found",
   "home_page_search_code_label_link": "Link",
   "home_page_search_code_cancel": "Cancel",
   "home_page_search_code_submit": "Enter"

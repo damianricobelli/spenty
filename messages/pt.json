@@ -12,6 +12,7 @@
   "home_page_search_code_button": "Tenho um código",
   "home_page_search_code_dialog_title": "Entrar com código",
   "home_page_search_code_dialog_description": "Digite o código de 8 caracteres para acessar a despesa",
+  "home_page_search_code_not_found": "A entrada de código não existe",
   "home_page_search_code_label_link": "Link",
   "home_page_search_code_cancel": "Cancelar",
   "home_page_search_code_submit": "Entrar"

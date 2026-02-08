@@ -12,6 +12,7 @@
   "home_page_search_code_button": "코드가 있어요",
   "home_page_search_code_dialog_title": "코드로 들어가기",
   "home_page_search_code_dialog_description": "8자리 코드를 입력하여 지출에 접근하세요",
+  "home_page_search_code_not_found": "입력된 코드가 존재하지 않습니다",
   "home_page_search_code_label_link": "링크",
   "home_page_search_code_cancel": "취소",
   "home_page_search_code_submit": "입장"
