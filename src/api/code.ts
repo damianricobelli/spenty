@@ -3,8 +3,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { serverDb } from "@/lib/supabase/server";
 
-const CodeSchema = z.object({
-  code: z.string().min(10).max(10),
+export const CodeSchema = z.object({
+  code: z.string().min(8).max(8),
 });
 
 export const validateCode = createServerFn({

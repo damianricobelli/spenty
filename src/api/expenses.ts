@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { redirect } from "@tanstack/react-router";
-import { createUniqueSlug } from "@/data/api.create-unique-slug";
+import { createUniqueSlug } from "./create-unique-slug";
 
 export const createNewExpense = createServerFn({
   method: "POST",
