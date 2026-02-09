@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { FloatingElements } from "@/components/floating-elements";
 import { NewExpenseCard } from "@/components/new-expense-card";
 import { NewSplitCard } from "@/components/new-split-card";
-import { SearchCode } from "@/components/search-code";
+import { SearchCode } from "@/components/search-code-dialog";
 import { m } from "@/paraglide/messages";
 import { LocaleMenu } from "@/components/locale-menu";
 
