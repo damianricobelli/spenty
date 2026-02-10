@@ -4,6 +4,7 @@ import { useState } from "react";
 import { deleteExpense } from "@/api/expenses";
 import { deleteMember } from "@/api/members";
 import type { SplitDebt } from "@/api/splits";
+import { useExpensesDrawerActions } from "@/components/expenses-drawer";
 import type { ExpensesDrawerMember } from "@/components/expenses-drawer/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +16,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/format-currency";
-import { useExpensesDrawerActions } from "@/components/expenses-drawer";
 import { m } from "@/paraglide/messages";
 import { ButtonWithSpinner } from "../button-with-spinner";
 
@@ -94,7 +94,7 @@ export function ExpensesContent({
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-6">
       {/* Members */}
       <section>
-        <h2 className="mb-3 text-sm font-medium text-muted-foreground">
+        <h2 className="mb-3 text-md font-medium text-muted-foreground">
           {m.content_section_members()}
         </h2>
         <div className="flex flex-wrap items-center gap-2">
@@ -121,7 +121,7 @@ export function ExpensesContent({
 
       {/* Total */}
       <section>
-        <h2 className="mb-3 text-sm font-medium text-muted-foreground">
+        <h2 className="mb-3 text-md font-medium text-muted-foreground">
           {m.content_section_total()}
         </h2>
         <p className="text-2xl font-semibold tracking-tight">
@@ -132,7 +132,7 @@ export function ExpensesContent({
       {/* Who owes whom (splits only) */}
       {routeType === "splits" && debts.length > 0 && (
         <section>
-          <h2 className="mb-3 text-sm font-medium text-muted-foreground">
+          <h2 className="mb-3 text-md font-medium text-muted-foreground">
             {m.content_section_who_owes()}
           </h2>
           <ul className="flex flex-col gap-4">
@@ -174,7 +174,7 @@ export function ExpensesContent({
 
       {/* History */}
       <section className="flex min-h-0 flex-1 flex-col">
-        <h2 className="mb-3 text-sm font-medium text-muted-foreground">
+        <h2 className="mb-3 text-md font-medium text-muted-foreground">
           {m.content_section_history()}
         </h2>
         {expense.length === 0 ? (
@@ -182,20 +182,20 @@ export function ExpensesContent({
             {m.empty_no_expenses()}
           </p>
         ) : (
-          <ul className="divide-y divide-border/40 rounded-lg border border-border/40 overflow-auto">
+          <ul className="divide-y divide-border/60 rounded-lg border border-border/60 overflow-auto">
             {expense.map((e) => (
               <li
                 key={e.id}
                 className="flex items-center justify-between gap-2 px-3 py-2.5"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">{formatCurrency(e.amount)}</p>
-                  <p className="truncate text-xs text-muted-foreground">
+                  <p className="text-md font-medium">{formatCurrency(e.amount)}</p>
+                  <p className="truncate text-sm text-muted-foreground">
                     {[e.category ? getCategoryLabel(e.category) : null, e.description]
                       .filter(Boolean)
                       .join(" · ") || "—"}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     {memberById.get(e.paid_by) ?? "—"}
                   </p>
                 </div>
@@ -204,7 +204,7 @@ export function ExpensesContent({
                     <Button
                       type="button"
                       variant="ghost"
-                      size="icon-xs"
+                      size="icon-sm"
                       className="text-muted-foreground hover:text-foreground"
                       aria-label={m.content_edit()}
                       onClick={() => drawerActions.openEditExpense(e.id)}
@@ -215,7 +215,7 @@ export function ExpensesContent({
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon-xs"
+                    size="icon-sm"
                     className="text-muted-foreground hover:text-destructive"
                     aria-label={m.content_delete()}
                     onClick={() => setDeleteExpenseId(e.id)}

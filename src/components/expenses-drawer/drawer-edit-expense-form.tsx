@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLoaderData, useRouter } from "@tanstack/react-router";
 import { Loader2Icon } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { getExpenseWithSplits } from "@/api/expenses";
 import { UpdateExpenseEntrySchema } from "@/api/schema";
