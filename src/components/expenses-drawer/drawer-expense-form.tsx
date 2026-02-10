@@ -328,7 +328,7 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 					<Popover>
 						<PopoverTrigger
 							type="button"
-							className="border-input bg-input/30 flex h-10 w-full items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
+							className="border-input bg-input/30 flex h-10 w-full items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
 						>
 							<span
 								className={

@@ -3,7 +3,6 @@ import { XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useLayoutEffect, useRef, useState } from "react";
 import useMeasure from "react-use-measure";
-import { useOnClickOutside } from "usehooks-ts";
 import { Drawer } from "vaul";
 import { Button } from "@/components/ui/button";
 import { useEntity } from "@/hooks/use-entity";
@@ -64,13 +63,7 @@ export function ExpensesDrawer(props?: ExpensesDrawerProps) {
 
 	const [elementRef, bounds] = useMeasure();
 
-	const drawerRef = useRef<HTMLDivElement>(null);
-
 	useDrawerFocusBypass();
-
-	useOnClickOutside(drawerRef as React.RefObject<HTMLElement>, () =>
-		setView("default"),
-	);
 
 	const content = (view: ExpensesDrawerView) => {
 		switch (view) {
@@ -118,7 +111,6 @@ export function ExpensesDrawer(props?: ExpensesDrawerProps) {
 				open
 				modal={showOverlay}
 				dismissible={false}
-				repositionInputs={false}
 			>
 			<Drawer.Portal>
 				<Drawer.Overlay
@@ -128,7 +120,6 @@ export function ExpensesDrawer(props?: ExpensesDrawerProps) {
 					)}
 				/>
 				<Drawer.Content
-					ref={drawerRef}
 					asChild
 					onEscapeKeyDown={() => setView("default")}
 					className={cn(
