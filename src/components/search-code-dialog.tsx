@@ -63,6 +63,7 @@ export const SearchCode = () => {
             <InputOTP
               maxLength={8}
               pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+              inputMode="text"
               required
               name="code"
               onChange={() => {
