@@ -54,7 +54,7 @@
   "drawer_field_name": "이름",
   "empty_no_expenses": "아직 지출이 없습니다.",
   "empty_no_members_title": "아직 멤버가 없습니다",
-  "empty_no_members_description": "아래에서 멤버를 추가하고 지출 기록을 시작하세요.",
+  "empty_no_members_description": "멤버를 추가하고 지출 기록을 시작하세요.",
   "password_unlock_title": "잠금 해제",
   "password_remove_title": "비밀번호 제거",
   "password_set_title": "비밀번호로 보호",

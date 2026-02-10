@@ -3,6 +3,7 @@ import { useState } from "react";
 import { getExpense } from "@/api/expenses";
 import { getGroup } from "@/api/group";
 import { getMembers } from "@/api/members";
+import { EmptyNoMembers } from "@/components/empty-no-members";
 import { ExpensesContent } from "@/components/expenses-content";
 import {
   EXPENSES_DRAWER_VIEW,
@@ -12,7 +13,6 @@ import {
 } from "@/components/expenses-drawer";
 import { Layout } from "@/components/layout";
 import { PasswordDialog } from "@/components/password-dialog";
-import { EmptyNoMembers } from "@/components/ui/empty-no-members";
 import { isGroupUnlocked } from "@/lib/unlocked-groups";
 
 export const Route = createFileRoute("/expenses/$id")({

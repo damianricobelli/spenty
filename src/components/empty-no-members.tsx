@@ -1,7 +1,7 @@
 import { UserPlusIcon, UsersIcon } from "lucide-react";
-import { m } from "@/paraglide/messages";
-import { Button } from "@/components/ui/button";
 import { useExpensesDrawerActions } from "@/components/expenses-drawer/expenses-drawer-context";
+import { Button } from "@/components/ui/button";
+import { m } from "@/paraglide/messages";
 import {
   Empty,
   EmptyContent,
@@ -9,13 +9,14 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "./empty";
+} from "./ui/empty";
 
 export function EmptyNoMembers() {
   const actions = useExpensesDrawerActions();
 
   return (
-    <Empty>
+    <div className="flex min-h-[calc(100dvh-var(--header-offset))] flex-col items-center justify-center">
+      <Empty className="w-full">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <UsersIcon />
@@ -36,5 +37,6 @@ export function EmptyNoMembers() {
         </EmptyContent>
       )}
     </Empty>
+    </div>
   );
 }

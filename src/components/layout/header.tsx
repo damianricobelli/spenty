@@ -84,7 +84,7 @@ export function Header() {
 
   return (
     <React.Fragment>
-      <header className="sticky top-0 z-20 border-b border-border/60 bg-background/95 px-4 py-3 backdrop-blur-md">
+      <header className="sticky top-0 z-20 h-[var(--header-offset)] flex items-center border-b border-border/60 bg-background/95 px-4 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-2xl items-center gap-3">
           <Link
             to="/"
