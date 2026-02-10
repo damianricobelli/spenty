@@ -69,7 +69,6 @@ export function DrawerMemberForm(props: DrawerMemberFormProps) {
 						resetDrawer();
 						router.invalidate();
 					},
-					onError: (err) => toast.error(getErrorMessage(err)),
 				},
 			);
 			return;
@@ -89,7 +88,6 @@ export function DrawerMemberForm(props: DrawerMemberFormProps) {
 				resetDrawer();
 				router.invalidate();
 			},
-			onError: (err) => toast.error(getErrorMessage(err)),
 		});
 	};
 

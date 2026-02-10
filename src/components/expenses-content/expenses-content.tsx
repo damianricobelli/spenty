@@ -129,39 +129,45 @@ export function ExpensesContent({
           {m.content_section_members()}
         </h2>
         <div className="flex flex-wrap items-center gap-2">
-          {members.map((member) => (
-            <span
-              key={member.id}
-              className="bg-muted-foreground/10 text-foreground flex h-9 w-fit items-center justify-center gap-1.5 rounded-4xl pl-3 pr-1 text-sm font-medium whitespace-nowrap"
-            >
-              {member.name}
-              {drawerActions && (
+          {members.map((member) => {
+            const initial = member.name.trim().charAt(0).toUpperCase() || "?";
+            return (
+              <span
+                key={member.id}
+                className="bg-muted text-foreground border-border/60 group flex h-9 w-fit items-center gap-2 rounded-full border pl-1.5 pr-1 text-sm font-medium shadow-sm transition-shadow hover:shadow-md whitespace-nowrap"
+              >
+                <span className="bg-muted-foreground/15 flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-foreground">
+                  {initial}
+                </span>
+                <span className="pr-0.5">{member.name}</span>
+                {drawerActions && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
+                    className="shrink-0 rounded-full opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/10"
+                    aria-label={m.content_edit()}
+                    onClick={() => drawerActions.openEditMember(member.id)}
+                  >
+                    <PencilIcon className="size-3.5" />
+                  </Button>
+                )}
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon-xs"
-                  className="-ml-0.5 shrink-0 opacity-50 hover:opacity-100 hover:text-foreground"
-                  aria-label={m.content_edit()}
-                  onClick={() => drawerActions.openEditMember(member.id)}
+                  className="shrink-0 rounded-full opacity-60 hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
+                  aria-label={m.content_delete()}
+                  onClick={() => {
+                    deleteMemberIdRef.current = member.id;
+                    setIsDeleteMemberDialogOpen(true);
+                  }}
                 >
-                  <PencilIcon className="size-4" />
+                  <Trash2Icon className="size-3.5" />
                 </Button>
-              )}
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                className="-ml-0.5 shrink-0 opacity-50 hover:opacity-100 hover:text-destructive"
-                aria-label={m.content_delete()}
-                onClick={() => {
-                  deleteMemberIdRef.current = member.id;
-                  setIsDeleteMemberDialogOpen(true);
-                }}
-              >
-                <Trash2Icon className="size-4" />
-              </Button>
-            </span>
-          ))}
+              </span>
+            );
+          })}
         </div>
       </section>
 
