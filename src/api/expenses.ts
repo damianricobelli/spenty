@@ -25,18 +25,37 @@ export const getExpense = createServerFn({
 })
   .inputValidator(GroupSchema)
   .handler(async ({ data: { groupId } }) => {
-    const { data, error } = await serverDb()
+    const db = serverDb();
+    const { data: expenses, error } = await db
       .from("expenses")
       .select("*")
       .eq("group_id", groupId)
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching split:", error.message);
+      console.error("Error fetching expenses:", error.message);
       throw error;
     }
 
-    return data;
+    if (!expenses?.length) return [];
+
+    const expenseIds = expenses.map((e) => e.id);
+    const { data: splits } = await db
+      .from("expense_splits")
+      .select("expense_id, member_id")
+      .in("expense_id", expenseIds);
+
+    const paidToByExpenseId = new Map<string, string[]>();
+    for (const s of splits ?? []) {
+      const list = paidToByExpenseId.get(s.expense_id) ?? [];
+      list.push(s.member_id);
+      paidToByExpenseId.set(s.expense_id, list);
+    }
+
+    return expenses.map((e) => ({
+      ...e,
+      paid_to_member_ids: paidToByExpenseId.get(e.id) ?? [],
+    }));
   });
 
 export const addExpenseEntry = createServerFn({

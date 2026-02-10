@@ -91,6 +91,7 @@
   "content_vs_month_less": "이번 달 {month}보다 {pct}% 덜 지출했어요.",
   "content_vs_month_same": "{month}와 같은 금액을 지출했어요.",
   "content_section_history": "내역",
+  "content_history_paid_to": "결제 대상",
   "content_section_who_owes": "누가 누구에게 갚아야 하는지",
   "content_delete_member_title": "멤버 제거",
   "content_delete_member_description": "멤버와 관련 지출이 제거됩니다. 되돌릴 수 없습니다.",

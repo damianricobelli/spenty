@@ -91,6 +91,7 @@
   "content_vs_month_less": "Deze maand heb je {pct}% minder uitgegeven dan in {month}.",
   "content_vs_month_same": "Hetzelfde uitgegeven als in {month}.",
   "content_section_history": "Geschiedenis",
+  "content_history_paid_to": "betaalde aan",
   "content_section_who_owes": "Wie is wat aan wie verschuldigd",
   "content_delete_member_title": "Lid verwijderen",
   "content_delete_member_description": "Het lid en alle bijbehorende uitgaven worden verwijderd. Dit kan niet ongedaan worden gemaakt.",

@@ -81,6 +81,7 @@
   "content_vs_month_less": "Dieser Monat hast du {pct}% weniger ausgegeben als in {month}.",
   "content_vs_month_same": "Gleich viel ausgegeben wie in {month}.",
   "content_section_history": "Verlauf",
+  "content_history_paid_to": "bezahlt an",
   "content_section_who_owes": "Wer schuldet wem",
   "content_delete_member_title": "Mitglied entfernen",
   "content_delete_member_description": "Das Mitglied und alle zugehörigen Ausgaben werden entfernt. Das kann nicht rückgängig gemacht werden.",

@@ -81,6 +81,7 @@
   "content_vs_month_less": "This month you spent {pct}% less than in {month}.",
   "content_vs_month_same": "You spent the same as in {month}.",
   "content_section_history": "History",
+  "content_history_paid_to": "paid to",
   "content_section_who_owes": "Who owes whom",
   "content_delete_member_title": "Remove member",
   "content_delete_member_description": "This will remove the member and all expenses they paid or are part of. This cannot be undone.",

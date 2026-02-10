@@ -91,6 +91,7 @@
   "content_vs_month_less": "本月比{month}少花了{pct}%。",
   "content_vs_month_same": "与{month}花费相同。",
   "content_section_history": "历史",
+  "content_history_paid_to": "支付给",
   "content_section_who_owes": "谁该付谁",
   "content_delete_member_title": "移除成员",
   "content_delete_member_description": "将移除该成员及其相关支出，且无法撤销。",

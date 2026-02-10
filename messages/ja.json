@@ -91,6 +91,7 @@
   "content_vs_month_less": "今月は{month}より{pct}%少なく使いました。",
   "content_vs_month_same": "{month}と同じくらい使いました。",
   "content_section_history": "履歴",
+  "content_history_paid_to": "が支払い先",
   "content_section_who_owes": "誰が誰にいくら払うか",
   "content_delete_member_title": "メンバーを削除",
   "content_delete_member_description": "メンバーと関連する支出が削除されます。元に戻せません。",

@@ -91,6 +91,7 @@
   "content_vs_month_less": "Este mês você gastou {pct}% a menos que em {month}.",
   "content_vs_month_same": "Você gastou o mesmo que em {month}.",
   "content_section_history": "Histórico",
+  "content_history_paid_to": "pagou para",
   "content_section_who_owes": "Quem deve a quem",
   "content_delete_member_title": "Remover membro",
   "content_delete_member_description": "Isso removerá o membro e todas as despesas em que participou. Não pode ser desfeito.",
