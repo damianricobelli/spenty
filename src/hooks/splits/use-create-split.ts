@@ -5,7 +5,8 @@ export const useCreateSplit = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => createNewSplit(),
+    mutationFn: (defaultName: string) =>
+      createNewSplit({ data: { defaultName } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["splits"],

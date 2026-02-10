@@ -1,15 +1,17 @@
-import { createServerFn } from "@tanstack/react-start";
 import { redirect } from "@tanstack/react-router";
-import { createUniqueSlug } from "./create-unique-slug";
+import { createServerFn } from "@tanstack/react-start";
 import { serverDb } from "@/lib/supabase/server";
+import { createUniqueSlug } from "./create-unique-slug";
 import { GroupSchema } from "./schema";
 
 export const createNewSplit = createServerFn({
   method: "POST",
-}).handler(async () => {
-  const slug = await createUniqueSlug("split");
-  throw redirect({ to: "/splits/$id", params: { id: slug } });
-});
+})
+  .inputValidator((data: { defaultName: string }) => data)
+  .handler(async ({ data: { defaultName } }) => {
+    const slug = await createUniqueSlug("split", defaultName);
+    throw redirect({ to: "/splits/$id", params: { id: slug } });
+  });
 
 export const getSplit = createServerFn({
   method: "GET",

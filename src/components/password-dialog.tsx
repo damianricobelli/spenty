@@ -24,7 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { Field, FieldLabel } from "./ui/field";
+import { Field, FieldError, FieldLabel } from "./ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "./ui/input-group";
 
 type Mode = "unlock" | "remove" | "set";
@@ -62,27 +62,27 @@ export const PasswordDialog = ({
       : "set";
 
   const titleByMode = {
-    unlock: "Desbloquear",
-    remove: "Eliminar contraseña",
-    set: "Proteger con contraseña",
+    unlock: m.password_unlock_title(),
+    remove: m.password_remove_title(),
+    set: m.password_set_title(),
   };
 
   const descriptionByMode = {
-    unlock: "Ingresá la contraseña para acceder al grupo",
-    remove: "Una vez eliminada, cualquier usuario podrá acceder",
-    set: "Agrega una clave para que solo quienes la conozcan puedan acceder",
+    unlock: m.password_unlock_description(),
+    remove: m.password_remove_description(),
+    set: m.password_set_description(),
   };
 
   const placeholderByMode = {
-    unlock: "Contraseña",
-    remove: "Contraseña actual",
-    set: "Nueva contraseña",
+    unlock: m.password_unlock_placeholder(),
+    remove: m.password_remove_placeholder(),
+    set: m.password_set_placeholder(),
   };
 
   const submitLabelByMode = {
-    unlock: "Desbloquear",
-    remove: "Remove",
-    set: "Save",
+    unlock: m.password_unlock_submit(),
+    remove: m.password_remove_submit(),
+    set: m.password_set_submit(),
   };
 
   const updatePassword = useAppMutation<void, string, GroupPassword>({
@@ -127,7 +127,7 @@ export const PasswordDialog = ({
         setOpen(false);
         router.invalidate();
       } else {
-        setUnlockError("Contraseña incorrecta");
+        setUnlockError(m.password_incorrect());
       }
       return;
     }
@@ -162,9 +162,9 @@ export const PasswordDialog = ({
           onSubmit={handleUpdatePasswordSubmit}
         >
           <div className="grid flex-1 gap-2">
-            <Field className="max-w-sm">
+            <Field className="max-w-sm" aria-invalid={!!updatePassword.error}>
               <FieldLabel htmlFor="password" className="sr-only">
-                {m.home_page_search_code_label_link()}
+                {m.password_label()}
               </FieldLabel>
 
               <InputGroup>
@@ -174,6 +174,7 @@ export const PasswordDialog = ({
                   type={showPassword ? "text" : "password"}
                   placeholder={placeholderByMode[mode]}
                   required
+                  aria-invalid={!!updatePassword.error}
                 />
                 <InputGroupAddon align="inline-end" className="cursor-default">
                   {showPassword ? (
@@ -183,13 +184,10 @@ export const PasswordDialog = ({
                   )}
                 </InputGroupAddon>
               </InputGroup>
+              {(unlockError || updatePassword.error) && (
+                <FieldError errors={[{ message: getErrorMessage(updatePassword.error) }]} />
+              )}
             </Field>
-
-            {(unlockError || updatePassword.error) && (
-              <p className="text-destructive">
-                {unlockError ?? getErrorMessage(updatePassword.error)}
-              </p>
-            )}
           </div>
 
           <DialogFooter className="sm:justify-end gap-2">

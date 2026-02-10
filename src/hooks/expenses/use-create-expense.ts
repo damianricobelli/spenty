@@ -5,7 +5,8 @@ export const useCreateExpense = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => createNewExpense(),
+    mutationFn: (defaultName: string) =>
+      createNewExpense({ data: { defaultName } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["expenses"],

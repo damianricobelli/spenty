@@ -1,16 +1,6 @@
 import { useCreateExpense } from "@/hooks/expenses/use-create-expense";
 import { ArrowRightIcon, ReceiptIcon } from "lucide-react";
 import { m } from "@/paraglide/messages";
-import { createServerFn } from "@tanstack/react-start";
-import { redirect } from "@tanstack/react-router";
-import { createUniqueSlug } from "@/api/create-unique-slug";
-
-export const createNewExpense = createServerFn({
-  method: "POST",
-}).handler(async () => {
-  const slug = await createUniqueSlug("expense");
-  throw redirect({ to: "/expenses/$id", params: { id: slug } });
-});
 
 export const NewExpenseCard = () => {
   const createExpense = useCreateExpense();
@@ -18,7 +8,7 @@ export const NewExpenseCard = () => {
   return (
     <button
       type="button"
-      onClick={() => createExpense.mutate()}
+      onClick={() => createExpense.mutate(m.create_default_expense_name())}
       disabled={createExpense.isPending}
       className="group relative flex flex-1 flex-col gap-5 rounded-2xl border border-border/60 bg-card/80 p-6 text-left backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-lg disabled:opacity-50"
     >

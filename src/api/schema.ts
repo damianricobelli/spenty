@@ -28,3 +28,16 @@ export const GroupPasswordWithIntentSchema = GroupPasswordSchema.extend({
 });
 
 export type GroupPassword = z.infer<typeof GroupPasswordWithIntentSchema>;
+
+export const AddMemberSchema = GroupSchema.extend({
+  name: z.string().trim().min(1).max(120),
+});
+export type AddMember = z.infer<typeof AddMemberSchema>;
+
+export const AddExpenseEntrySchema = GroupSchema.extend({
+  memberId: z.uuid(),
+  amount: z.number().positive(),
+  category: z.string().trim().max(60).optional(),
+  description: z.string().trim().max(500).optional(),
+});
+export type AddExpenseEntry = z.infer<typeof AddExpenseEntrySchema>;

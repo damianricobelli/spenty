@@ -8,7 +8,7 @@ export const NewSplitCard = () => {
   return (
     <button
       type="button"
-      onClick={() => createSplit.mutate()}
+      onClick={() => createSplit.mutate(m.create_default_split_name())}
       disabled={createSplit.isPending}
       className="group relative flex flex-1 flex-col gap-5 rounded-2xl border border-border/60 bg-card/80 p-6 text-left backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-lg disabled:opacity-50"
     >
