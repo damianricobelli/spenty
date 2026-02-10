@@ -1,21 +1,12 @@
-import {
-	useLoaderData,
-	useMatchRoute,
-	useRouter,
-} from "@tanstack/react-router";
+import { useLoaderData } from "@tanstack/react-router";
 import { XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useLayoutEffect, useState } from "react";
 import useMeasure from "react-use-measure";
-import { toast } from "sonner";
 import { Drawer } from "vaul";
-import { AddExpenseEntrySchema, AddMemberSchema } from "@/api/schema";
 import { Button } from "@/components/ui/button";
-import { useAddExpenseEntry } from "@/hooks/expenses/use-add-expense-entry";
-import { useAddMember } from "@/hooks/members/use-add-member";
 import { useEntity } from "@/hooks/use-entity";
 import { cn } from "@/lib/cn";
-import { getErrorMessage } from "@/lib/get-error-message";
 import { m } from "@/paraglide/messages";
 import { DrawerAddExpenseForm } from "./drawer-add-expense-form";
 import { DrawerAddMemberForm } from "./drawer-add-member-form";
@@ -43,93 +34,26 @@ function useDrawerFocusBypass() {
 export function ExpensesDrawer() {
 	const from = useEntity();
 
-	const { group, members } = useLoaderData({
+	const { members } = useLoaderData({
 		from,
 	});
 
-	const router = useRouter();
-	const addMemberMutation = useAddMember();
-	const addExpenseMutation = useAddExpenseEntry();
 
 	const [view, setView] = useState<ExpensesDrawerView>(
 		EXPENSES_DRAWER_VIEW.DEFAULT,
 	);
-	const [expenseMemberId, setExpenseMemberId] = useState("");
 	const [elementRef, bounds] = useMeasure();
 
 	useDrawerFocusBypass();
-
-	const handleAddMember = (e: React.SyntheticEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		const formData = new FormData(e.currentTarget);
-		const memberName = formData.get("name");
-
-		const result = AddMemberSchema.safeParse({
-			name: memberName,
-			groupId: group.id,
-		});
-		if (!result.success) {
-			console.error("Invalid name:", result.error);
-			return;
-		}
-
-		addMemberMutation.mutate(
-			{ groupId: group.id, name: result.data.name.trim() },
-			{
-				onSuccess: () => {
-					toast.success(m.drawer_member_added_toast());
-					router.invalidate();
-				},
-				onError: (err) => toast.error(getErrorMessage(err)),
-			},
-		);
-	};
-
-	const handleAddExpense = (e: React.SyntheticEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		const formData = new FormData(e.currentTarget);
-		const amountRaw = formData.get("amount");
-		const amount =
-			typeof amountRaw === "string"
-				? Number.parseFloat(amountRaw.replace(",", "."))
-				: NaN;
-
-		const result = AddExpenseEntrySchema.safeParse({
-			groupId: group.id,
-			memberId: formData.get("memberId"),
-			amount,
-			category: formData.get("category") || undefined,
-			description: formData.get("description") || undefined,
-		});
-		if (!result.success) {
-			console.error("Invalid expense:", result.error);
-			return;
-		}
-
-		addExpenseMutation.mutate(result.data, {
-			onSuccess: () => {
-				toast.success(m.drawer_expense_added_toast());
-				router.invalidate();
-			},
-			onError: (err) => toast.error(getErrorMessage(err)),
-		});
-	};
 
 	const content = (view: ExpensesDrawerView) => {
 		switch (view) {
 			case "default":
 				return <DrawerDefaultView members={members} onViewChange={setView} />;
 			case "add_expense":
-				return (
-					<DrawerAddExpenseForm
-						members={members}
-						memberId={expenseMemberId}
-						onMemberIdChange={setExpenseMemberId}
-						onSubmit={handleAddExpense}
-					/>
-				);
+				return <DrawerAddExpenseForm resetDrawer={() => setView("default")} />;
 			case "add_member":
-				return <DrawerAddMemberForm />;
+				return <DrawerAddMemberForm resetDrawer={() => setView("default")} />;
 			case "settings":
 				return <DrawerSettingsView />;
 		}

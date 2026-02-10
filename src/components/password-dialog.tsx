@@ -14,6 +14,7 @@ import { useEntity } from "@/hooks/use-entity";
 import { getErrorMessage } from "@/lib/get-error-message";
 import { setGroupUnlocked } from "@/lib/unlocked-groups";
 import { m } from "@/paraglide/messages";
+import { ButtonWithSpinner } from "./button-with-spinner";
 import { Button } from "./ui/button";
 import {
 	Dialog,
@@ -203,18 +204,10 @@ export const PasswordDialog = ({
 								}
 							/>
 						)}
-
-						<Button type="submit" className="relative">
-							{updatePassword.isPending && (
-								<Loader2Icon className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-spin" />
-							)}
-							<span
-								data-loading={updatePassword.isPending}
-								className="data-[loading=true]:invisible"
-							>
-								{submitLabelByMode[mode]}
-							</span>
-						</Button>
+						<ButtonWithSpinner
+							text={submitLabelByMode[mode]}
+							isPending={updatePassword.isPending}
+						/>
 					</DialogFooter>
 				</form>
 			</DialogContent>

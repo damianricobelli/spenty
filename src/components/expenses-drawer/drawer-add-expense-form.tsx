@@ -1,3 +1,7 @@
+import { useLoaderData, useRouter } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { AddExpenseEntrySchema } from "@/api/schema";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -12,37 +16,69 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAddExpenseEntry } from "@/hooks/expenses/use-add-expense-entry";
+import { useEntity } from "@/hooks/use-entity";
+import { getErrorMessage } from "@/lib/get-error-message";
 import { m } from "@/paraglide/messages";
-import type { ExpensesDrawerMember } from "./types";
+import { ButtonWithSpinner } from "../button-with-spinner";
 
-type DrawerAddExpenseFormProps = {
-  members: ExpensesDrawerMember[];
-  memberId: string;
-  onMemberIdChange: (id: string) => void;
-  onSubmit: (e: React.SyntheticEvent<HTMLFormElement>) => void;
-};
+export function DrawerAddExpenseForm({ resetDrawer }: { resetDrawer: () => void }) {
 
-export function DrawerAddExpenseForm({
-  members,
-  memberId,
-  onMemberIdChange,
-  onSubmit,
-}: DrawerAddExpenseFormProps) {
+  const router = useRouter();
+  const from = useEntity();
+  const { group, members } = useLoaderData({
+    from,
+  });
+  const addExpenseMutation = useAddExpenseEntry();
+
+  const [expenseMemberId, setExpenseMemberId] = useState("");
+
+
+  const handleAddExpense = (e: React.SyntheticEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const formData = new FormData(e.currentTarget);
+		const amountRaw = formData.get("amount");
+		const amount =
+			typeof amountRaw === "string"
+				? Number.parseFloat(amountRaw.replace(",", "."))
+				: NaN;
+
+		const result = AddExpenseEntrySchema.safeParse({
+			groupId: group.id,
+			memberId: formData.get("memberId"),
+			amount,
+			category: formData.get("category") || undefined,
+			description: formData.get("description") || undefined,
+		});
+		if (!result.success) {
+			console.error("Invalid expense:", result.error);
+			return;
+		}
+
+		addExpenseMutation.mutate(result.data, {
+			onSuccess: () => {
+        resetDrawer();
+				router.invalidate();
+			},
+			onError: (err) => toast.error(getErrorMessage(err)),
+		});
+	};
+
   return (
-    <form className="flex flex-col gap-4 p-4" onSubmit={onSubmit}>
-      <input type="hidden" name="memberId" value={memberId} />
+    <form className="flex flex-col gap-4 p-4" onSubmit={handleAddExpense}>
+      <input type="hidden" name="memberId" value={expenseMemberId} />
       <FieldGroup>
         <Field>
           <FieldLabel>{m.drawer_field_person()}</FieldLabel>
           <Select
             required
-            value={memberId || undefined}
-            onValueChange={(v) => onMemberIdChange(v ?? "")}
+            value={expenseMemberId || undefined}
+            onValueChange={(v) => setExpenseMemberId(v ?? "")}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder={m.drawer_field_who_paid_placeholder()}>
-                {memberId
-                  ? members.find((m) => m.id === memberId)?.name
+                {expenseMemberId
+                  ? members.find((m) => m.id === expenseMemberId)?.name
                   : null}
               </SelectValue>
             </SelectTrigger>
@@ -80,7 +116,7 @@ export function DrawerAddExpenseForm({
         </Field>
       </FieldGroup>
 
-      <Button type="submit">{m.drawer_submit_add_expense()}</Button>
+      <ButtonWithSpinner text={m.drawer_submit_add_expense()} isPending={addExpenseMutation.isPending} />
     </form>
   );
 }
