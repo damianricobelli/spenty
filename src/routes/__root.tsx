@@ -42,6 +42,18 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         robots: "index, follow",
         google: "notranslate",
       },
+      // Social sharing (put og-image.png in public/, 1200×630px)
+      {
+        property: "og:image",
+        content: `${import.meta.env.VITE_APP_URL ?? "https://spenty.app"}/og-image.png`,
+      },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { name: "twitter:card", content: "summary_large_image" },
+      {
+        name: "twitter:image",
+        content: `${import.meta.env.VITE_APP_URL ?? "https://spenty.app"}/og-image.png`,
+      },
     ],
     links: [
       {
