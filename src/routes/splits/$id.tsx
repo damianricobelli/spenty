@@ -34,6 +34,7 @@ function RouteComponent() {
   const { group, members, expense, debts } = Route.useLoaderData();
   const [drawerView, setDrawerView] = useState<ExpensesDrawerView>(EXPENSES_DRAWER_VIEW.DEFAULT);
   const [editExpenseId, setEditExpenseId] = useState<string | null>(null);
+  const [editMemberId, setEditMemberId] = useState<string | null>(null);
 
   if (group.password && !isGroupUnlocked(group.id)) {
     return (
@@ -47,12 +48,19 @@ function RouteComponent() {
 
   const handleViewChange = (view: ExpensesDrawerView) => {
     setDrawerView(view);
-    if (view === EXPENSES_DRAWER_VIEW.DEFAULT) setEditExpenseId(null);
+    if (view === EXPENSES_DRAWER_VIEW.DEFAULT) {
+      setEditExpenseId(null);
+      setEditMemberId(null);
+    }
   };
 
   return (
     <ExpensesDrawerProvider
       openAddMember={() => setDrawerView(EXPENSES_DRAWER_VIEW.ADD_MEMBER)}
+      openEditMember={(id) => {
+        setEditMemberId(id);
+        setDrawerView(EXPENSES_DRAWER_VIEW.EDIT_MEMBER);
+      }}
       openEditExpense={(id) => {
         setEditExpenseId(id);
         setDrawerView(EXPENSES_DRAWER_VIEW.EDIT_EXPENSE);
@@ -78,6 +86,7 @@ function RouteComponent() {
             view={drawerView}
             onViewChange={handleViewChange}
             editExpenseId={editExpenseId}
+            editMemberId={editMemberId}
           />
         )}
       </Layout.Container>

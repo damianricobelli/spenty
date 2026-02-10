@@ -51,6 +51,12 @@ export const DeleteMemberSchema = GroupSchema.extend({
 });
 export type DeleteMember = z.infer<typeof DeleteMemberSchema>;
 
+export const UpdateMemberSchema = GroupSchema.extend({
+  memberId: z.uuid(),
+  name: z.string().trim().min(1).max(120),
+});
+export type UpdateMember = z.infer<typeof UpdateMemberSchema>;
+
 export const DeleteExpenseSchema = GroupSchema.extend({
   expenseId: z.uuid(),
 });

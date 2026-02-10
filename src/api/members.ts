@@ -1,6 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { serverDb } from "@/lib/supabase/server";
-import { AddMemberSchema, DeleteMemberSchema, GroupSchema } from "./schema";
+import {
+	AddMemberSchema,
+	DeleteMemberSchema,
+	GroupSchema,
+	UpdateMemberSchema,
+} from "./schema";
 
 export const getMembers = createServerFn({
   method: "GET",
@@ -49,6 +54,35 @@ export const addMember = createServerFn({
     }
 
     return data;
+  });
+
+export const updateMember = createServerFn({
+  method: "POST",
+})
+  .inputValidator(UpdateMemberSchema)
+  .handler(async ({ data: { groupId, memberId, name } }) => {
+    const { data: existing } = await serverDb()
+      .from("members")
+      .select("id")
+      .eq("group_id", groupId)
+      .ilike("name", name.trim())
+      .neq("id", memberId)
+      .maybeSingle();
+
+    if (existing) {
+      throw new Error("Member already exists");
+    }
+
+    const { error } = await serverDb()
+      .from("members")
+      .update({ name: name.trim() })
+      .eq("id", memberId)
+      .eq("group_id", groupId);
+
+    if (error) {
+      console.error("Error updating member:", error.message);
+      throw error;
+    }
   });
 
 export const deleteMember = createServerFn({

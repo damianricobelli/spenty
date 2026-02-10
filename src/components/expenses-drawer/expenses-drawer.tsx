@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { useEntity } from "@/hooks/use-entity";
 import { cn } from "@/lib/cn";
 import { m } from "@/paraglide/messages";
-import { DrawerAddMemberForm } from "./drawer-add-member-form";
 import { DrawerDefaultView } from "./drawer-default-view";
 import { DrawerExpenseForm } from "./drawer-expense-form";
+import { DrawerMemberForm } from "./drawer-member-form";
 import { EXPENSES_DRAWER_VIEW, type ExpensesDrawerView } from "./types";
 
 /**
@@ -31,13 +31,15 @@ function useDrawerFocusBypass() {
 }
 
 type ExpensesDrawerProps = {
-  view?: ExpensesDrawerView;
-  onViewChange?: (view: ExpensesDrawerView) => void;
-  editExpenseId?: string | null;
+	view?: ExpensesDrawerView;
+	onViewChange?: (view: ExpensesDrawerView) => void;
+	editExpenseId?: string | null;
+	editMemberId?: string | null;
 };
 
 export function ExpensesDrawer(props?: ExpensesDrawerProps) {
-  const { view: controlledView, onViewChange, editExpenseId } = props ?? {};
+	const { view: controlledView, onViewChange, editExpenseId, editMemberId } =
+		props ?? {};
   const from = useEntity();
 
   const { members } = useLoaderData({
@@ -79,7 +81,21 @@ export function ExpensesDrawer(props?: ExpensesDrawerProps) {
           />
         ) : null;
       case "add_member":
-        return <DrawerAddMemberForm resetDrawer={() => setView("default")} />;
+        return (
+          <DrawerMemberForm
+            intent="add"
+            resetDrawer={() => setView("default")}
+          />
+        );
+      case "edit_member":
+        return editMemberId ? (
+          <DrawerMemberForm
+            key={editMemberId}
+            intent="edit"
+            memberId={editMemberId}
+            resetDrawer={() => setView("default")}
+          />
+        ) : null;
     }
   };
 
@@ -116,14 +132,18 @@ export function ExpensesDrawer(props?: ExpensesDrawerProps) {
                 ? m.drawer_title_add_expense()
                 : view === "edit_expense"
                   ? m.drawer_title_edit_expense()
-                  : m.drawer_title_add_member()}
+                  : view === "edit_member"
+                    ? m.drawer_title_edit_member()
+                    : m.drawer_title_add_member()}
             </Drawer.Title>
             <Drawer.Description className="sr-only">
               {view === "add_expense"
                 ? m.drawer_description_add_expense()
                 : view === "edit_expense"
                   ? m.drawer_description_add_expense()
-                  : m.drawer_description_add_member()}
+                  : view === "edit_member"
+                    ? m.drawer_description_edit_member()
+                    : m.drawer_description_add_member()}
             </Drawer.Description>
             {view !== "default" && (
               <Drawer.Close asChild>

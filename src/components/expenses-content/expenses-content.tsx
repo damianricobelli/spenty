@@ -135,6 +135,18 @@ export function ExpensesContent({
               className="bg-muted-foreground/10 text-foreground flex h-9 w-fit items-center justify-center gap-1.5 rounded-4xl pl-3 pr-1 text-sm font-medium whitespace-nowrap"
             >
               {member.name}
+              {drawerActions && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  className="-ml-0.5 shrink-0 opacity-50 hover:opacity-100 hover:text-foreground"
+                  aria-label={m.content_edit()}
+                  onClick={() => drawerActions.openEditMember(member.id)}
+                >
+                  <PencilIcon className="size-4" />
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="ghost"
@@ -142,9 +154,9 @@ export function ExpensesContent({
                 className="-ml-0.5 shrink-0 opacity-50 hover:opacity-100 hover:text-destructive"
                 aria-label={m.content_delete()}
                 onClick={() => {
-                deleteMemberIdRef.current = member.id;
-                setIsDeleteMemberDialogOpen(true);
-              }}
+                  deleteMemberIdRef.current = member.id;
+                  setIsDeleteMemberDialogOpen(true);
+                }}
               >
                 <Trash2Icon className="size-4" />
               </Button>
