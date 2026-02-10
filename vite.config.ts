@@ -15,6 +15,9 @@ const config = defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  server: {
+    allowedHosts: [".local", ".localcan.dev"],
+  },
   plugins: [
     devtools(),
     paraglideVitePlugin({

@@ -41,6 +41,8 @@ export const AddExpenseEntrySchema = GroupSchema.extend({
   description: z.string().trim().max(500).optional(),
   /** When set (splits), the members that received the payment. Required for splits, 1 or more. */
   paidToMemberIds: z.array(z.uuid()).min(1).optional(),
+  /** Optional payment date (ISO date string YYYY-MM-DD). */
+  paymentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 });
 export type AddExpenseEntry = z.infer<typeof AddExpenseEntrySchema>;
 
@@ -61,5 +63,7 @@ export const UpdateExpenseEntrySchema = GroupSchema.extend({
   category: z.string().trim().max(60).optional(),
   description: z.string().trim().max(500).optional(),
   paidToMemberIds: z.array(z.uuid()).min(1).optional(),
+  /** Optional payment date (ISO date string YYYY-MM-DD). */
+  paymentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 });
 export type UpdateExpenseEntry = z.infer<typeof UpdateExpenseEntrySchema>;

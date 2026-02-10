@@ -38,7 +38,7 @@
   "drawer_field_category": "카테고리 (선택)",
   "drawer_field_category_placeholder": "예: 음식, 교통",
   "drawer_field_description": "설명 (선택)",
-  "drawer_field_description_placeholder": "지출 설명",
+  "drawer_field_description_placeholder": "지출 설명","drawer_field_payment_date": "결제일 (선택)","drawer_field_payment_date_placeholder": "날짜 선택",
   "drawer_submit_add_expense": "지출 추가",
   "drawer_submit_edit_expense": "변경 사항 저장",
   "drawer_submit_add_member": "멤버 추가",

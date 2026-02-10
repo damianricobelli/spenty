@@ -38,7 +38,7 @@
   "drawer_field_category": "Kategorie (optional)",
   "drawer_field_category_placeholder": "z. B. Essen, Transport",
   "drawer_field_description": "Beschreibung (optional)",
-  "drawer_field_description_placeholder": "Beschreibung der Ausgabe",
+  "drawer_field_description_placeholder": "Beschreibung der Ausgabe","drawer_field_payment_date": "Zahlungsdatum (optional)","drawer_field_payment_date_placeholder": "Datum wählen",
   "drawer_submit_add_expense": "Ausgabe hinzufügen",
   "drawer_submit_edit_expense": "Änderungen speichern",
   "drawer_submit_add_member": "Mitglied hinzufügen",

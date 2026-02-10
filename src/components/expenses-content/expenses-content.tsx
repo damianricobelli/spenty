@@ -1,8 +1,9 @@
 import { useRouter } from "@tanstack/react-router";
 import { ArrowRightIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { deleteExpense } from "@/api/expenses";
 import { deleteMember } from "@/api/members";
+import type { DeleteExpense, DeleteMember } from "@/api/schema";
 import type { SplitDebt } from "@/api/splits";
 import { useExpensesDrawerActions } from "@/components/expenses-drawer";
 import type { ExpensesDrawerMember } from "@/components/expenses-drawer/types";
@@ -15,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useAppMutation } from "@/hooks/use-app-mutation";
 import { formatCurrency } from "@/lib/format-currency";
 import { m } from "@/paraglide/messages";
 import { ButtonWithSpinner } from "../button-with-spinner";
@@ -26,6 +28,7 @@ type ExpenseItem = {
   description: string;
   paid_by: string;
   created_at: string | null;
+  expense_date: string | null;
 };
 
 type ExpensesContentProps = {
@@ -43,12 +46,34 @@ export function ExpensesContent({
   routeType,
   debts = [],
 }: ExpensesContentProps) {
+
   const router = useRouter();
   const drawerActions = useExpensesDrawerActions();
-  const [deleteMemberId, setDeleteMemberId] = useState<string | null>(null);
-  const [deleteExpenseId, setDeleteExpenseId] = useState<string | null>(null);
-  const [isDeletingMember, setIsDeletingMember] = useState(false);
-  const [isDeletingExpense, setIsDeletingExpense] = useState(false);
+  const deleteMemberIdRef = useRef<string>(null);
+  const deleteExpenseIdRef = useRef<string>(null);
+
+  const [isDeleteMemberDialogOpen, setIsDeleteMemberDialogOpen] = useState(false);
+  const [isDeleteExpenseDialogOpen, setIsDeleteExpenseDialogOpen] = useState(false);
+
+  const deleteMemberMutation = useAppMutation({
+    mutationFn: (data: DeleteMember) => deleteMember({ data }),
+    invalidateKeys: ["members", groupId],
+    onSuccess: () => {
+      deleteMemberIdRef.current = null;
+      setIsDeleteMemberDialogOpen(false);
+      router.invalidate();
+    },
+  });
+  
+  const deleteExpenseMutation = useAppMutation({
+    mutationFn: (data: DeleteExpense) => deleteExpense({ data }),
+    invalidateKeys: ["expenses", groupId],
+    onSuccess: () => {
+      deleteExpenseIdRef.current = null;
+      setIsDeleteExpenseDialogOpen(false);
+      router.invalidate();
+    },
+  });
 
   const total = expense.reduce((sum, e) => sum + e.amount, 0);
   const memberById = new Map(members.map((m) => [m.id, m.name]));
@@ -66,28 +91,34 @@ export function ExpensesContent({
   const getCategoryLabel = (category: string) =>
     categoryLabels[category] ?? category;
 
-  const handleConfirmDeleteMember = async () => {
-    if (!deleteMemberId) return;
-    setIsDeletingMember(true);
-    try {
-      await deleteMember({ data: { groupId, memberId: deleteMemberId } });
-      setDeleteMemberId(null);
-      router.invalidate();
-    } finally {
-      setIsDeletingMember(false);
-    }
+  const handleConfirmDeleteMember = () => {
+    const memberId = deleteMemberIdRef.current;
+    if (!memberId) return;
+    deleteMemberMutation.mutate(
+      { groupId, memberId },
+      {
+        onSuccess: () => {
+          deleteMemberIdRef.current = null;
+          setIsDeleteMemberDialogOpen(false);
+          router.invalidate();
+        },
+      },
+    );
   };
 
-  const handleConfirmDeleteExpense = async () => {
-    if (!deleteExpenseId) return;
-    setIsDeletingExpense(true);
-    try {
-      await deleteExpense({ data: { groupId, expenseId: deleteExpenseId } });
-      setDeleteExpenseId(null);
-      router.invalidate();
-    } finally {
-      setIsDeletingExpense(false);
-    }
+  const handleConfirmDeleteExpense = () => {
+    const expenseId = deleteExpenseIdRef.current;
+    if (!expenseId) return;
+    deleteExpenseMutation.mutate(
+      { groupId, expenseId },
+      {
+        onSuccess: () => {
+          deleteExpenseIdRef.current = null;
+          setIsDeleteExpenseDialogOpen(false);
+          router.invalidate();
+        },
+      },
+    );
   };
 
   return (
@@ -110,7 +141,10 @@ export function ExpensesContent({
                 size="icon-xs"
                 className="-ml-0.5 shrink-0 opacity-50 hover:opacity-100 hover:text-destructive"
                 aria-label={m.content_delete()}
-                onClick={() => setDeleteMemberId(member.id)}
+                onClick={() => {
+                deleteMemberIdRef.current = member.id;
+                setIsDeleteMemberDialogOpen(true);
+              }}
               >
                 <Trash2Icon className="size-4" />
               </Button>
@@ -141,7 +175,7 @@ export function ExpensesContent({
                 key={`${d.fromMemberId}-${d.toMemberId}-${i}`}
                 className="flex items-stretch gap-0 overflow-hidden rounded-2xl border border-border/50 bg-card/50 shadow-sm"
               >
-                {/* From (debtor) card */}
+                {/* From */}
                 <div className="flex min-w-0 flex-1 items-center gap-3 border-r border-border/40 bg-muted/30 px-4 py-3">
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-foreground/10 text-foreground">
                     <UserIcon className="size-5" />
@@ -157,8 +191,8 @@ export function ExpensesContent({
                     {formatCurrency(d.amount)}
                   </span>
                 </div>
-                {/* To (creditor) card */}
-                <div className="flex min-w-0 flex-1 items-center gap-3 bg-muted/30 px-4 py-3">
+                {/* To */}
+                <div className="flex min-w-0 flex-1 items-center justify-end gap-3 bg-muted/30 px-4 py-3">
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-foreground/10 text-foreground">
                     <UserIcon className="size-5" />
                   </div>
@@ -197,6 +231,9 @@ export function ExpensesContent({
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {memberById.get(e.paid_by) ?? "—"}
+                    {e.expense_date
+                      ? ` · ${new Date(`${e.expense_date}T12:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}`
+                      : ""}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-0.5">
@@ -218,7 +255,10 @@ export function ExpensesContent({
                     size="icon-sm"
                     className="text-muted-foreground hover:text-destructive"
                     aria-label={m.content_delete()}
-                    onClick={() => setDeleteExpenseId(e.id)}
+                    onClick={() => {
+                    deleteExpenseIdRef.current = e.id;
+                    setIsDeleteExpenseDialogOpen(true);
+                  }}
                   >
                     <Trash2Icon />
                   </Button>
@@ -230,7 +270,15 @@ export function ExpensesContent({
       </section>
 
       {/* Delete member dialog */}
-      <Dialog open={!!deleteMemberId} onOpenChange={(open) => !open && setDeleteMemberId(null)}>
+      <Dialog
+        open={isDeleteMemberDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            deleteMemberIdRef.current = null;
+            setIsDeleteMemberDialogOpen(false);
+          }
+        }}
+      >
         <DialogContent showCloseButton={true}>
           <DialogHeader>
             <DialogTitle>{m.content_delete_member_title()}</DialogTitle>
@@ -241,14 +289,14 @@ export function ExpensesContent({
           <DialogFooter showCloseButton={false}>
             <Button
               variant="ghost"
-              onClick={() => setDeleteMemberId(null)}
-              disabled={isDeletingMember}
+              onClick={() => setIsDeleteMemberDialogOpen(false)}
+              disabled={deleteMemberMutation.isPending}
             >
               {m.content_cancel()}
             </Button>
             <ButtonWithSpinner
               type="button"
-              isPending={isDeletingMember}
+              isPending={deleteMemberMutation.isPending}
               text={m.content_delete()}
               onClick={handleConfirmDeleteMember}
             />
@@ -257,7 +305,15 @@ export function ExpensesContent({
       </Dialog>
 
       {/* Delete expense dialog */}
-      <Dialog open={!!deleteExpenseId} onOpenChange={(open) => !open && setDeleteExpenseId(null)}>
+      <Dialog
+        open={isDeleteExpenseDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            deleteExpenseIdRef.current = null;
+            setIsDeleteExpenseDialogOpen(false);
+          }
+        }}
+      >
         <DialogContent showCloseButton={true}>
           <DialogHeader>
             <DialogTitle>{m.content_delete_expense_title()}</DialogTitle>
@@ -268,14 +324,14 @@ export function ExpensesContent({
           <DialogFooter showCloseButton={false}>
             <Button
               variant="ghost"
-              onClick={() => setDeleteExpenseId(null)}
-              disabled={isDeletingExpense}
+              onClick={() => setIsDeleteExpenseDialogOpen(false)}
+              disabled={deleteExpenseMutation.isPending}
             >
               {m.content_cancel()}
             </Button>
             <ButtonWithSpinner
               type="button"
-              isPending={isDeletingExpense}
+              isPending={deleteExpenseMutation.isPending}
               text={m.content_delete()}
               onClick={handleConfirmDeleteExpense}
             />

@@ -42,7 +42,7 @@ export const addExpenseEntry = createServerFn({
   method: "POST",
 })
   .inputValidator(AddExpenseEntrySchema)
-  .handler(async ({ data: { groupId, memberId, amount, category, description, paidToMemberIds } }) => {
+  .handler(async ({ data: { groupId, memberId, amount, category, description, paidToMemberIds, paymentDate } }) => {
     const { data, error } = await serverDb()
       .from("expenses")
       .insert({
@@ -51,6 +51,7 @@ export const addExpenseEntry = createServerFn({
         amount,
         category: category ?? "",
         description: description ?? "",
+        expense_date: paymentDate ?? null,
       })
       .select("id")
       .single();
@@ -88,7 +89,7 @@ export const getExpenseWithSplits = createServerFn({
     const db = serverDb();
     const { data: expense, error: expenseError } = await db
       .from("expenses")
-      .select("id, group_id, paid_by, amount, category, description")
+      .select("id, group_id, paid_by, amount, category, description, expense_date")
       .eq("id", expenseId)
       .maybeSingle();
     if (expenseError || !expense) return null;
@@ -116,6 +117,7 @@ export const updateExpenseEntry = createServerFn({
         category,
         description,
         paidToMemberIds,
+        paymentDate,
       },
     }) => {
       const db = serverDb();
@@ -133,6 +135,7 @@ export const updateExpenseEntry = createServerFn({
           amount,
           category: category ?? "",
           description: description ?? "",
+          expense_date: paymentDate ?? null,
         })
         .eq("id", expenseId)
         .eq("group_id", groupId);

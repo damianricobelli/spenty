@@ -38,7 +38,7 @@
   "drawer_field_category": "Categorie (optioneel)",
   "drawer_field_category_placeholder": "Bijv. Eten, Vervoer",
   "drawer_field_description": "Beschrijving (optioneel)",
-  "drawer_field_description_placeholder": "Beschrijving van de uitgave",
+  "drawer_field_description_placeholder": "Beschrijving van de uitgave","drawer_field_payment_date": "Betaaldatum (optioneel)","drawer_field_payment_date_placeholder": "Datum kiezen",
   "drawer_submit_add_expense": "Uitgave toevoegen",
   "drawer_submit_edit_expense": "Wijzigingen opslaan",
   "drawer_submit_add_member": "Lid toevoegen",

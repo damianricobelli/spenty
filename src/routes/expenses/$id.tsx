@@ -31,6 +31,12 @@ function RouteComponent() {
   const [drawerView, setDrawerView] = useState<ExpensesDrawerView>(EXPENSES_DRAWER_VIEW.DEFAULT);
   const [editExpenseId, setEditExpenseId] = useState<string | null>(null);
 
+  const openEditExpense = (id: string) => {
+    if (!id) return;
+    setEditExpenseId(id);
+    setDrawerView(EXPENSES_DRAWER_VIEW.EDIT_EXPENSE);
+  };
+
   if (group.password && !isGroupUnlocked(group.id)) {
     return (
       <main className="relative flex min-h-screen flex-col items-center justify-center bg-background px-4">
@@ -49,10 +55,7 @@ function RouteComponent() {
   return (
     <ExpensesDrawerProvider
       openAddMember={() => setDrawerView(EXPENSES_DRAWER_VIEW.ADD_MEMBER)}
-      openEditExpense={(id) => {
-        setEditExpenseId(id);
-        setDrawerView(EXPENSES_DRAWER_VIEW.EDIT_EXPENSE);
-      }}
+      openEditExpense={openEditExpense}
     >
       <Layout.Container>
         <Layout.Header />

@@ -8,10 +8,9 @@ import { Button } from "@/components/ui/button";
 import { useEntity } from "@/hooks/use-entity";
 import { cn } from "@/lib/cn";
 import { m } from "@/paraglide/messages";
-import { DrawerAddExpenseForm } from "./drawer-add-expense-form";
 import { DrawerAddMemberForm } from "./drawer-add-member-form";
 import { DrawerDefaultView } from "./drawer-default-view";
-import { DrawerEditExpenseForm } from "./drawer-edit-expense-form";
+import { DrawerExpenseForm } from "./drawer-expense-form";
 import { EXPENSES_DRAWER_VIEW, type ExpensesDrawerView } from "./types";
 
 /**
@@ -64,11 +63,17 @@ export function ExpensesDrawer(props?: ExpensesDrawerProps) {
       case "default":
         return <DrawerDefaultView members={members} onViewChange={setView} />;
       case "add_expense":
-        return <DrawerAddExpenseForm resetDrawer={() => setView("default")} />;
+        return (
+          <DrawerExpenseForm
+            intent="add"
+            resetDrawer={() => setView("default")}
+          />
+        );
       case "edit_expense":
         return editExpenseId ? (
-          <DrawerEditExpenseForm
+          <DrawerExpenseForm
             key={editExpenseId}
+            intent="edit"
             expenseId={editExpenseId}
             resetDrawer={() => setView("default")}
           />
@@ -91,7 +96,6 @@ export function ExpensesDrawer(props?: ExpensesDrawerProps) {
         />
         <Drawer.Content
           asChild
-          onInteractOutside={() => setView("default")}
           onEscapeKeyDown={() => setView("default")}
           className={cn(
             "fixed inset-x-4 bottom-4 z-20 border border-border/50 bg-white shadow-lg backdrop-blur-xl mx-auto overflow-hidden rounded-[36px] outline-hidden md:mx-auto md:w-full",

@@ -38,7 +38,7 @@
   "drawer_field_category": "カテゴリ（任意）",
   "drawer_field_category_placeholder": "例：食費、交通費",
   "drawer_field_description": "説明（任意）",
-  "drawer_field_description_placeholder": "支出の説明",
+  "drawer_field_description_placeholder": "支出の説明","drawer_field_payment_date": "支払日（任意）","drawer_field_payment_date_placeholder": "日付を選択",
   "drawer_submit_add_expense": "支出を追加",
   "drawer_submit_edit_expense": "変更を保存",
   "drawer_submit_add_member": "メンバーを追加",

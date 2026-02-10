@@ -38,7 +38,7 @@
   "drawer_field_category": "Catégorie (optionnel)",
   "drawer_field_category_placeholder": "Ex. Nourriture, Transport",
   "drawer_field_description": "Description (optionnel)",
-  "drawer_field_description_placeholder": "Description de la dépense",
+  "drawer_field_description_placeholder": "Description de la dépense","drawer_field_payment_date": "Date de paiement (optionnel)","drawer_field_payment_date_placeholder": "Choisir une date",
   "drawer_submit_add_expense": "Ajouter la dépense",
   "drawer_submit_edit_expense": "Enregistrer les modifications",
   "drawer_submit_add_member": "Ajouter le membre",

@@ -38,7 +38,7 @@
   "drawer_field_category": "Category (optional)",
   "drawer_field_category_placeholder": "E.g. Food, Transport",
   "drawer_field_description": "Description (optional)",
-  "drawer_field_description_placeholder": "Expense description",
+  "drawer_field_description_placeholder": "Expense description","drawer_field_payment_date": "Payment date (optional)","drawer_field_payment_date_placeholder": "Select date",
   "drawer_submit_add_expense": "Add expense",
   "drawer_submit_edit_expense": "Save changes",
   "drawer_submit_add_member": "Add member",
