@@ -282,10 +282,9 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 					<FieldLabel>{m.drawer_field_amount()}</FieldLabel>
 					<Input
 						name="amount"
-						type="number"
+						type="text"
 						inputMode="decimal"
-						min={0}
-						step="0.01"
+						autoComplete="off"
 						placeholder={m.drawer_field_amount_placeholder()}
 						required
 						defaultValue={isAdd ? undefined : expense?.amount}

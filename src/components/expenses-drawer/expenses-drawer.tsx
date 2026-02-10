@@ -114,7 +114,12 @@ export function ExpensesDrawer(props?: ExpensesDrawerProps) {
 	const showOverlay = members.length === 0;
 
 	return (
-		<Drawer.Root open modal={showOverlay} dismissible={false}>
+		<Drawer.Root
+				open
+				modal={showOverlay}
+				dismissible={false}
+				repositionInputs={false}
+			>
 			<Drawer.Portal>
 				<Drawer.Overlay
 					className={cn(
