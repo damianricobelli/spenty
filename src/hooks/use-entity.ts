@@ -6,8 +6,10 @@ export const useEntity = () => {
   const isSplitsRoute = !!matchRoute({ to: "/splits/$id" });
 
   if (!isExpensesRoute && !isSplitsRoute) {
-    throw new Error("UseEntity hook must be used in an expenses or splits route");
+    throw new Error(
+      "UseEntity hook must be used in an expenses or splits route",
+    );
   }
 
   return isExpensesRoute ? "/expenses/$id" : "/splits/$id";
-}
+};

@@ -2,10 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { serverDb } from "@/lib/supabase/server";
 import { m } from "@/paraglide/messages";
 import {
-	AddMemberSchema,
-	DeleteMemberSchema,
-	GroupSchema,
-	UpdateMemberSchema,
+  AddMemberSchema,
+  DeleteMemberSchema,
+  GroupSchema,
+  UpdateMemberSchema,
 } from "./schema";
 
 export const getMembers = createServerFn({
@@ -108,7 +108,9 @@ export const deleteMember = createServerFn({
       .from("expense_splits")
       .select("expense_id")
       .eq("member_id", memberId);
-    const expenseIdsToRecalc = [...new Set((splitsWithMember ?? []).map((s) => s.expense_id))];
+    const expenseIdsToRecalc = [
+      ...new Set((splitsWithMember ?? []).map((s) => s.expense_id)),
+    ];
     if (expenseIdsToRecalc.length > 0) {
       const { data: expenses } = await db
         .from("expenses")
@@ -124,7 +126,9 @@ export const deleteMember = createServerFn({
         const remainingCount = remainingSplits?.length ?? 0;
         if (remainingCount === 0) continue;
         const amountPerPerson = exp.amount / remainingCount;
-        const remainingMemberIds = (remainingSplits ?? []).map((s) => s.member_id);
+        const remainingMemberIds = (remainingSplits ?? []).map(
+          (s) => s.member_id,
+        );
         const { data: updated, error: updateError } = await db
           .from("expense_splits")
           .update({ amount: amountPerPerson })
@@ -148,7 +152,11 @@ export const deleteMember = createServerFn({
       }
     }
     await db.from("expense_splits").delete().eq("member_id", memberId);
-    const { error } = await db.from("members").delete().eq("id", memberId).eq("group_id", groupId);
+    const { error } = await db
+      .from("members")
+      .delete()
+      .eq("id", memberId)
+      .eq("group_id", groupId);
     if (error) {
       console.error("Error deleting member:", error.message);
       throw error;

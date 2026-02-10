@@ -3,14 +3,14 @@ import { updateMember } from "@/api/members";
 import type { UpdateMember } from "@/api/schema";
 
 export const useUpdateMember = () => {
-	const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-	return useMutation({
-		mutationFn: (data: UpdateMember) => updateMember({ data }),
-		onSuccess: (_, { groupId }) => {
-			queryClient.invalidateQueries({
-				queryKey: ["members", groupId],
-			});
-		},
-	});
+  return useMutation({
+    mutationFn: (data: UpdateMember) => updateMember({ data }),
+    onSuccess: (_, { groupId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["members", groupId],
+      });
+    },
+  });
 };

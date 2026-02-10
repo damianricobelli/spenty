@@ -62,44 +62,56 @@ export const addExpenseEntry = createServerFn({
   method: "POST",
 })
   .inputValidator(AddExpenseEntrySchema)
-  .handler(async ({ data: { groupId, memberId, amount, category, description, paidToMemberIds, paymentDate } }) => {
-    const { data, error } = await serverDb()
-      .from("expenses")
-      .insert({
-        group_id: groupId,
-        paid_by: memberId,
+  .handler(
+    async ({
+      data: {
+        groupId,
+        memberId,
         amount,
-        category: category ?? "",
-        description: description ?? "",
-        expense_date: paymentDate ?? null,
-      })
-      .select("id")
-      .single();
+        category,
+        description,
+        paidToMemberIds,
+        paymentDate,
+      },
+    }) => {
+      const { data, error } = await serverDb()
+        .from("expenses")
+        .insert({
+          group_id: groupId,
+          paid_by: memberId,
+          amount,
+          category: category ?? "",
+          description: description ?? "",
+          expense_date: paymentDate ?? null,
+        })
+        .select("id")
+        .single();
 
-    if (error) {
-      console.error("Error adding expense:", error.message);
-      throw error;
-    }
-
-    if (paidToMemberIds?.length && data) {
-      const amountPerPerson = amount / paidToMemberIds.length;
-      const { error: splitError } = await serverDb()
-        .from("expense_splits")
-        .insert(
-          paidToMemberIds.map((member_id) => ({
-            expense_id: data.id,
-            member_id,
-            amount: amountPerPerson,
-          })),
-        );
-      if (splitError) {
-        console.error("Error adding expense splits:", splitError.message);
-        throw splitError;
+      if (error) {
+        console.error("Error adding expense:", error.message);
+        throw error;
       }
-    }
 
-    return data;
-  });
+      if (paidToMemberIds?.length && data) {
+        const amountPerPerson = amount / paidToMemberIds.length;
+        const { error: splitError } = await serverDb()
+          .from("expense_splits")
+          .insert(
+            paidToMemberIds.map((member_id) => ({
+              expense_id: data.id,
+              member_id,
+              amount: amountPerPerson,
+            })),
+          );
+        if (splitError) {
+          console.error("Error adding expense splits:", splitError.message);
+          throw splitError;
+        }
+      }
+
+      return data;
+    },
+  );
 
 export const getExpenseWithSplits = createServerFn({
   method: "GET",
@@ -109,7 +121,9 @@ export const getExpenseWithSplits = createServerFn({
     const db = serverDb();
     const { data: expense, error: expenseError } = await db
       .from("expenses")
-      .select("id, group_id, paid_by, amount, category, description, expense_date")
+      .select(
+        "id, group_id, paid_by, amount, category, description, expense_date",
+      )
       .eq("id", expenseId)
       .maybeSingle();
     if (expenseError || !expense) return null;

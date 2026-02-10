@@ -1,9 +1,9 @@
 export const EXPENSES_DRAWER_VIEW = {
-	ADD_MEMBER: "add_member",
-	EDIT_MEMBER: "edit_member",
-	ADD_EXPENSE: "add_expense",
-	EDIT_EXPENSE: "edit_expense",
-	DEFAULT: "default",
+  ADD_MEMBER: "add_member",
+  EDIT_MEMBER: "edit_member",
+  ADD_EXPENSE: "add_expense",
+  EDIT_EXPENSE: "edit_expense",
+  DEFAULT: "default",
 } as const;
 
 export type ExpensesDrawerView =

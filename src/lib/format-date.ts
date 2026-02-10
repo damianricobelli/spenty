@@ -1,35 +1,35 @@
 import { format as dateFnsFormat } from "date-fns";
 import {
-	de,
-	enUS,
-	es,
-	fr,
-	it,
-	ja,
-	ko,
-	nl,
-	pt,
-	zhCN,
-	type Locale as DateFnsLocale,
+  de,
+  enUS,
+  es,
+  fr,
+  it,
+  ja,
+  ko,
+  nl,
+  pt,
+  zhCN,
+  type Locale as DateFnsLocale,
 } from "date-fns/locale";
 import { getLocale } from "@/paraglide/runtime";
 
 const localeMap: Record<string, DateFnsLocale> = {
-	de,
-	en: enUS,
-	es,
-	fr,
-	it,
-	ja,
-	ko,
-	nl,
-	pt,
-	zh: zhCN,
+  de,
+  en: enUS,
+  es,
+  fr,
+  it,
+  ja,
+  ko,
+  nl,
+  pt,
+  zh: zhCN,
 };
 
 function getDateFnsLocale(): DateFnsLocale {
-	const appLocale = getLocale();
-	return localeMap[appLocale] ?? enUS;
+  const appLocale = getLocale();
+  return localeMap[appLocale] ?? enUS;
 }
 
 /**
@@ -37,5 +37,5 @@ function getDateFnsLocale(): DateFnsLocale {
  * Uses date-fns under the hood. Example: formatDate(date, "PPP")
  */
 export function formatDate(date: Date, formatStr: string): string {
-	return dateFnsFormat(date, formatStr, { locale: getDateFnsLocale() });
+  return dateFnsFormat(date, formatStr, { locale: getDateFnsLocale() });
 }

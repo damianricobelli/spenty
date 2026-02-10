@@ -32,7 +32,9 @@ export const Route = createFileRoute("/splits/$id")({
 
 function RouteComponent() {
   const { group, members, expense, debts } = Route.useLoaderData();
-  const [drawerView, setDrawerView] = useState<ExpensesDrawerView>(EXPENSES_DRAWER_VIEW.DEFAULT);
+  const [drawerView, setDrawerView] = useState<ExpensesDrawerView>(
+    EXPENSES_DRAWER_VIEW.DEFAULT,
+  );
   const [editExpenseId, setEditExpenseId] = useState<string | null>(null);
   const [editMemberId, setEditMemberId] = useState<string | null>(null);
 
@@ -44,7 +46,8 @@ function RouteComponent() {
     );
   }
 
-  const showDrawer = members.length > 0 || drawerView !== EXPENSES_DRAWER_VIEW.DEFAULT;
+  const showDrawer =
+    members.length > 0 || drawerView !== EXPENSES_DRAWER_VIEW.DEFAULT;
 
   const handleViewChange = (view: ExpensesDrawerView) => {
     setDrawerView(view);

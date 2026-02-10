@@ -40,13 +40,19 @@ export const getSplit = createServerFn({
     return data;
   });
 
-function simplifyDebts(balances: Map<string, number>): { from: string; to: string; amount: number }[] {
+function simplifyDebts(
+  balances: Map<string, number>,
+): { from: string; to: string; amount: number }[] {
   const debts: { from: string; to: string; amount: number }[] = [];
   const entries = Array.from(balances.entries())
     .filter(([, b]) => Math.abs(b) > 1e-6)
     .map(([id, b]) => ({ id, balance: b }));
-  const debtors = entries.filter((e) => e.balance < 0).sort((a, b) => a.balance - b.balance);
-  const creditors = entries.filter((e) => e.balance > 0).sort((a, b) => b.balance - a.balance);
+  const debtors = entries
+    .filter((e) => e.balance < 0)
+    .sort((a, b) => a.balance - b.balance);
+  const creditors = entries
+    .filter((e) => e.balance > 0)
+    .sort((a, b) => b.balance - a.balance);
   let i = 0;
   let j = 0;
   while (i < debtors.length && j < creditors.length) {
@@ -81,7 +87,10 @@ export const getSplitDebts = createServerFn({
             .select("expense_id, member_id, amount")
             .in("expense_id", expenseIds)
         : { data: [] };
-    const { data: members } = await db.from("members").select("id, name").eq("group_id", groupId);
+    const { data: members } = await db
+      .from("members")
+      .select("id, name")
+      .eq("group_id", groupId);
     const nameById = new Map((members ?? []).map((m) => [m.id, m.name]));
 
     const balances = new Map<string, number>();
