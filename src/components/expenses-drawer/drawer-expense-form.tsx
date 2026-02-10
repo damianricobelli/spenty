@@ -1,12 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLoaderData, useRouter } from "@tanstack/react-router";
 import { CalendarIcon, Loader2Icon } from "lucide-react";
-import { formatDate } from "@/lib/format-date";
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { getExpenseWithSplits } from "@/api/expenses";
 import { AddExpenseEntrySchema, UpdateExpenseEntrySchema } from "@/api/schema";
-import { Calendar } from "@/components/ui/calendar";
 import {
 	Combobox,
 	ComboboxChip,
@@ -36,9 +34,11 @@ import {
 import { useAddExpenseEntry } from "@/hooks/expenses/use-add-expense-entry";
 import { useUpdateExpenseEntry } from "@/hooks/expenses/use-update-expense-entry";
 import { useEntity } from "@/hooks/use-entity";
+import { formatDate } from "@/lib/format-date";
 import { getErrorMessage } from "@/lib/get-error-message";
 import { m } from "@/paraglide/messages";
 import { ButtonWithSpinner } from "../button-with-spinner";
+import { SimpleDatePicker } from "../ui/calendar";
 
 type BaseProps = {
 	resetDrawer: () => void;
@@ -326,7 +326,9 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 
 				<Field>
 					<FieldLabel>{m.drawer_field_payment_date()}</FieldLabel>
-					<Popover>
+					<Popover
+						modal
+					>
 						<PopoverTrigger
 							type="button"
 							className="border-input bg-input/30 flex h-10 w-full items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
@@ -343,16 +345,10 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 							<CalendarIcon className="size-4 shrink-0 opacity-50" />
 						</PopoverTrigger>
 						<PopoverContent align="start" className="w-(--anchor-width) p-0">
-							<Calendar
-								mode="single"
-								required={isAdd}
-								fixedWeeks={!isAdd}
-								endMonth={new Date()}
+							<SimpleDatePicker
 								selected={paymentDate}
-								disabled={{
-									after: new Date(),
-								}}
 								onSelect={setPaymentDate}
+								maxDate={new Date()}
 							/>
 						</PopoverContent>
 					</Popover>
