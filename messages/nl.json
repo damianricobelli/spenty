@@ -45,6 +45,8 @@
   "drawer_button_add_member": "Lid toevoegen",
   "drawer_settings_title": "Instellingen",
   "drawer_field_name": "Naam",
+  "empty_no_members_title": "Nog geen leden",
+  "empty_no_members_description": "Voeg hieronder een lid toe om uitgaven te registreren.",
   "password_unlock_title": "Ontgrendelen",
   "password_remove_title": "Wachtwoord verwijderen",
   "password_set_title": "Beveiligen met wachtwoord",

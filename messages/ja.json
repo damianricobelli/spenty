@@ -45,6 +45,8 @@
   "drawer_button_add_member": "メンバーを追加",
   "drawer_settings_title": "設定",
   "drawer_field_name": "名前",
+  "empty_no_members_title": "メンバーがいません",
+  "empty_no_members_description": "下からメンバーを追加して、支出の記録を始めましょう。",
   "password_unlock_title": "ロック解除",
   "password_remove_title": "パスワードを削除",
   "password_set_title": "パスワードで保護",

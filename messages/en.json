@@ -45,6 +45,8 @@
   "drawer_button_add_member": "Add member",
   "drawer_settings_title": "Settings",
   "drawer_field_name": "Name",
+  "empty_no_members_title": "No members yet",
+  "empty_no_members_description": "Add a member below to start recording expenses.",
   "password_unlock_title": "Unlock",
   "password_remove_title": "Remove password",
   "password_set_title": "Protect with password",

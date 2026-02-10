@@ -45,6 +45,8 @@
   "drawer_button_add_member": "添加成员",
   "drawer_settings_title": "设置",
   "drawer_field_name": "姓名",
+  "empty_no_members_title": "暂无成员",
+  "empty_no_members_description": "在下方添加成员以开始记录支出。",
   "password_unlock_title": "解锁",
   "password_remove_title": "移除密码",
   "password_set_title": "用密码保护",

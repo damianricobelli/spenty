@@ -45,6 +45,8 @@
   "drawer_button_add_member": "Mitglied hinzufügen",
   "drawer_settings_title": "Einstellungen",
   "drawer_field_name": "Name",
+  "empty_no_members_title": "Noch keine Mitglieder",
+  "empty_no_members_description": "Füge unten ein Mitglied hinzu, um Ausgaben zu erfassen.",
   "password_unlock_title": "Entsperren",
   "password_remove_title": "Passwort entfernen",
   "password_set_title": "Mit Passwort schützen",

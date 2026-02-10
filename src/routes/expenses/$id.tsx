@@ -5,6 +5,7 @@ import { getMembers } from "@/api/members";
 import { ExpensesDrawer } from "@/components/expenses-drawer";
 import { Layout } from "@/components/layout";
 import { PasswordDialog } from "@/components/password-dialog";
+import { EmptyNoMembers } from "@/components/ui/empty-no-members";
 import { isGroupUnlocked } from "@/lib/unlocked-groups";
 
 export const Route = createFileRoute("/expenses/$id")({
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/expenses/$id")({
 });
 
 function RouteComponent() {
-  const { group } = Route.useLoaderData();
+  const { group, members } = Route.useLoaderData();
 
   if (group.password && !isGroupUnlocked(group.id)) {
     return (
@@ -32,6 +33,9 @@ function RouteComponent() {
   return (
     <Layout.Container>
       <Layout.Header />
+      <section className="flex min-h-0 flex-1 flex-col">
+        {members.length === 0 ? <EmptyNoMembers /> : null}
+      </section>
       <ExpensesDrawer />
     </Layout.Container>
   );

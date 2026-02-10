@@ -45,6 +45,8 @@
   "drawer_button_add_member": "Ajouter un membre",
   "drawer_settings_title": "Paramètres",
   "drawer_field_name": "Nom",
+  "empty_no_members_title": "Aucun membre pour l'instant",
+  "empty_no_members_description": "Ajoutez un membre ci-dessous pour commencer à enregistrer les dépenses.",
   "password_unlock_title": "Déverrouiller",
   "password_remove_title": "Supprimer le mot de passe",
   "password_set_title": "Protéger par mot de passe",
