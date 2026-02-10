@@ -1,7 +1,7 @@
 export const EXPENSES_DRAWER_VIEW = {
   ADD_MEMBER: "add_member",
   ADD_EXPENSE: "add_expense",
-  SETTINGS: "settings",
+  EDIT_EXPENSE: "edit_expense",
   DEFAULT: "default",
 } as const;
 

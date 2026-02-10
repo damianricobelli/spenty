@@ -1,5 +1,5 @@
 import { useRouter } from "@tanstack/react-router";
-import { ArrowRightIcon, Trash2Icon, UserIcon } from "lucide-react";
+import { ArrowRightIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-react";
 import { useState } from "react";
 import { deleteExpense } from "@/api/expenses";
 import { deleteMember } from "@/api/members";
@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/format-currency";
+import { useExpensesDrawerActions } from "@/components/expenses-drawer";
 import { m } from "@/paraglide/messages";
 import { ButtonWithSpinner } from "../button-with-spinner";
 
@@ -43,6 +44,7 @@ export function ExpensesContent({
   debts = [],
 }: ExpensesContentProps) {
   const router = useRouter();
+  const drawerActions = useExpensesDrawerActions();
   const [deleteMemberId, setDeleteMemberId] = useState<string | null>(null);
   const [deleteExpenseId, setDeleteExpenseId] = useState<string | null>(null);
   const [isDeletingMember, setIsDeletingMember] = useState(false);
@@ -50,6 +52,19 @@ export function ExpensesContent({
 
   const total = expense.reduce((sum, e) => sum + e.amount, 0);
   const memberById = new Map(members.map((m) => [m.id, m.name]));
+
+  const categoryLabels: Record<string, string> = {
+    food: m.category_food(),
+    transport: m.category_transport(),
+    housing: m.category_housing(),
+    health: m.category_health(),
+    entertainment: m.category_entertainment(),
+    shopping: m.category_shopping(),
+    subscriptions: m.category_subscriptions(),
+    other: m.category_other(),
+  };
+  const getCategoryLabel = (category: string) =>
+    categoryLabels[category] ?? category;
 
   const handleConfirmDeleteMember = async () => {
     if (!deleteMemberId) return;
@@ -176,22 +191,38 @@ export function ExpensesContent({
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium">{formatCurrency(e.amount)}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {[e.category, e.description].filter(Boolean).join(" · ") || "—"}
+                    {[e.category ? getCategoryLabel(e.category) : null, e.description]
+                      .filter(Boolean)
+                      .join(" · ") || "—"}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {memberById.get(e.paid_by) ?? "—"}
                   </p>
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-xs"
-                  className="shrink-0 text-muted-foreground hover:text-destructive"
-                  aria-label={m.content_delete()}
-                  onClick={() => setDeleteExpenseId(e.id)}
-                >
-                  <Trash2Icon />
-                </Button>
+                <div className="flex shrink-0 items-center gap-0.5">
+                  {drawerActions && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      className="text-muted-foreground hover:text-foreground"
+                      aria-label={m.content_edit()}
+                      onClick={() => drawerActions.openEditExpense(e.id)}
+                    >
+                      <PencilIcon />
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
+                    className="text-muted-foreground hover:text-destructive"
+                    aria-label={m.content_delete()}
+                    onClick={() => setDeleteExpenseId(e.id)}
+                  >
+                    <Trash2Icon />
+                  </Button>
+                </div>
               </li>
             ))}
           </ul>

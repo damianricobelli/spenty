@@ -53,3 +53,13 @@ export const DeleteExpenseSchema = GroupSchema.extend({
   expenseId: z.uuid(),
 });
 export type DeleteExpense = z.infer<typeof DeleteExpenseSchema>;
+
+export const UpdateExpenseEntrySchema = GroupSchema.extend({
+  expenseId: z.uuid(),
+  memberId: z.uuid(),
+  amount: z.number().positive(),
+  category: z.string().trim().max(60).optional(),
+  description: z.string().trim().max(500).optional(),
+  paidToMemberIds: z.array(z.uuid()).min(1).optional(),
+});
+export type UpdateExpenseEntry = z.infer<typeof UpdateExpenseEntrySchema>;

@@ -29,6 +29,7 @@ export const Route = createFileRoute("/expenses/$id")({
 function RouteComponent() {
   const { group, members, expense } = Route.useLoaderData();
   const [drawerView, setDrawerView] = useState<ExpensesDrawerView>(EXPENSES_DRAWER_VIEW.DEFAULT);
+  const [editExpenseId, setEditExpenseId] = useState<string | null>(null);
 
   if (group.password && !isGroupUnlocked(group.id)) {
     return (
@@ -40,8 +41,19 @@ function RouteComponent() {
 
   const showDrawer = members.length > 0 || drawerView !== EXPENSES_DRAWER_VIEW.DEFAULT;
 
+  const handleViewChange = (view: ExpensesDrawerView) => {
+    setDrawerView(view);
+    if (view === EXPENSES_DRAWER_VIEW.DEFAULT) setEditExpenseId(null);
+  };
+
   return (
-    <ExpensesDrawerProvider openAddMember={() => setDrawerView(EXPENSES_DRAWER_VIEW.ADD_MEMBER)}>
+    <ExpensesDrawerProvider
+      openAddMember={() => setDrawerView(EXPENSES_DRAWER_VIEW.ADD_MEMBER)}
+      openEditExpense={(id) => {
+        setEditExpenseId(id);
+        setDrawerView(EXPENSES_DRAWER_VIEW.EDIT_EXPENSE);
+      }}
+    >
       <Layout.Container>
         <Layout.Header />
         <section className="flex min-h-0 flex-1 flex-col">
@@ -57,7 +69,11 @@ function RouteComponent() {
           )}
         </section>
         {showDrawer && (
-          <ExpensesDrawer view={drawerView} onViewChange={setDrawerView} />
+          <ExpensesDrawer
+            view={drawerView}
+            onViewChange={handleViewChange}
+            editExpenseId={editExpenseId}
+          />
         )}
       </Layout.Container>
     </ExpensesDrawerProvider>
