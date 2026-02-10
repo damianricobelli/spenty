@@ -47,8 +47,11 @@ export function DrawerAddExpenseForm({
 
 	const isSplits = from === "/splits/$id";
 
-	const [expenseMemberId, setExpenseMemberId] = useState("");
+	const [expenseMemberId, setExpenseMemberId] = useState(() =>
+		members.length === 1 ? members[0].id : "",
+	);
 	const [paidToMemberIds, setPaidToMemberIds] = useState<string[]>([]);
+	const [category, setCategory] = useState<string>("");
 
 	const memberItems: MemberItem[] = useMemo(
 		() => members.map((m) => ({ value: m.id, label: m.name })),
@@ -75,12 +78,13 @@ export function DrawerAddExpenseForm({
 			toast.error(m.drawer_field_paid_to_required());
 			return;
 		}
+		const rawDescription = (formData.get("description") as string)?.trim();
 		const result = AddExpenseEntrySchema.safeParse({
 			groupId: group.id,
 			memberId: formData.get("memberId"),
 			amount,
-			category: formData.get("category") || undefined,
-			description: formData.get("description") || undefined,
+			category: category || "other",
+			description: rawDescription || m.expense_default_description(),
 			...(isSplits ? { paidToMemberIds } : {}),
 		});
 		if (!result.success) {
@@ -153,7 +157,7 @@ export function DrawerAddExpenseForm({
 								</ComboboxValue>
 							</ComboboxChips>
 							<ComboboxContent anchor={anchor}>
-								<ComboboxEmpty>No results</ComboboxEmpty>
+								<ComboboxEmpty>{m.combobox_no_results()}</ComboboxEmpty>
 								<ComboboxList>
 									{(item: MemberItem) => (
 										<ComboboxItem key={item.value} value={item}>
@@ -181,10 +185,40 @@ export function DrawerAddExpenseForm({
 
 				<Field>
 					<FieldLabel>{m.drawer_field_category()}</FieldLabel>
-					<Input
-						name="category"
-						placeholder={m.drawer_field_category_placeholder()}
-					/>
+					<Select
+						value={category || undefined}
+						onValueChange={(v) => setCategory(v ?? "")}
+					>
+						<SelectTrigger className="w-full">
+							<SelectValue>
+								{category
+									? (() => {
+											const labels: Record<string, string> = {
+												food: m.category_food(),
+												transport: m.category_transport(),
+												housing: m.category_housing(),
+												health: m.category_health(),
+												entertainment: m.category_entertainment(),
+												shopping: m.category_shopping(),
+												subscriptions: m.category_subscriptions(),
+												other: m.category_other(),
+											};
+											return labels[category] ?? category;
+										})()
+									: m.drawer_field_category_placeholder()}
+							</SelectValue>
+						</SelectTrigger>
+						<SelectContent alignItemWithTrigger={false}>
+							<SelectItem value="food">{m.category_food()}</SelectItem>
+							<SelectItem value="transport">{m.category_transport()}</SelectItem>
+							<SelectItem value="housing">{m.category_housing()}</SelectItem>
+							<SelectItem value="health">{m.category_health()}</SelectItem>
+							<SelectItem value="entertainment">{m.category_entertainment()}</SelectItem>
+							<SelectItem value="shopping">{m.category_shopping()}</SelectItem>
+							<SelectItem value="subscriptions">{m.category_subscriptions()}</SelectItem>
+							<SelectItem value="other">{m.category_other()}</SelectItem>
+						</SelectContent>
+					</Select>
 				</Field>
 
 				<Field>

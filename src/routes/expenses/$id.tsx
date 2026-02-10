@@ -3,6 +3,7 @@ import { useState } from "react";
 import { getExpense } from "@/api/expenses";
 import { getGroup } from "@/api/group";
 import { getMembers } from "@/api/members";
+import { ExpensesContent } from "@/components/expenses-content";
 import {
   EXPENSES_DRAWER_VIEW,
   ExpensesDrawer,
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/expenses/$id")({
 });
 
 function RouteComponent() {
-  const { group, members } = Route.useLoaderData();
+  const { group, members, expense } = Route.useLoaderData();
   const [drawerView, setDrawerView] = useState<ExpensesDrawerView>(EXPENSES_DRAWER_VIEW.DEFAULT);
 
   if (group.password && !isGroupUnlocked(group.id)) {
@@ -44,7 +45,16 @@ function RouteComponent() {
       <Layout.Container>
         <Layout.Header />
         <section className="flex min-h-0 flex-1 flex-col">
-          {members.length === 0 ? <EmptyNoMembers /> : null}
+          {members.length === 0 ? (
+            <EmptyNoMembers />
+          ) : (
+            <ExpensesContent
+              groupId={group.id}
+              members={members}
+              expense={expense}
+              routeType="expenses"
+            />
+          )}
         </section>
         {showDrawer && (
           <ExpensesDrawer view={drawerView} onViewChange={setDrawerView} />

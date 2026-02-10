@@ -45,6 +45,7 @@
   "drawer_button_add_member": "Ajouter un membre",
   "drawer_settings_title": "Paramètres",
   "drawer_field_name": "Nom",
+  "empty_no_expenses": "Pas encore de dépenses.",
   "empty_no_members_title": "Aucun membre pour l'instant",
   "empty_no_members_description": "Ajoutez un membre ci-dessous pour commencer à enregistrer les dépenses.",
   "password_unlock_title": "Déverrouiller",
@@ -62,5 +63,15 @@
   "password_incorrect": "Mot de passe incorrect",
   "password_label": "Mot de passe",
   "create_default_expense_name": "Nom de la dépense",
-  "create_default_split_name": "Nom du partage"
+  "create_default_split_name": "Nom du partage",
+  "combobox_no_results": "Aucun résultat",
+  "category_food": "Alimentation",
+  "category_transport": "Transport",
+  "category_housing": "Logement",
+  "category_health": "Santé",
+  "category_entertainment": "Loisirs",
+  "category_shopping": "Shopping",
+  "category_subscriptions": "Abonnements",
+  "category_other": "Autre",
+  "expense_default_description": "Dépense générale"
 }

@@ -45,6 +45,7 @@
   "drawer_button_add_member": "멤버 추가",
   "drawer_settings_title": "설정",
   "drawer_field_name": "이름",
+  "empty_no_expenses": "아직 지출이 없습니다.",
   "empty_no_members_title": "아직 멤버가 없습니다",
   "empty_no_members_description": "아래에서 멤버를 추가하고 지출 기록을 시작하세요.",
   "password_unlock_title": "잠금 해제",
@@ -62,5 +63,15 @@
   "password_incorrect": "비밀번호가 올바르지 않습니다",
   "password_label": "비밀번호",
   "create_default_expense_name": "지출 이름",
-  "create_default_split_name": "분할 이름"
+  "create_default_split_name": "분할 이름",
+  "combobox_no_results": "결과 없음",
+  "category_food": "음식",
+  "category_transport": "교통",
+  "category_housing": "주거",
+  "category_health": "건강",
+  "category_entertainment": "엔터테인먼트",
+  "category_shopping": "쇼핑",
+  "category_subscriptions": "구독",
+  "category_other": "기타",
+  "expense_default_description": "일반 지출"
 }

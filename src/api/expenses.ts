@@ -2,7 +2,7 @@ import { redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { serverDb } from "@/lib/supabase/server";
 import { createUniqueSlug } from "./create-unique-slug";
-import { AddExpenseEntrySchema, GroupSchema } from "./schema";
+import { AddExpenseEntrySchema, DeleteExpenseSchema, GroupSchema } from "./schema";
 
 export const createNewExpense = createServerFn({
   method: "POST",
@@ -72,4 +72,27 @@ export const addExpenseEntry = createServerFn({
     }
 
     return data;
+  });
+
+export const deleteExpense = createServerFn({
+  method: "POST",
+})
+  .inputValidator(DeleteExpenseSchema)
+  .handler(async ({ data: { groupId, expenseId } }) => {
+    const db = serverDb();
+    const { data: expense } = await db
+      .from("expenses")
+      .select("id")
+      .eq("id", expenseId)
+      .eq("group_id", groupId)
+      .maybeSingle();
+    if (!expense) {
+      throw new Error("Expense not found");
+    }
+    await db.from("expense_splits").delete().eq("expense_id", expenseId);
+    const { error } = await db.from("expenses").delete().eq("id", expenseId);
+    if (error) {
+      console.error("Error deleting expense:", error.message);
+      throw error;
+    }
   });

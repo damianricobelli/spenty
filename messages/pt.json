@@ -45,6 +45,7 @@
   "drawer_button_add_member": "Adicionar membro",
   "drawer_settings_title": "Configurações",
   "drawer_field_name": "Nome",
+  "empty_no_expenses": "Ainda não há despesas.",
   "empty_no_members_title": "Nenhum membro ainda",
   "empty_no_members_description": "Adicione um membro abaixo para começar a registrar despesas.",
   "password_unlock_title": "Desbloquear",
@@ -62,5 +63,15 @@
   "password_incorrect": "Senha incorreta",
   "password_label": "Senha",
   "create_default_expense_name": "Nome da despesa",
-  "create_default_split_name": "Nome do split"
+  "create_default_split_name": "Nome do split",
+  "combobox_no_results": "Nenhum resultado",
+  "category_food": "Comida",
+  "category_transport": "Transporte",
+  "category_housing": "Moradia",
+  "category_health": "Saúde",
+  "category_entertainment": "Entretenimento",
+  "category_shopping": "Compras",
+  "category_subscriptions": "Assinaturas",
+  "category_other": "Outro",
+  "expense_default_description": "Despesa geral"
 }

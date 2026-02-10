@@ -1,7 +1,5 @@
 import { useLoaderData, useRouter } from "@tanstack/react-router";
-import { Loader2Icon } from "lucide-react";
 import { AddMemberSchema } from "@/api/schema";
-import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useAddMember } from "@/hooks/members/use-add-member";
@@ -51,7 +49,16 @@ export function DrawerAddMemberForm({
 		<form className="flex flex-col gap-4 p-4" onSubmit={handleAddMember}>
 			<Field aria-invalid={!!addMemberMutation.error}>
 				<FieldLabel>{m.drawer_field_name()}</FieldLabel>
-				<Input required name="name" aria-invalid={!!addMemberMutation.error} />
+				<Input
+					required
+					name="name"
+					aria-invalid={!!addMemberMutation.error}
+					onInput={(e) => {
+						const input = e.currentTarget;
+						input.value =
+							input.value.charAt(0).toUpperCase() + input.value.slice(1);
+					}}
+				/>
 			</Field>
 			{addMemberMutation.error && (
 				<FieldError

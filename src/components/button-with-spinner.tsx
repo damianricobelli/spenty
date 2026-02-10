@@ -1,15 +1,19 @@
 import { Loader2Icon } from "lucide-react";
 import { Button } from "./ui/button";
 
+type ButtonWithSpinnerProps = {
+  text: string;
+  isPending: boolean;
+} & React.ComponentProps<typeof Button>;
+
 export const ButtonWithSpinner = ({
   text,
   isPending,
-}: {
-  text: string;
-  isPending: boolean;
-}) => {
+  type = "submit",
+  ...rest
+}: ButtonWithSpinnerProps) => {
   return (
-    <Button type="submit" className="relative">
+    <Button type={type} className="relative" {...rest}>
       {isPending && (
         <Loader2Icon className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-spin" />
       )}

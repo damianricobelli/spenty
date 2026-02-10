@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 
 import { useUpdateGroupName } from "@/hooks/groups/use-update-name";
 import { useEntity } from "@/hooks/use-entity";
+import { localeFlags } from "@/lib/locale-flags";
 import { isGroupUnlocked } from "@/lib/unlocked-groups";
 import { m } from "@/paraglide/messages";
 import {
@@ -84,7 +85,7 @@ export function Header() {
   return (
     <React.Fragment>
       <header className="sticky top-0 z-20 border-b border-border/40 bg-background/95 px-4 py-3 backdrop-blur-md">
-        <div className="mx-auto flex max-w-2xl items-center gap-3">
+        <div className="mx-auto flex w-full max-w-2xl items-center gap-3">
           <Link
             to="/"
             className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -155,6 +156,7 @@ export function Header() {
                   >
                     {locales.map((locale) => (
                       <DropdownMenuRadioItem key={locale} value={locale}>
+                        <span>{localeFlags[locale]}</span>
                         {locale.toUpperCase()}
                       </DropdownMenuRadioItem>
                     ))}

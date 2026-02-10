@@ -1,13 +1,15 @@
 import { GlobeIcon } from "lucide-react";
+import { localeFlags } from "@/lib/locale-flags";
+import type { Locale } from "@/paraglide/runtime";
+import { getLocale, locales, setLocale } from "@/paraglide/runtime";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { getLocale, locales, setLocale, Locale } from "@/paraglide/runtime";
 
 export const LocaleMenu = () => {
   const currentLocale = getLocale();
@@ -32,6 +34,7 @@ export const LocaleMenu = () => {
         >
           {locales.map((locale) => (
             <DropdownMenuRadioItem value={locale} key={locale}>
+              <span>{localeFlags[locale]}</span>
               {locale.toUpperCase()}
             </DropdownMenuRadioItem>
           ))}

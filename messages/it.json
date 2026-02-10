@@ -45,6 +45,7 @@
   "drawer_button_add_member": "Aggiungi membro",
   "drawer_settings_title": "Impostazioni",
   "drawer_field_name": "Nome",
+  "empty_no_expenses": "Nessuna spesa ancora.",
   "empty_no_members_title": "Nessun membro ancora",
   "empty_no_members_description": "Aggiungi un membro qui sotto per iniziare a registrare le spese.",
   "password_unlock_title": "Sblocca",
@@ -62,5 +63,15 @@
   "password_incorrect": "Password errata",
   "password_label": "Password",
   "create_default_expense_name": "Nome della spesa",
-  "create_default_split_name": "Nome del split"
+  "create_default_split_name": "Nome del split",
+  "combobox_no_results": "Nessun risultato",
+  "category_food": "Cibo",
+  "category_transport": "Trasporto",
+  "category_housing": "Casa",
+  "category_health": "Salute",
+  "category_entertainment": "Intrattenimento",
+  "category_shopping": "Shopping",
+  "category_subscriptions": "Abbonamenti",
+  "category_other": "Altro",
+  "expense_default_description": "Spesa generale"
 }

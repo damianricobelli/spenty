@@ -45,6 +45,7 @@
   "drawer_button_add_member": "Lid toevoegen",
   "drawer_settings_title": "Instellingen",
   "drawer_field_name": "Naam",
+  "empty_no_expenses": "Nog geen uitgaven.",
   "empty_no_members_title": "Nog geen leden",
   "empty_no_members_description": "Voeg hieronder een lid toe om uitgaven te registreren.",
   "password_unlock_title": "Ontgrendelen",
@@ -62,5 +63,15 @@
   "password_incorrect": "Onjuist wachtwoord",
   "password_label": "Wachtwoord",
   "create_default_expense_name": "Naam van de uitgave",
-  "create_default_split_name": "Naam van de verdeling"
+  "create_default_split_name": "Naam van de verdeling",
+  "combobox_no_results": "Geen resultaten",
+  "category_food": "Eten",
+  "category_transport": "Vervoer",
+  "category_housing": "Wonen",
+  "category_health": "Gezondheid",
+  "category_entertainment": "Entertainment",
+  "category_shopping": "Winkelen",
+  "category_subscriptions": "Abonnementen",
+  "category_other": "Overig",
+  "expense_default_description": "Algemene uitgave"
 }

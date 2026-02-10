@@ -45,6 +45,7 @@
   "drawer_button_add_member": "添加成员",
   "drawer_settings_title": "设置",
   "drawer_field_name": "姓名",
+  "empty_no_expenses": "暂无支出。",
   "empty_no_members_title": "暂无成员",
   "empty_no_members_description": "在下方添加成员以开始记录支出。",
   "password_unlock_title": "解锁",
@@ -62,5 +63,15 @@
   "password_incorrect": "密码错误",
   "password_label": "密码",
   "create_default_expense_name": "支出名称",
-  "create_default_split_name": "分摊名称"
+  "create_default_split_name": "分摊名称",
+  "combobox_no_results": "无结果",
+  "category_food": "餐饮",
+  "category_transport": "交通",
+  "category_housing": "住房",
+  "category_health": "医疗健康",
+  "category_entertainment": "娱乐",
+  "category_shopping": "购物",
+  "category_subscriptions": "订阅",
+  "category_other": "其他",
+  "expense_default_description": "一般支出"
 }

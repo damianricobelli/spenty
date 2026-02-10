@@ -1,5 +1,5 @@
-import { useCreateExpense } from "@/hooks/expenses/use-create-expense";
 import { ArrowRightIcon, ReceiptIcon } from "lucide-react";
+import { useCreateExpense } from "@/hooks/expenses/use-create-expense";
 import { m } from "@/paraglide/messages";
 
 export const NewExpenseCard = () => {

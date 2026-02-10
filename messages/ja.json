@@ -45,6 +45,7 @@
   "drawer_button_add_member": "メンバーを追加",
   "drawer_settings_title": "設定",
   "drawer_field_name": "名前",
+  "empty_no_expenses": "まだ支出がありません。",
   "empty_no_members_title": "メンバーがいません",
   "empty_no_members_description": "下からメンバーを追加して、支出の記録を始めましょう。",
   "password_unlock_title": "ロック解除",
@@ -62,5 +63,15 @@
   "password_incorrect": "パスワードが正しくありません",
   "password_label": "パスワード",
   "create_default_expense_name": "支出の名前",
-  "create_default_split_name": "割り勘の名前"
+  "create_default_split_name": "割り勘の名前",
+  "combobox_no_results": "結果がありません",
+  "category_food": "食費",
+  "category_transport": "交通費",
+  "category_housing": "住居",
+  "category_health": "医療・健康",
+  "category_entertainment": "娯楽",
+  "category_shopping": "買い物",
+  "category_subscriptions": "サブスク",
+  "category_other": "その他",
+  "expense_default_description": "一般支出"
 }
