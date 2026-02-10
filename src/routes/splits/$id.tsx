@@ -1,8 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { getExpense } from "@/api/expenses";
 import { getGroup } from "@/api/group";
 import { getMembers } from "@/api/members";
-import { ExpensesDrawer } from "@/components/expenses-drawer";
+import {
+  EXPENSES_DRAWER_VIEW,
+  ExpensesDrawer,
+  ExpensesDrawerProvider,
+  type ExpensesDrawerView,
+} from "@/components/expenses-drawer";
 import { Layout } from "@/components/layout";
 import { PasswordDialog } from "@/components/password-dialog";
 import { EmptyNoMembers } from "@/components/ui/empty-no-members";
@@ -21,6 +27,7 @@ export const Route = createFileRoute("/splits/$id")({
 
 function RouteComponent() {
   const { group, members } = Route.useLoaderData();
+  const [drawerView, setDrawerView] = useState<ExpensesDrawerView>(EXPENSES_DRAWER_VIEW.DEFAULT);
 
   if (group.password && !isGroupUnlocked(group.id)) {
     return (
@@ -30,13 +37,19 @@ function RouteComponent() {
     );
   }
 
+  const showDrawer = members.length > 0 || drawerView !== EXPENSES_DRAWER_VIEW.DEFAULT;
+
   return (
-    <Layout.Container>
-      <Layout.Header />
-      <section className="flex min-h-0 flex-1 flex-col">
-        {members.length === 0 ? <EmptyNoMembers /> : null}
-      </section>
-      <ExpensesDrawer />
-    </Layout.Container>
+    <ExpensesDrawerProvider openAddMember={() => setDrawerView(EXPENSES_DRAWER_VIEW.ADD_MEMBER)}>
+      <Layout.Container>
+        <Layout.Header />
+        <section className="flex min-h-0 flex-1 flex-col">
+          {members.length === 0 ? <EmptyNoMembers /> : null}
+        </section>
+        {showDrawer && (
+          <ExpensesDrawer view={drawerView} onViewChange={setDrawerView} />
+        )}
+      </Layout.Container>
+    </ExpensesDrawerProvider>
   );
 }
