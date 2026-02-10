@@ -26,6 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { useUpdateGroupName } from "@/hooks/groups/use-update-name";
+import { useEntity } from "@/hooks/use-entity";
 import { isGroupUnlocked } from "@/lib/unlocked-groups";
 import { m } from "@/paraglide/messages";
 import {
@@ -35,9 +36,10 @@ import {
   setLocale,
 } from "@/paraglide/runtime";
 
-export function Header({ from }: { from: "expenses" | "splits" }) {
+export function Header() {
+  const from = useEntity();
   const { group } = useLoaderData({
-    from: from === "expenses" ? "/expenses/$id" : "/splits/$id",
+    from,
   });
   const router = useRouter();
 
@@ -74,7 +76,7 @@ export function Header({ from }: { from: "expenses" | "splits" }) {
   if (group.password && !isGroupUnlocked(group.id)) {
     return (
       <main className="relative flex min-h-screen flex-col items-center justify-center bg-background px-4">
-        <PasswordDialog from={from} defaultOpen={true} />
+        <PasswordDialog defaultOpen={true} />
       </main>
     );
   }
@@ -164,7 +166,6 @@ export function Header({ from }: { from: "expenses" | "splits" }) {
         </div>
       </header>
       <PasswordDialog
-        from={from}
         defaultOpen={false}
         open={passwordDialogOpen}
         onOpenChange={setPasswordDialogOpen}

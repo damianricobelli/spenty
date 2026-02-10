@@ -24,15 +24,15 @@ function RouteComponent() {
   if (group.password && !isGroupUnlocked(group.id)) {
     return (
       <main className="relative flex min-h-screen flex-col items-center justify-center bg-background px-4">
-        <PasswordDialog from="splits" defaultOpen={true} />
+        <PasswordDialog defaultOpen={true} />
       </main>
     );
   }
 
   return (
     <Layout.Container>
-      <Layout.Header from="splits" />
-      <ExpensesDrawer from="splits" />
+      <Layout.Header />
+      <ExpensesDrawer />
     </Layout.Container>
   );
 }

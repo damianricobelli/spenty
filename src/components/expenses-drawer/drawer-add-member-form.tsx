@@ -1,3 +1,5 @@
+import { useLoaderData, useRouter } from "@tanstack/react-router";
+import { AddMemberSchema } from "@/api/schema";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -5,27 +7,52 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { m } from "@/paraglide/messages";
+import { useAddMember } from "@/hooks/members/use-add-member";
+import { useEntity } from "@/hooks/use-entity";
 import { getErrorMessage } from "@/lib/get-error-message";
+import { m } from "@/paraglide/messages";
 
-type DrawerAddMemberFormProps = {
-  error: Error | null;
-  onSubmit: (e: React.SyntheticEvent<HTMLFormElement>) => void;
-};
+export function DrawerAddMemberForm() {
+  const router = useRouter();
+  const from = useEntity();
+  const { group } = useLoaderData({
+    from,
+  });
+  const addMemberMutation = useAddMember();
 
-export function DrawerAddMemberForm({
-  error,
-  onSubmit,
-}: DrawerAddMemberFormProps) {
+  const handleAddMember = 
+  (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const memberName = formData.get("name");
+
+    const result = AddMemberSchema.safeParse({
+      name: memberName,
+      groupId: group.id,
+    });
+    if (!result.success) {
+      console.error("Invalid name:", result.error);
+      return;
+    }
+
+    addMemberMutation.mutate(
+      { groupId: group.id, name: result.data.name.trim() },
+      {
+        onSuccess: () => {
+          router.invalidate();
+        },
+      },
+    );
+  }
   return (
-    <form className="flex flex-col gap-4 p-4" onSubmit={onSubmit}>
-      <Field aria-invalid={!!error}>
+    <form className="flex flex-col gap-4 p-4" onSubmit={handleAddMember}>
+      <Field aria-invalid={!!addMemberMutation.error}>
         <FieldLabel>{m.drawer_field_name()}</FieldLabel>
-        <Input required name="name" aria-invalid={!!error} />
+        <Input required name="name" aria-invalid={!!addMemberMutation.error} />
       </Field>
-      {error && (
+      {addMemberMutation.error && (
         <FieldError
-          errors={[{ message: getErrorMessage(error) }]}
+          errors={[{ message: getErrorMessage(addMemberMutation.error) }]}
         />
       )}
       <Button type="submit">{m.drawer_submit_add_member()}</Button>
