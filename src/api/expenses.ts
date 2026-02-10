@@ -36,7 +36,7 @@ export const addExpenseEntry = createServerFn({
   method: "POST",
 })
   .inputValidator(AddExpenseEntrySchema)
-  .handler(async ({ data: { groupId, memberId, amount, category, description } }) => {
+  .handler(async ({ data: { groupId, memberId, amount, category, description, paidToMemberIds } }) => {
     const { data, error } = await serverDb()
       .from("expenses")
       .insert({
@@ -52,6 +52,23 @@ export const addExpenseEntry = createServerFn({
     if (error) {
       console.error("Error adding expense:", error.message);
       throw error;
+    }
+
+    if (paidToMemberIds?.length && data) {
+      const amountPerPerson = amount / paidToMemberIds.length;
+      const { error: splitError } = await serverDb()
+        .from("expense_splits")
+        .insert(
+          paidToMemberIds.map((member_id) => ({
+            expense_id: data.id,
+            member_id,
+            amount: amountPerPerson,
+          })),
+        );
+      if (splitError) {
+        console.error("Error adding expense splits:", splitError.message);
+        throw splitError;
+      }
     }
 
     return data;

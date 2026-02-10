@@ -39,5 +39,7 @@ export const AddExpenseEntrySchema = GroupSchema.extend({
   amount: z.number().positive(),
   category: z.string().trim().max(60).optional(),
   description: z.string().trim().max(500).optional(),
+  /** When set (splits), the members that received the payment. Required for splits, 1 or more. */
+  paidToMemberIds: z.array(z.uuid()).min(1).optional(),
 });
 export type AddExpenseEntry = z.infer<typeof AddExpenseEntrySchema>;
