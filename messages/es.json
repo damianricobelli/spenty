@@ -92,5 +92,9 @@
   "category_shopping": "Compras",
   "category_subscriptions": "Suscripciones",
   "category_other": "Otro",
-  "expense_default_description": "Gasto general"
+  "expense_default_description": "Gasto general",
+  "member_already_exists": "El miembro ya existe",
+  "expense_not_found": "Gasto no encontrado",
+  "error_recalc_splits_failed": "No se pudieron actualizar los importes; revisá los permisos (RLS) en expense_splits.",
+  "error_creating_group": "Error al crear el grupo"
 }

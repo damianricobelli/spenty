@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { serverDb } from "@/lib/supabase/server";
+import { m } from "@/paraglide/messages";
 import {
 	AddMemberSchema,
 	DeleteMemberSchema,
@@ -39,7 +40,7 @@ export const addMember = createServerFn({
       .maybeSingle();
 
     if (existing) {
-      throw new Error("Member already exists");
+      throw new Error(m.member_already_exists());
     }
 
     const { data, error } = await serverDb()
@@ -70,7 +71,7 @@ export const updateMember = createServerFn({
       .maybeSingle();
 
     if (existing) {
-      throw new Error("Member already exists");
+      throw new Error(m.member_already_exists());
     }
 
     const { error } = await serverDb()
@@ -142,7 +143,7 @@ export const deleteMember = createServerFn({
             updated?.length,
             "- check RLS on expense_splits",
           );
-          throw new Error("No se pudieron actualizar los importes; revisar permisos (RLS) en expense_splits.");
+          throw new Error(m.error_recalc_splits_failed());
         }
       }
     }

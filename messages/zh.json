@@ -92,5 +92,9 @@
   "content_confirm": "确认",
   "content_cancel": "取消",
   "content_delete": "移除",
-  "content_owes": "应付"
+  "content_owes": "应付",
+  "member_already_exists": "成员已存在",
+  "expense_not_found": "未找到该支出",
+  "error_recalc_splits_failed": "无法更新金额。请检查 expense_splits 上的权限（RLS）。",
+  "error_creating_group": "创建群组时出错"
 }

@@ -92,5 +92,9 @@
   "content_confirm": "Confirmar",
   "content_cancel": "Cancelar",
   "content_delete": "Remover",
-  "content_owes": "deve a"
+  "content_owes": "deve a",
+  "member_already_exists": "O membro já existe",
+  "expense_not_found": "Despesa não encontrada",
+  "error_recalc_splits_failed": "Não foi possível atualizar os valores. Verifique as permissões (RLS) em expense_splits.",
+  "error_creating_group": "Erro ao criar o grupo"
 }

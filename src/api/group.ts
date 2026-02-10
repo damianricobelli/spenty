@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { serverDb } from "@/lib/supabase/server";
+import { m } from "@/paraglide/messages";
 import {
   CodeSchema,
   GroupPasswordSchema,
@@ -84,7 +85,7 @@ export const removePassword = createServerFn({
   .handler(async ({ data: { password, groupId } }) => {
     const currentPassword = await getGroupPassword({ data: { groupId } });
     if (currentPassword !== password) {
-      throw new Error("Incorrect password");
+      throw new Error(m.password_incorrect());
     }
     const { error } = await serverDb()
       .from("groups")

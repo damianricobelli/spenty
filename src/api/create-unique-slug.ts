@@ -1,4 +1,5 @@
 import { serverDb } from "@/lib/supabase/server";
+import { m } from "@/paraglide/messages";
 
 export const createUniqueSlug = async (
   type: "expense" | "split",
@@ -13,7 +14,7 @@ export const createUniqueSlug = async (
   );
 
   if (error || !data || data.length === 0) {
-    throw new Error("Error creating group");
+    throw new Error(m.error_creating_group());
   }
 
   return data[0].slug;

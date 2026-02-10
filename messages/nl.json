@@ -92,5 +92,9 @@
   "content_confirm": "Bevestigen",
   "content_cancel": "Annuleren",
   "content_delete": "Verwijderen",
-  "content_owes": "is verschuldigd aan"
+  "content_owes": "is verschuldigd aan",
+  "member_already_exists": "Lid bestaat al",
+  "expense_not_found": "Uitgave niet gevonden",
+  "error_recalc_splits_failed": "Bedragen konden niet worden bijgewerkt. Controleer de rechten (RLS) op expense_splits.",
+  "error_creating_group": "Fout bij het aanmaken van de groep"
 }

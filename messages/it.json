@@ -92,5 +92,9 @@
   "content_confirm": "Conferma",
   "content_cancel": "Annulla",
   "content_delete": "Rimuovi",
-  "content_owes": "deve a"
+  "content_owes": "deve a",
+  "member_already_exists": "Il membro esiste già",
+  "expense_not_found": "Spesa non trovata",
+  "error_recalc_splits_failed": "Impossibile aggiornare gli importi. Controlla i permessi (RLS) su expense_splits.",
+  "error_creating_group": "Errore durante la creazione del gruppo"
 }

@@ -1,6 +1,7 @@
 import { redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { serverDb } from "@/lib/supabase/server";
+import { m } from "@/paraglide/messages";
 import { CodeSchema } from "./schema";
 
 export const validateCode = createServerFn({
@@ -15,7 +16,7 @@ export const validateCode = createServerFn({
       .single();
 
     if (error || !group) {
-      throw new Error("Code not found");
+      throw new Error(m.home_page_search_code_not_found());
     }
 
     if (group.type === "split") {

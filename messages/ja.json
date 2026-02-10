@@ -92,5 +92,9 @@
   "content_confirm": "確認",
   "content_cancel": "キャンセル",
   "content_delete": "削除",
-  "content_owes": "が払う"
+  "content_owes": "が払う",
+  "member_already_exists": "メンバーは既に存在します",
+  "expense_not_found": "支出が見つかりません",
+  "error_recalc_splits_failed": "金額を更新できませんでした。expense_splits の権限 (RLS) を確認してください。",
+  "error_creating_group": "グループの作成中にエラーが発生しました"
 }

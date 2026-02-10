@@ -2,6 +2,7 @@ import { redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { serverDb } from "@/lib/supabase/server";
+import { m } from "@/paraglide/messages";
 import { createUniqueSlug } from "./create-unique-slug";
 import {
   AddExpenseEntrySchema,
@@ -127,7 +128,7 @@ export const updateExpenseEntry = createServerFn({
         .eq("id", expenseId)
         .eq("group_id", groupId)
         .maybeSingle();
-      if (!existing) throw new Error("Expense not found");
+      if (!existing) throw new Error(m.expense_not_found());
       const { error: updateError } = await db
         .from("expenses")
         .update({
@@ -174,7 +175,7 @@ export const deleteExpense = createServerFn({
       .eq("group_id", groupId)
       .maybeSingle();
     if (!expense) {
-      throw new Error("Expense not found");
+      throw new Error(m.expense_not_found());
     }
     await db.from("expense_splits").delete().eq("expense_id", expenseId);
     const { error } = await db.from("expenses").delete().eq("id", expenseId);

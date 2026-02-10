@@ -92,5 +92,9 @@
   "category_shopping": "Einkaufen",
   "category_subscriptions": "Abos",
   "category_other": "Sonstiges",
-  "expense_default_description": "Allgemeine Ausgabe"
+  "expense_default_description": "Allgemeine Ausgabe",
+  "member_already_exists": "Mitglied existiert bereits",
+  "expense_not_found": "Ausgabe wurde nicht gefunden",
+  "error_recalc_splits_failed": "Beträge konnten nicht aktualisiert werden. Bitte prüfe die Berechtigungen (RLS) auf expense_splits.",
+  "error_creating_group": "Fehler beim Erstellen der Gruppe"
 }
