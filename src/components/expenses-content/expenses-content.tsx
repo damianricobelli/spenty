@@ -1,5 +1,6 @@
 import { useRouter } from "@tanstack/react-router";
 import { ArrowRightIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-react";
+import { formatDate } from "@/lib/format-date";
 import { useRef, useState } from "react";
 import { deleteExpense } from "@/api/expenses";
 import { deleteMember } from "@/api/members";
@@ -250,7 +251,7 @@ export function ExpensesContent({
                   <p className="text-sm text-muted-foreground">
                     {memberById.get(e.paid_by) ?? "—"}
                     {e.expense_date
-                      ? ` · ${new Date(`${e.expense_date}T12:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}`
+                      ? ` · ${formatDate(new Date(`${e.expense_date}T12:00:00`), "PPP")}`
                       : ""}
                   </p>
                 </div>

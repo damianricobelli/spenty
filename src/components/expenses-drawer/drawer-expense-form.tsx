@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLoaderData, useRouter } from "@tanstack/react-router";
 import { CalendarIcon, Loader2Icon } from "lucide-react";
+import { formatDate } from "@/lib/format-date";
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { getExpenseWithSplits } from "@/api/expenses";
@@ -336,11 +337,7 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 								}
 							>
 								{paymentDate
-									? paymentDate.toLocaleDateString(undefined, {
-											day: "numeric",
-											month: "short",
-											year: "numeric",
-										})
+									? formatDate(paymentDate, "PPP")
 									: m.drawer_field_payment_date_placeholder()}
 							</span>
 							<CalendarIcon className="size-4 shrink-0 opacity-50" />
