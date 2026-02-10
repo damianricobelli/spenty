@@ -1,7 +1,6 @@
 import { useRouter } from "@tanstack/react-router";
 import { ArrowRightIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-react";
-import { formatDate } from "@/lib/format-date";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { deleteExpense } from "@/api/expenses";
 import { deleteMember } from "@/api/members";
 import type { DeleteExpense, DeleteMember } from "@/api/schema";
@@ -17,10 +16,52 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAppMutation } from "@/hooks/use-app-mutation";
 import { formatCurrency } from "@/lib/format-currency";
+import { formatDate } from "@/lib/format-date";
 import { m } from "@/paraglide/messages";
+import { getLocale } from "@/paraglide/runtime";
 import { ButtonWithSpinner } from "../button-with-spinner";
+
+function getMonthKey(date: Date) {
+  const y = date.getFullYear();
+  const m = date.getMonth() + 1;
+  return `${y}-${String(m).padStart(2, "0")}`;
+}
+
+function useExpenseTotals(expense: ExpenseItem[]) {
+  return useMemo(() => {
+    const now = new Date();
+    const thisMonthKey = getMonthKey(now);
+    let totalAll = 0;
+    let totalThisMonth = 0;
+    const totalByMonth = new Map<string, number>();
+    const monthKeys = new Set<string>([thisMonthKey]);
+
+    for (const e of expense) {
+      totalAll += e.amount;
+      const key = e.expense_date ? e.expense_date.slice(0, 7) : null;
+      if (key) monthKeys.add(key);
+      if (key === thisMonthKey) totalThisMonth += e.amount;
+      if (key) totalByMonth.set(key, (totalByMonth.get(key) ?? 0) + e.amount);
+    }
+
+    const sortedMonths = Array.from(monthKeys).sort().reverse();
+    return {
+      totalAll,
+      totalThisMonth,
+      totalByMonth,
+      sortedMonths,
+    };
+  }, [expense]);
+}
 
 type ExpenseItem = {
   id: string;
@@ -76,8 +117,30 @@ export function ExpensesContent({
     },
   });
 
-  const total = expense.reduce((sum, e) => sum + e.amount, 0);
+  const { totalAll, totalThisMonth, totalByMonth, sortedMonths } =
+    useExpenseTotals(expense);
+  const [compareMonthKey, setCompareMonthKey] = useState<string | null>(null);
   const memberById = new Map(members.map((m) => [m.id, m.name]));
+
+  const compareMonthTotal = compareMonthKey
+    ? totalByMonth.get(compareMonthKey) ?? 0
+    : 0;
+  const compareLabel =
+    compareMonthKey &&
+    (() => {
+      const [y, m] = compareMonthKey.split("-").map(Number);
+      return formatDate(new Date(y, m - 1, 1), "MMMM yyyy");
+    })();
+  const diffPctValue =
+    compareMonthTotal > 0
+      ? ((totalThisMonth - compareMonthTotal) / compareMonthTotal) * 100
+      : totalThisMonth > 0
+        ? 100
+        : 0;
+  const formattedPct = Math.abs(diffPctValue).toLocaleString(getLocale(), {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 1,
+  });
 
   const categoryLabels: Record<string, string> = {
     food: m.category_food(),
@@ -177,9 +240,87 @@ export function ExpensesContent({
         <h2 className="mb-3 text-md font-medium text-muted-foreground">
           {m.content_section_total()}
         </h2>
-        <p className="text-2xl font-semibold tracking-tight">
-          {formatCurrency(total)}
-        </p>
+        <div className="overflow-hidden rounded-2xl border border-border/50 shadow-sm">
+          <div className="grid grid-cols-1 divide-y divide-border/50 sm:grid-cols-2 sm:divide-y-0 sm:divide-x">
+            <div className="min-w-0 overflow-hidden px-4 py-4">
+              <p className="text-muted-foreground truncate text-xs font-medium uppercase tracking-wider">
+                {m.content_total_this_month()}
+              </p>
+              <p className="mt-1 truncate text-lg font-semibold tabular-nums tracking-tight sm:text-2xl">
+                {formatCurrency(totalThisMonth)}
+              </p>
+            </div>
+            <div className="min-w-0 overflow-hidden px-4 py-4">
+              <p className="text-muted-foreground truncate text-xs font-medium uppercase tracking-wider">
+                {m.content_total_all()}
+              </p>
+              <p className="mt-1 truncate text-lg font-semibold tabular-nums tracking-tight sm:text-2xl">
+                {formatCurrency(totalAll)}
+              </p>
+            </div>
+          </div>
+          {sortedMonths.length > 1 && (
+            <div className="border-t border-border/50 px-4 py-3">
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+                  <span className="text-muted-foreground shrink-0 text-sm">
+                    {m.content_compare_with()}
+                  </span>
+                  <Select
+                    value={compareMonthKey ?? ""}
+                    onValueChange={(v) => setCompareMonthKey(v || null)}
+                  >
+                    <SelectTrigger
+                      size="sm"
+                      className="h-8 w-full min-w-0"
+                    >
+                      <SelectValue placeholder={m.content_compare_placeholder()} />
+                    </SelectTrigger>
+                    <SelectContent align="start">
+                      {sortedMonths
+                        .filter((k) => k !== getMonthKey(new Date()))
+                        .map((key) => {
+                          const [y, m] = key.split("-").map(Number);
+                          const label = formatDate(
+                            new Date(y, m - 1, 1),
+                            "MMMM yyyy",
+                          );
+                          return (
+                            <SelectItem key={key} value={key}>
+                              {label} ({formatCurrency(totalByMonth.get(key) ?? 0)})
+                            </SelectItem>
+                          );
+                        })}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {compareLabel != null && (
+                  <p
+                    className={
+                      diffPctValue > 0
+                        ? "text-destructive text-sm"
+                        : diffPctValue < 0
+                          ? "text-emerald-600 dark:text-emerald-400 text-sm"
+                          : "text-muted-foreground text-sm"
+                    }
+                  >
+                    {diffPctValue > 0
+                      ? m.content_vs_month_more({
+                          month: compareLabel,
+                          pct: formattedPct,
+                        })
+                      : diffPctValue < 0
+                        ? m.content_vs_month_less({
+                            month: compareLabel,
+                            pct: formattedPct,
+                          })
+                        : m.content_vs_month_same({ month: compareLabel })}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Who owes whom (splits only) */}
@@ -226,7 +367,7 @@ export function ExpensesContent({
       )}
 
       {/* History */}
-      <section className="flex min-h-0 flex-1 flex-col">
+      <section className="flex min-h-0 flex-1 flex-col pb-24">
         <h2 className="mb-3 text-md font-medium text-muted-foreground">
           {m.content_section_history()}
         </h2>
@@ -235,7 +376,7 @@ export function ExpensesContent({
             {m.empty_no_expenses()}
           </p>
         ) : (
-          <ul className="divide-y divide-border/60 rounded-lg border border-border/60 overflow-auto">
+          <ul className="divide-y divide-border/50 rounded-2xl border border border-border/50 shadow-sm overflow-auto">
             {expense.map((e) => (
               <li
                 key={e.id}
