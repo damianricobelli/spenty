@@ -41,10 +41,10 @@ export const addExpenseEntry = createServerFn({
       .from("expenses")
       .insert({
         group_id: groupId,
-        member_id: memberId,
+        paid_by: memberId,
         amount,
-        category: category ?? null,
-        description: description ?? null,
+        category: category ?? "",
+        description: description ?? "",
       })
       .select("id")
       .single();
