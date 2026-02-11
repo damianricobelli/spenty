@@ -218,7 +218,7 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 					<FieldLabel>{m.drawer_field_person()}</FieldLabel>
 					<Select
 						required
-						value={expenseMemberId || undefined}
+						value={expenseMemberId}
 						onValueChange={(v) => setExpenseMemberId(v ?? "")}
 					>
 						<SelectTrigger className="w-full">
@@ -240,7 +240,7 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 
 				{isSplits && (
 					<Field>
-						<FieldLabel>{m.drawer_field_paid_to()} *</FieldLabel>
+						<FieldLabel>{m.drawer_field_paid_to()}</FieldLabel>
 						<Combobox<MemberItem, true>
 							multiple
 							autoHighlight
@@ -295,7 +295,7 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 				<Field>
 					<FieldLabel>{m.drawer_field_category()}</FieldLabel>
 					<Select
-						value={category || undefined}
+						value={category}
 						onValueChange={(v) => setCategory(v ?? "")}
 					>
 						<SelectTrigger className="w-full">
