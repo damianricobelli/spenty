@@ -1,16 +1,11 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNewExpense } from "@/api/expenses";
+import { useAppMutation } from "../use-app-mutation";
 
 export const useCreateExpense = () => {
-  const queryClient = useQueryClient();
 
-  return useMutation({
+  return useAppMutation({
     mutationFn: (defaultName: string) =>
       createNewExpense({ data: { defaultName } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["expenses"],
-      });
-    },
+    invalidateKeys: ["expenses"],
   });
 };

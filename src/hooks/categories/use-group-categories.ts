@@ -1,11 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
 import { getGroupCategories } from "@/api/categories";
+import { useAppQuery } from "../use-app-query";
 
 export const groupCategoriesQueryKey = (groupId: string) =>
-  ["groupCategories", groupId] as const;
+  ["groupCategories", groupId];
 
 export function useGroupCategories(groupId: string) {
-  return useQuery({
+  return useAppQuery({
     queryKey: groupCategoriesQueryKey(groupId),
     queryFn: () => getGroupCategories({ data: { groupId } }),
     enabled: !!groupId,

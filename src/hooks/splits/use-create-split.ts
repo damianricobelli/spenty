@@ -1,16 +1,11 @@
 import { createNewSplit } from "@/api/splits";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAppMutation } from "../use-app-mutation";
 
 export const useCreateSplit = () => {
-  const queryClient = useQueryClient();
 
-  return useMutation({
+  return useAppMutation({
     mutationFn: (defaultName: string) =>
       createNewSplit({ data: { defaultName } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["splits"],
-      });
-    },
+    invalidateKeys: ["splits"],
   });
 };

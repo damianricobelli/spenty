@@ -1,5 +1,5 @@
-import { useCreateSplit } from "@/hooks/splits/use-create-split";
 import { ArrowRightIcon, UsersIcon } from "lucide-react";
+import { useCreateSplit } from "@/hooks/splits/use-create-split";
 import { m } from "@/paraglide/messages";
 
 export const NewSplitCard = () => {

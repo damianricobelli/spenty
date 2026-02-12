@@ -1,9 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
 import { useLoaderData, useRouter } from "@tanstack/react-router";
 import { CalendarIcon, Loader2Icon, Trash2Icon } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { getExpenseWithSplits } from "@/api/expenses";
 import { AddExpenseEntrySchema, UpdateExpenseEntrySchema } from "@/api/schema";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +36,7 @@ import { useCreateGroupCategory } from "@/hooks/categories/use-create-group-cate
 import { useDeleteGroupCategory } from "@/hooks/categories/use-delete-group-category";
 import { useGroupCategories } from "@/hooks/categories/use-group-categories";
 import { useAddExpenseEntry } from "@/hooks/expenses/use-add-expense-entry";
+import { useExpenseWithSplits } from "@/hooks/expenses/use-expense-with-splits";
 import { useUpdateExpenseEntry } from "@/hooks/expenses/use-update-expense-entry";
 import { useEntity } from "@/hooks/use-entity";
 import { formatDate } from "@/lib/format-date";
@@ -96,12 +95,10 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 	const [categoryInputValue, setCategoryInputValue] = useState("");
 
 	const expenseIdForQuery = intent === "edit" ? props.expenseId : "";
-	const { data: expense, isLoading } = useQuery({
-		queryKey: ["expenseWithSplits", expenseIdForQuery],
-		queryFn: () =>
-			getExpenseWithSplits({ data: { expenseId: expenseIdForQuery } }),
-		enabled: intent === "edit" && !!expenseIdForQuery,
-	});
+	const { data: expense, isLoading } = useExpenseWithSplits(
+		expenseIdForQuery,
+		intent === "edit",
+	);
 
 	const [expenseMemberId, setExpenseMemberId] = useState(() =>
 		intent === "add" && members.length === 1 ? members[0].id : "",

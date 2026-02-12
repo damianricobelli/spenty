@@ -1,16 +1,11 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addExpenseEntry } from "@/api/expenses";
 import type { AddExpenseEntry } from "@/api/schema";
+import { useAppMutation } from "../use-app-mutation";
 
 export const useAddExpenseEntry = () => {
-  const queryClient = useQueryClient();
 
-  return useMutation({
+  return useAppMutation({
     mutationFn: (data: AddExpenseEntry) => addExpenseEntry({ data }),
-    onSuccess: (_, { groupId }) => {
-      queryClient.invalidateQueries({
-        queryKey: ["expenses", groupId],
-      });
-    },
+    invalidateKeys: (_, { groupId }) => ["expenses", groupId],
   });
 };

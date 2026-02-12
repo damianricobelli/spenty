@@ -1,16 +1,11 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addMember } from "@/api/members";
 import type { AddMember } from "@/api/schema";
+import { useAppMutation } from "../use-app-mutation";
 
 export const useAddMember = () => {
-  const queryClient = useQueryClient();
 
-  return useMutation({
+  return useAppMutation({
     mutationFn: (data: AddMember) => addMember({ data }),
-    onSuccess: (_, { groupId }) => {
-      queryClient.invalidateQueries({
-        queryKey: ["members", groupId],
-      });
-    },
+    invalidateKeys: (_, { groupId }) => ["members", groupId],
   });
 };

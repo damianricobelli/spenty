@@ -1,20 +1,15 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { updateGroupName } from "@/api/group";
 import type { UpdateGroupName } from "@/api/schema";
 import { getErrorMessage } from "@/lib/get-error-message";
+import { useAppMutation } from "../use-app-mutation";
 
 export const useUpdateGroupName = () => {
-  const queryClient = useQueryClient();
 
-  return useMutation({
+  return useAppMutation({
     mutationFn: ({ name, groupId }: UpdateGroupName) =>
       updateGroupName({ data: { name, groupId } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["update-name"],
-      });
-    },
+    invalidateKeys: ["update-name"],
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error));
     },

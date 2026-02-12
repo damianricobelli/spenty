@@ -1,11 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { removePassword, setPassword } from "@/api/group";
 import type { GroupPassword } from "@/api/schema";
+import { useAppMutation } from "../use-app-mutation";
 
 export const useUpdateGroupPassword = () => {
-  const queryClient = useQueryClient();
 
-  return useMutation({
+  return useAppMutation({
     mutationFn: ({ password, groupId, intent }: GroupPassword) => {
       if (intent === "remove") {
         return removePassword({
@@ -22,10 +21,6 @@ export const useUpdateGroupPassword = () => {
         },
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["update-password"],
-      });
-    },
+    invalidateKeys: ["update-password"],
   });
 };

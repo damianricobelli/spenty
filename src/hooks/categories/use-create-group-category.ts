@@ -1,18 +1,12 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createGroupCategory } from "@/api/categories";
 import type { CreateGroupCategory } from "@/api/schema";
+import { useAppMutation } from "@/hooks/use-app-mutation";
 import { groupCategoriesQueryKey } from "./use-group-categories";
 
 export function useCreateGroupCategory() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
+  return useAppMutation({
     mutationFn: (data: CreateGroupCategory) =>
       createGroupCategory({ data }),
-    onSuccess: (_, { groupId }) => {
-      queryClient.invalidateQueries({
-        queryKey: groupCategoriesQueryKey(groupId),
-      });
-    },
+    invalidateKeys: (_, { groupId }) => groupCategoriesQueryKey(groupId),
   });
 }

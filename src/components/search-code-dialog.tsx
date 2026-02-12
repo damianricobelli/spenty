@@ -1,10 +1,12 @@
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
+import { CodeSchema } from "@/api/schema";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { useValidateCode } from "@/hooks/use-validate-code";
 import { m } from "@/paraglide/messages";
 import { Button } from "./ui/button";
 import {
@@ -18,9 +20,6 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Label } from "./ui/label";
-import { useValidateCode } from "@/hooks/use-validate-code";
-
-import { CodeSchema } from "@/api/schema";
 
 export const SearchCode = () => {
   const validateCode = useValidateCode();

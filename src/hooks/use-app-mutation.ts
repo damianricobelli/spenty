@@ -1,7 +1,7 @@
 import {
+  type UseMutationOptions,
   useMutation,
   useQueryClient,
-  type UseMutationOptions,
 } from "@tanstack/react-query";
 
 /**
@@ -25,12 +25,14 @@ import {
  */
 export function useAppMutation<
   TData = unknown,
-  TError = unknown,
+  TError = Error,
   TVariables = void,
   TContext = unknown,
 >(
   options: UseMutationOptions<TData, TError, TVariables, TContext> & {
-    invalidateKeys?: unknown[];
+    invalidateKeys:
+      | string[]
+      | ((data: TData, variables: TVariables) => string[]);
   },
 ) {
   const queryClient = useQueryClient();
@@ -38,9 +40,11 @@ export function useAppMutation<
   return useMutation({
     ...options,
     onSuccess: (...args) => {
-      options.invalidateKeys?.forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: key as string[] });
-      });
+      const [data, variables] = args;
+      const keys = typeof options.invalidateKeys === "function"
+        ? options.invalidateKeys(data, variables)
+        : options.invalidateKeys ?? [];
+      queryClient.invalidateQueries({ queryKey: keys });
       options.onSuccess?.(...args);
     },
   });
