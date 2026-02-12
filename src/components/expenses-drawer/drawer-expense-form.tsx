@@ -1,6 +1,6 @@
 import { useLoaderData, useRouter } from "@tanstack/react-router";
 import { CalendarIcon, Loader2Icon, Trash2Icon } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AddExpenseEntrySchema, UpdateExpenseEntrySchema } from "@/api/schema";
 import { Button } from "@/components/ui/button";
@@ -76,8 +76,7 @@ const categoryLabels: Record<string, string> = {
 };
 
 export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
-	const { intent, resetDrawer } = props;
-	const router = useRouter();
+	const { intent } = props;
 	const from = useEntity();
 	const { group, members } = useLoaderData({ from });
 
@@ -91,35 +90,86 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 
 	const anchor = useComboboxAnchor();
 
-	const [categoryOpen, setCategoryOpen] = useState(false);
-	const [categoryInputValue, setCategoryInputValue] = useState("");
-
 	const expenseIdForQuery = intent === "edit" ? props.expenseId : "";
 	const { data: expense, isLoading } = useExpenseWithSplits(
 		expenseIdForQuery,
 		intent === "edit",
 	);
 
-	const [expenseMemberId, setExpenseMemberId] = useState(() =>
-		intent === "add" && members.length === 1 ? members[0].id : "",
-	);
-	const [paidToMemberIds, setPaidToMemberIds] = useState<string[]>([]);
-	const [category, setCategory] = useState("");
-	const [paymentDate, setPaymentDate] = useState<Date | undefined>(() =>
-		intent === "add" ? new Date() : undefined,
-	);
-
-	useEffect(() => {
-		if (intent !== "edit" || !expense) return;
-		setExpenseMemberId(expense.paid_by ?? "");
-		setPaidToMemberIds(expense.paidToMemberIds ?? []);
-		setCategory(expense.category ?? "");
-		setPaymentDate(
-			expense.expense_date
-				? new Date(`${expense.expense_date}T12:00:00`)
-				: new Date(),
+	if (intent === "edit" && (isLoading || !expense)) {
+		return (
+			<div className="flex items-center justify-center p-6 text-muted-foreground">
+				<Loader2Icon className="size-8 animate-spin" />
+			</div>
 		);
-	}, [intent, expense]);
+	}
+
+	return (
+		<DrawerExpenseFormInner
+			props={props}
+			expense={expense}
+			group={group}
+			members={members}
+			anchor={anchor}
+			addMutation={addMutation}
+			updateMutation={updateMutation}
+			createCategoryMutation={createCategoryMutation}
+			deleteCategoryMutation={deleteCategoryMutation}
+			customCategories={customCategories}
+			isSplits={isSplits}
+		/>
+	);
+}
+
+type DrawerExpenseFormInnerProps = {
+	props: DrawerExpenseFormProps;
+	expense: Awaited<ReturnType<typeof useExpenseWithSplits>>["data"];
+	group: { id: string };
+	members: { id: string; name: string }[];
+	anchor: ReturnType<typeof useComboboxAnchor>;
+	addMutation: ReturnType<typeof useAddExpenseEntry>;
+	updateMutation: ReturnType<typeof useUpdateExpenseEntry>;
+	createCategoryMutation: ReturnType<typeof useCreateGroupCategory>;
+	deleteCategoryMutation: ReturnType<typeof useDeleteGroupCategory>;
+	customCategories: { id: string; name: string }[];
+	isSplits: boolean;
+};
+
+function DrawerExpenseFormInner({
+	props,
+	expense,
+	group,
+	members,
+	anchor,
+	addMutation,
+	updateMutation,
+	createCategoryMutation,
+	deleteCategoryMutation,
+	customCategories,
+	isSplits,
+}: DrawerExpenseFormInnerProps) {
+	const { intent, resetDrawer } = props;
+	const router = useRouter();
+
+	const [categoryOpen, setCategoryOpen] = useState(false);
+	const [categoryInputValue, setCategoryInputValue] = useState("");
+
+	const [expenseMemberId, setExpenseMemberId] = useState(() =>
+		intent === "add" && members.length === 1
+			? members[0].id
+			: (expense?.paid_by ?? ""),
+	);
+	const [paidToMemberIds, setPaidToMemberIds] = useState<string[]>(() =>
+		intent === "edit" && expense ? expense.paidToMemberIds ?? [] : [],
+	);
+	const [category, setCategory] = useState(() => expense?.category ?? "");
+	const [paymentDate, setPaymentDate] = useState<Date | undefined>(() =>
+		intent === "add"
+			? new Date()
+			: expense?.expense_date
+				? new Date(`${expense.expense_date}T12:00:00`)
+				: undefined,
+	);
 
 	const memberItems: MemberItem[] = useMemo(
 		() => members.map((m) => ({ value: m.id, label: m.name })),
@@ -261,14 +311,6 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 			onError: (err) => toast.error(getErrorMessage(err)),
 		});
 	};
-
-	if (intent === "edit" && (isLoading || !expense)) {
-		return (
-			<div className="flex items-center justify-center p-6 text-muted-foreground">
-				<Loader2Icon className="size-8 animate-spin" />
-			</div>
-		);
-	}
 
 	const isAdd = intent === "add";
 

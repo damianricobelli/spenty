@@ -39,13 +39,12 @@ export function DrawerMemberForm(props: DrawerMemberFormProps) {
       ? members.find((m) => m.id === (props as EditProps).memberId)
       : null;
 
-  const [name, setName] = useState("");
-
-  useEffect(() => {
+  const [name, setName] = useState(() => {
     if (intent === "edit" && member) {
-      setName(member.name);
+      return member.name;
     }
-  }, [intent, member]);
+    return "";
+  });
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
