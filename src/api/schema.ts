@@ -89,3 +89,9 @@ export const DeleteGroupCategorySchema = GroupSchema.extend({
   categoryId: z.string().uuid(),
 });
 export type DeleteGroupCategory = z.infer<typeof DeleteGroupCategorySchema>;
+
+export const DeleteGroupSchema = GroupSchema.extend({
+  /** Must match group name to confirm deletion */
+  name: z.string().trim().min(1),
+});
+export type DeleteGroup = z.infer<typeof DeleteGroupSchema>;

@@ -3,6 +3,7 @@ import { serverDb } from "@/lib/supabase/server";
 import { m } from "@/paraglide/messages";
 import {
   CodeSchema,
+  DeleteGroupSchema,
   GroupPasswordSchema,
   GroupSchema,
   UpdateGroupNameSchema,
@@ -95,5 +96,44 @@ export const removePassword = createServerFn({
     if (error) {
       console.error("Error removing group password:", error.message);
       throw error.message;
+    }
+  });
+
+export const deleteGroup = createServerFn({
+  method: "POST",
+})
+  .inputValidator(DeleteGroupSchema)
+  .handler(async ({ data: { groupId, name } }) => {
+    const db = serverDb();
+    const { data: group, error: fetchError } = await db
+      .from("groups")
+      .select("id, name")
+      .eq("id", groupId)
+      .single();
+
+    if (fetchError || !group) {
+      console.error("Error fetching group:", fetchError?.message);
+      throw new Error(m.error_creating_group());
+    }
+
+    if (group.name.trim() !== name.trim()) {
+      throw new Error(m.header_delete_group_name_mismatch());
+    }
+
+    const { data: expenseRows } = await db
+      .from("expenses")
+      .select("id")
+      .eq("group_id", groupId);
+    const expenseIds = expenseRows?.map((r) => r.id) ?? [];
+    if (expenseIds.length > 0) {
+      await db.from("expense_splits").delete().in("expense_id", expenseIds);
+      await db.from("expenses").delete().in("id", expenseIds);
+    }
+    await db.from("members").delete().eq("group_id", groupId);
+    await db.from("group_categories").delete().eq("group_id", groupId);
+    const { error } = await db.from("groups").delete().eq("id", groupId);
+    if (error) {
+      console.error("Error deleting group:", error.message);
+      throw error;
     }
   });

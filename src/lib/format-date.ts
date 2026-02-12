@@ -39,3 +39,12 @@ function getDateFnsLocale(): DateFnsLocale {
 export function formatDate(date: Date, formatStr: string): string {
   return dateFnsFormat(date, formatStr, { locale: getDateFnsLocale() });
 }
+
+/**
+ * Serialize a Date to YYYY-MM-DD using the **local** timezone.
+ * Use this when sending date-only values to the API. Avoids timezone bugs
+ * (e.g. toISOString().slice(0,10) uses UTC and can shift the calendar day).
+ */
+export function dateToLocalISOString(date: Date): string {
+  return dateFnsFormat(date, "yyyy-MM-dd");
+}

@@ -5,11 +5,13 @@ import {
   LockIcon,
   SettingsIcon,
   ShareIcon,
+  Trash2Icon,
   UnlockIcon,
 } from "lucide-react";
 import React, { useState, useTransition } from "react";
 import { toast } from "sonner";
 
+import { DeleteGroupDialog } from "@/components/delete-group-dialog";
 import { PasswordDialog } from "@/components/password-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -52,6 +55,7 @@ export function Header() {
   const [_, startTransition] = useTransition();
 
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [deleteGroupDialogOpen, setDeleteGroupDialogOpen] = useState(false);
 
   const handleUpdateGroupName = async () => {
     if (!groupName.trim()) {
@@ -163,6 +167,17 @@ export function Header() {
                   </DropdownMenuRadioGroup>
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setDeleteGroupDialogOpen(true);
+                }}
+              >
+                <Trash2Icon />
+                {m.header_delete_group()}
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -171,6 +186,10 @@ export function Header() {
         defaultOpen={false}
         open={passwordDialogOpen}
         onOpenChange={setPasswordDialogOpen}
+      />
+      <DeleteGroupDialog
+        open={deleteGroupDialogOpen}
+        onOpenChange={setDeleteGroupDialogOpen}
       />
     </React.Fragment>
   );

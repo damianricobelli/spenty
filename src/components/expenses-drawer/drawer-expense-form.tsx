@@ -39,7 +39,7 @@ import { useAddExpenseEntry } from "@/hooks/expenses/use-add-expense-entry";
 import { useExpenseWithSplits } from "@/hooks/expenses/use-expense-with-splits";
 import { useUpdateExpenseEntry } from "@/hooks/expenses/use-update-expense-entry";
 import { useEntity } from "@/hooks/use-entity";
-import { formatDate } from "@/lib/format-date";
+import { dateToLocalISOString, formatDate } from "@/lib/format-date";
 import { getErrorMessage } from "@/lib/get-error-message";
 import { m } from "@/paraglide/messages";
 import { ButtonWithSpinner } from "../button-with-spinner";
@@ -221,7 +221,7 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 				category: category || "other",
 				description,
 				...(isSplits ? { paidToMemberIds } : {}),
-				paymentDate: (paymentDate ?? new Date()).toISOString().slice(0, 10),
+				paymentDate: dateToLocalISOString(paymentDate ?? new Date()),
 			});
 			if (!result.success) {
 				console.error("Invalid expense:", result.error);
@@ -246,7 +246,7 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 			description,
 			...(isSplits ? { paidToMemberIds } : {}),
 			...(paymentDate
-				? { paymentDate: paymentDate.toISOString().slice(0, 10) }
+				? { paymentDate: dateToLocalISOString(paymentDate) }
 				: {}),
 		});
 		if (!result.success) {
