@@ -1,5 +1,5 @@
 import { useLoaderData, useRouter } from "@tanstack/react-router";
-import React, { useEffect, useState } from "react";
+import type React from "react";
 import { AddMemberSchema, UpdateMemberSchema } from "@/api/schema";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -11,116 +11,114 @@ import { m } from "@/paraglide/messages";
 import { ButtonWithSpinner } from "../button-with-spinner";
 
 type BaseProps = {
-  resetDrawer: () => void;
+	resetDrawer: () => void;
 };
 
 type AddProps = BaseProps & {
-  intent: "add";
+	intent: "add";
 };
 
 type EditProps = BaseProps & {
-  intent: "edit";
-  memberId: string;
+	intent: "edit";
+	memberId: string;
 };
 
 export type DrawerMemberFormProps = AddProps | EditProps;
 
 export function DrawerMemberForm(props: DrawerMemberFormProps) {
-  const { intent, resetDrawer } = props;
-  const router = useRouter();
-  const from = useEntity();
-  const { group, members } = useLoaderData({ from });
+	const { intent, resetDrawer } = props;
+	const router = useRouter();
+	const from = useEntity();
+	const { group, members } = useLoaderData({ from });
 
-  const addMutation = useAddMember();
-  const updateMutation = useUpdateMember();
+	const addMutation = useAddMember();
+	const updateMutation = useUpdateMember();
 
-  const member =
-    intent === "edit"
-      ? members.find((m) => m.id === (props as EditProps).memberId)
-      : null;
+	const member =
+		intent === "edit"
+			? members.find((m) => m.id === (props as EditProps).memberId)
+			: null;
 
-  const [name, setName] = useState(() => {
-    if (intent === "edit" && member) {
-      return member.name;
-    }
-    return "";
-  });
+	const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const formData = new FormData(e.currentTarget);
+		const rawName = formData.get("name");
 
-  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const rawName = formData.get("name");
+		const name =
+			typeof rawName === "string"
+				? rawName.trim().charAt(0).toUpperCase() + rawName.trim().slice(1)
+				: "";
 
-    if (intent === "add") {
-      const result = AddMemberSchema.safeParse({
-        name: rawName,
-        groupId: group.id,
-      });
-      if (!result.success) {
-        console.error("Invalid name:", result.error);
-        return;
-      }
-      addMutation.mutate(
-        { groupId: group.id, name: result.data.name.trim() },
-        {
-          onSuccess: () => {
-            resetDrawer();
-            router.invalidate();
-          },
-        },
-      );
-      return;
-    }
+		if (intent === "add") {
+			const result = AddMemberSchema.safeParse({
+				name,
+				groupId: group.id,
+			});
 
-    const result = UpdateMemberSchema.safeParse({
-      groupId: group.id,
-      memberId: (props as EditProps).memberId,
-      name: rawName,
-    });
-    if (!result.success) {
-      console.error("Invalid name:", result.error);
-      return;
-    }
-    updateMutation.mutate(result.data, {
-      onSuccess: () => {
-        resetDrawer();
-        router.invalidate();
-      },
-    });
-  };
+			if (!result.success) {
+				console.error("Invalid name:", result.error);
+				return;
+			}
 
-  const isAdd = intent === "add";
-  const mutation = isAdd ? addMutation : updateMutation;
+			addMutation.mutate(
+				{ groupId: group.id, name: result.data.name },
+				{
+					onSuccess: () => {
+						resetDrawer();
+						router.invalidate();
+					},
+				},
+			);
+			return;
+		}
 
-  // Edit but member not found (e.g. deleted)
-  if (intent === "edit" && !member) {
-    return null;
-  }
+		const result = UpdateMemberSchema.safeParse({
+			groupId: group.id,
+			memberId: (props as EditProps).memberId,
+			name,
+		});
 
-  return (
-    <form className="flex flex-col gap-4 p-4" onSubmit={handleSubmit}>
-      <Field aria-invalid={!!mutation.error}>
-        <FieldLabel>{m.drawer_field_name()}</FieldLabel>
-        <Input
-          required
-          name="name"
-          value={name}
-          onChange={(e) => {
-            const v = e.target.value;
-            setName(v.charAt(0).toUpperCase() + v.slice(1));
-          }}
-          aria-invalid={!!mutation.error}
-        />
-      </Field>
-      {mutation.error && (
-        <FieldError errors={[{ message: getErrorMessage(mutation.error) }]} />
-      )}
-      <ButtonWithSpinner
-        text={
-          isAdd ? m.drawer_submit_add_member() : m.drawer_submit_edit_member()
-        }
-        isPending={mutation.isPending}
-      />
-    </form>
-  );
+		if (!result.success) {
+			console.error("Invalid name:", result.error);
+			return;
+		}
+
+		updateMutation.mutate(result.data, {
+			onSuccess: () => {
+				resetDrawer();
+				router.invalidate();
+			},
+		});
+	};
+
+	const isAdd = intent === "add";
+	const mutation = isAdd ? addMutation : updateMutation;
+
+	// Edit but member not found (e.g. deleted)
+	if (intent === "edit" && !member) {
+		return null;
+	}
+
+	return (
+		<form className="flex flex-col gap-4 p-4" onSubmit={handleSubmit}>
+			<Field aria-invalid={!!mutation.error}>
+				<FieldLabel>{m.drawer_field_name()}</FieldLabel>
+				<Input
+					required
+					name="name"
+					defaultValue={intent === "edit" ? member?.name : ""}
+					aria-invalid={!!mutation.error}
+				/>
+			</Field>
+			{mutation.error && (
+				<FieldError errors={[{ message: getErrorMessage(mutation.error) }]} />
+			)}
+			<ButtonWithSpinner
+				text={
+					isAdd ? m.drawer_submit_add_member() : m.drawer_submit_edit_member()
+				}
+				isPending={mutation.isPending}
+			/>
+		</form>
+	);
 }
