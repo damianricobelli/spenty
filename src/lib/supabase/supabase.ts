@@ -126,6 +126,35 @@ export type Database = {
           },
         ]
       }
+      group_categories: {
+        Row: {
+          id: string
+          group_id: string
+          name: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          group_id: string
+          name: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          group_id?: string
+          name?: string
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_categories_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       groups: {
         Row: {
           created_at: string | null

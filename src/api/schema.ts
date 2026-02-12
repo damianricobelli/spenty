@@ -79,3 +79,13 @@ export const UpdateExpenseEntrySchema = GroupSchema.extend({
     .optional(),
 });
 export type UpdateExpenseEntry = z.infer<typeof UpdateExpenseEntrySchema>;
+
+export const CreateGroupCategorySchema = GroupSchema.extend({
+  name: z.string().trim().min(1).max(60),
+});
+export type CreateGroupCategory = z.infer<typeof CreateGroupCategorySchema>;
+
+export const DeleteGroupCategorySchema = GroupSchema.extend({
+  categoryId: z.string().uuid(),
+});
+export type DeleteGroupCategory = z.infer<typeof DeleteGroupCategorySchema>;

@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLoaderData, useRouter } from "@tanstack/react-router";
-import { CalendarIcon, Loader2Icon } from "lucide-react";
+import { CalendarIcon, Loader2Icon, Trash2Icon } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { getExpenseWithSplits } from "@/api/expenses";
 import { AddExpenseEntrySchema, UpdateExpenseEntrySchema } from "@/api/schema";
+import { Button } from "@/components/ui/button";
 import {
 	Combobox,
 	ComboboxChip,
@@ -12,8 +13,10 @@ import {
 	ComboboxChipsInput,
 	ComboboxContent,
 	ComboboxEmpty,
+	ComboboxInput,
 	ComboboxItem,
 	ComboboxList,
+	ComboboxTrigger,
 	ComboboxValue,
 	useComboboxAnchor,
 } from "@/components/ui/combobox";
@@ -31,6 +34,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { useCreateGroupCategory } from "@/hooks/categories/use-create-group-category";
+import { useDeleteGroupCategory } from "@/hooks/categories/use-delete-group-category";
+import { useGroupCategories } from "@/hooks/categories/use-group-categories";
 import { useAddExpenseEntry } from "@/hooks/expenses/use-add-expense-entry";
 import { useUpdateExpenseEntry } from "@/hooks/expenses/use-update-expense-entry";
 import { useEntity } from "@/hooks/use-entity";
@@ -57,6 +63,8 @@ export type DrawerExpenseFormProps = AddProps | EditProps;
 
 type MemberItem = { value: string; label: string };
 
+type CategoryItem = { value: string; label: string; id?: string };
+
 const categoryLabels: Record<string, string> = {
 	food: m.category_food(),
 	transport: m.category_transport(),
@@ -78,8 +86,14 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 
 	const addMutation = useAddExpenseEntry();
 	const updateMutation = useUpdateExpenseEntry();
+	const createCategoryMutation = useCreateGroupCategory();
+	const deleteCategoryMutation = useDeleteGroupCategory();
+	const { data: customCategories = [] } = useGroupCategories(group.id);
 
 	const anchor = useComboboxAnchor();
+
+	const [categoryOpen, setCategoryOpen] = useState(false);
+	const [categoryInputValue, setCategoryInputValue] = useState("");
 
 	const expenseIdForQuery = intent === "edit" ? props.expenseId : "";
 	const { data: expense, isLoading } = useQuery({
@@ -120,6 +134,57 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 				.map((id) => memberItems.find((item) => item.value === id))
 				.filter((item): item is MemberItem => item != null),
 		[paidToMemberIds, memberItems],
+	);
+
+	const baseCategoryItems: CategoryItem[] = useMemo(
+		() =>
+			Object.entries(categoryLabels).map(([value, label]) => ({
+				value,
+				label,
+			})),
+		[],
+	);
+	const customCategoryItems: CategoryItem[] = useMemo(
+		() =>
+			customCategories.map((c) => ({
+				value: c.name,
+				label: c.name,
+				id: c.id,
+			})),
+		[customCategories],
+	);
+	const categoryItems: CategoryItem[] = useMemo(() => {
+		const list = [...baseCategoryItems, ...customCategoryItems];
+		if (intent === "edit" && expense?.category) {
+			const exists = list.some((i) => i.value === expense.category);
+			if (!exists)
+				list.push({
+					value: expense.category,
+					label: expense.category,
+				});
+		}
+		return list;
+	}, [baseCategoryItems, customCategoryItems, intent, expense?.category]);
+
+	const filteredCategoryItems = useMemo(() => {
+		const q = categoryInputValue.trim().toLowerCase();
+		const matched = categoryItems.filter((i) =>
+			i.label.toLowerCase().includes(q),
+		);
+		if (matched.length === 0 && q.length > 0) {
+			return [
+				{
+					value: q,
+					label: m.combobox_create_category({ query: q }),
+				} as CategoryItem,
+			];
+		}
+		return matched;
+	}, [categoryItems, categoryInputValue]);
+
+	const selectedCategoryItem: CategoryItem | null = useMemo(
+		() => categoryItems.find((i) => i.value === category) ?? null,
+		[categoryItems, category],
 	);
 
 	const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -294,25 +359,102 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 
 				<Field>
 					<FieldLabel>{m.drawer_field_category()}</FieldLabel>
-					<Select
-						value={category}
-						onValueChange={(v) => setCategory(v ?? "")}
+					<Combobox<CategoryItem>
+						value={selectedCategoryItem}
+						onValueChange={(item: CategoryItem | null) => {
+							if (!item) {
+								setCategory("");
+								return;
+							}
+							setCategory(item.value);
+							const isCreateItem =
+								!item.id &&
+								!Object.hasOwn(categoryLabels, item.value) &&
+								!customCategoryItems.some((c) => c.value === item.value);
+							if (isCreateItem && item.value.trim()) {
+								createCategoryMutation.mutate(
+									{ groupId: group.id, name: item.value.trim() },
+									{
+										onSuccess: () => setCategoryOpen(false),
+										onError: (err) =>
+											toast.error(getErrorMessage(err)),
+									},
+								);
+							} else {
+								setCategoryOpen(false);
+							}
+						}}
+						items={categoryItems}
+						filteredItems={filteredCategoryItems}
+						inputValue={categoryInputValue}
+						onInputValueChange={(v) => setCategoryInputValue(v)}
+						open={categoryOpen}
+						onOpenChange={(open) => {
+							setCategoryOpen(open);
+							if (!open) setCategoryInputValue("");
+						}}
+						itemToStringValue={(item) => item.label}
+						isItemEqualToValue={(a, b) => a?.value === b?.value}
 					>
-						<SelectTrigger className="w-full">
-							<SelectValue>
-								{category
-									? categoryLabels[category]
-									: m.drawer_field_category_placeholder()}
-							</SelectValue>
-						</SelectTrigger>
-						<SelectContent alignItemWithTrigger={false}>
-							{Object.entries(categoryLabels).map(([value, label]) => (
-								<SelectItem key={value} value={value}>
-									{label}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+						<ComboboxTrigger
+							render={
+								<Button
+									type="button"
+									variant="outline"
+									className="border-input bg-input/30 data-placeholder:text-muted-foreground h-9 w-full justify-between rounded-4xl border px-3 py-2 text-base font-normal"
+								>
+									{category
+										? categoryLabels[category] ?? category
+										: m.drawer_field_category_placeholder()}
+								</Button>
+							}
+						/>
+						<ComboboxContent>
+							<ComboboxInput
+								showTrigger={false}
+								placeholder={m.combobox_search_category_placeholder()}
+							/>
+							<ComboboxEmpty>{m.combobox_no_results()}</ComboboxEmpty>
+							<ComboboxList>
+								{(item: CategoryItem) => (
+									<ComboboxItem key={item.id ?? item.value} value={item}>
+										<span className="flex flex-1 items-center gap-2">
+											{item.label}
+											{item.id != null && (
+												<Button
+													type="button"
+													variant="destructive"
+													size="icon-xs"
+													className="ml-auto"
+													aria-label={m.category_delete_aria_label()}
+													onClick={(e) => {
+														e.preventDefault();
+														e.stopPropagation();
+														deleteCategoryMutation.mutate(
+															{
+																groupId: group.id,
+																categoryId: item.id as string,
+															},
+															{
+																onSuccess: () => {
+																	if (category === item.value)
+																		setCategory("");
+																},
+																onError: (err) =>
+																	toast.error(getErrorMessage(err)),
+															},
+														);
+													}}
+												>
+													<Trash2Icon className="size-3.5" />
+												</Button>
+											)}
+										</span>
+									</ComboboxItem>
+								)}
+							</ComboboxList>
+						</ComboboxContent>
+					</Combobox>
 				</Field>
 
 				<Field>
