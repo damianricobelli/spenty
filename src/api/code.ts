@@ -20,8 +20,16 @@ export const validateCode = createServerFn({
     }
 
     if (group.type === "split") {
-      throw redirect({ to: "/splits/$id", params: { id: group.slug } });
+      throw redirect({
+        to: "/splits/$id",
+        params: { id: group.slug },
+        search: {},
+      });
     }
 
-    throw redirect({ to: "/expenses/$id", params: { id: group.slug } });
+    throw redirect({
+      to: "/expenses/$id",
+      params: { id: group.slug },
+      search: {},
+    });
   });

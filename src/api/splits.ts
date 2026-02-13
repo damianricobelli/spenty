@@ -18,7 +18,7 @@ export const createNewSplit = createServerFn({
   .inputValidator((data: { defaultName: string }) => data)
   .handler(async ({ data: { defaultName } }) => {
     const slug = await createUniqueSlug("split", defaultName);
-    throw redirect({ to: "/splits/$id", params: { id: slug } });
+    throw redirect({ to: "/splits/$id", params: { id: slug }, search: {} });
   });
 
 export const getSplit = createServerFn({

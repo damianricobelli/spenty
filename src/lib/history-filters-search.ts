@@ -35,21 +35,29 @@ export const historyFiltersSearchSchema = z.object({
 	historyMonths: z
 		.unknown()
 		.optional()
-		.transform((value) =>
-			normalizeSearchArray(value).filter((item) => MONTH_KEY_REGEX.test(item)),
-		),
+		.transform((value) => {
+			const items = normalizeSearchArray(value).filter((item) =>
+				MONTH_KEY_REGEX.test(item),
+			);
+			return items.length ? items : undefined;
+		}),
 	historyCategories: z
 		.unknown()
 		.optional()
-		.transform((value) =>
-			normalizeSearchArray(value).filter((item): item is HistoryCategory =>
-				HISTORY_CATEGORY_VALUES.includes(item as HistoryCategory),
-			),
-		),
+		.transform((value) => {
+			const items = normalizeSearchArray(value).filter(
+				(item): item is HistoryCategory =>
+					HISTORY_CATEGORY_VALUES.includes(item as HistoryCategory),
+			);
+			return items.length ? items : undefined;
+		}),
 	historyPaidBy: z
 		.unknown()
 		.optional()
-		.transform((value) => normalizeSearchArray(value)),
+		.transform((value) => {
+			const items = normalizeSearchArray(value);
+			return items.length ? items : undefined;
+		}),
 });
 
 export type HistoryFiltersSearch = z.infer<typeof historyFiltersSearchSchema>;

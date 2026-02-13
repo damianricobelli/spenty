@@ -17,7 +17,7 @@ export const createNewExpense = createServerFn({
   .inputValidator((data: { defaultName: string }) => data)
   .handler(async ({ data: { defaultName } }) => {
     const slug = await createUniqueSlug("expense", defaultName);
-    throw redirect({ to: "/expenses/$id", params: { id: slug } });
+    throw redirect({ to: "/expenses/$id", params: { id: slug }, search: {} });
   });
 
 export const getExpense = createServerFn({
