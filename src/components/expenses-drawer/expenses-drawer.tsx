@@ -13,23 +13,6 @@ import { DrawerExpenseForm } from "./drawer-expense-form";
 import { DrawerMemberForm } from "./drawer-member-form";
 import { EXPENSES_DRAWER_VIEW, type ExpensesDrawerView } from "./types";
 
-/**
- * Bypass focus-trap when using Select inside Drawer/Dialog.
- * @see https://github.com/emilkowalski/vaul/issues/497#issuecomment-2452503724
- */
-function useDrawerFocusBypass() {
-  useLayoutEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    function handleFocus(e: FocusEvent) {
-      e.stopImmediatePropagation();
-    }
-    document.addEventListener("focusin", handleFocus, { signal });
-    document.addEventListener("focusout", handleFocus, { signal });
-    return () => controller.abort();
-  }, []);
-}
-
 type ExpensesDrawerProps = {
   view?: ExpensesDrawerView;
   onViewChange?: (view: ExpensesDrawerView) => void;
@@ -37,120 +20,118 @@ type ExpensesDrawerProps = {
   editMemberId?: string | null;
 };
 
-export function ExpensesDrawer(props?: ExpensesDrawerProps) {
-  const {
-    view: controlledView,
-    onViewChange,
-    editExpenseId,
-    editMemberId,
-  } = props ?? {};
+/**
+ * Bypass focus-trap when using Select inside Drawer/Dialog.
+ * @see https://github.com/emilkowalski/vaul/issues/497#issuecomment-2452503724
+ */
+function useDrawerFocusBypass() {
+  useLayoutEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+    const handleFocus = (e: FocusEvent) => e.stopImmediatePropagation();
+    
+    document.addEventListener("focusin", handleFocus, { signal });
+    document.addEventListener("focusout", handleFocus, { signal });
+    return () => controller.abort();
+  }, []);
+}
+
+const viewMetadata = {
+  add_expense: {
+    title: m.drawer_title_add_expense(),
+    description: m.drawer_description_add_expense(),
+  },
+  edit_expense: {
+    title: m.drawer_title_edit_expense(),
+    description: m.drawer_description_add_expense(),
+  },
+  add_member: {
+    title: m.drawer_title_add_member(),
+    description: m.drawer_description_add_member(),
+  },
+  edit_member: {
+    title: m.drawer_title_edit_member(),
+    description: m.drawer_description_edit_member(),
+  },
+  default: { title: "", description: "" }
+}
+
+export function ExpensesDrawer({
+  view: controlledView,
+  onViewChange,
+  editExpenseId,
+  editMemberId,
+}: ExpensesDrawerProps = {}) {
   const from = useEntity();
+  const { members } = useLoaderData({ from });
+  const [internalView, setInternalView] = useState<ExpensesDrawerView>(EXPENSES_DRAWER_VIEW.DEFAULT);
 
-  const { members } = useLoaderData({
-    from,
-  });
-
-  const [internalView, setInternalView] = useState<ExpensesDrawerView>(
-    EXPENSES_DRAWER_VIEW.DEFAULT,
-  );
-
-  const isControlled =
-    controlledView !== undefined && onViewChange !== undefined;
-  const view = (
-    isControlled ? controlledView : internalView
-  ) as ExpensesDrawerView;
-  const setView = isControlled ? onViewChange : setInternalView;
+  const isControlled = controlledView !== undefined && onViewChange !== undefined;
+  const view = isControlled ? controlledView : internalView;
+  const setView = (isControlled ? onViewChange : setInternalView) as (v: ExpensesDrawerView) => void;
 
   const [elementRef, bounds] = useMeasure();
 
   useDrawerFocusBypass();
 
-  const content = (view: ExpensesDrawerView) => {
+  const renderContent = () => {
+    const reset = () => setView("default");
+
     switch (view) {
       case "default":
         return <DrawerDefaultView members={members} onViewChange={setView} />;
+      
       case "add_expense":
-        return (
-          <DrawerExpenseForm
-            intent="add"
-            resetDrawer={() => setView("default")}
-          />
-        );
+        return <DrawerExpenseForm intent="add" resetDrawer={reset} />;
+      
       case "edit_expense":
-        return editExpenseId ? (
-          <DrawerExpenseForm
-            key={editExpenseId}
-            intent="edit"
-            expenseId={editExpenseId}
-            resetDrawer={() => setView("default")}
-          />
-        ) : null;
+        if (!editExpenseId) return null;
+        return <DrawerExpenseForm key={editExpenseId} intent="edit" expenseId={editExpenseId} resetDrawer={reset} />;
+      
       case "add_member":
-        return (
-          <DrawerMemberForm
-            intent="add"
-            resetDrawer={() => setView("default")}
-          />
-        );
+        return <DrawerMemberForm intent="add" resetDrawer={reset} />;
+      
       case "edit_member":
-        return editMemberId ? (
-          <DrawerMemberForm
-            key={editMemberId}
-            intent="edit"
-            memberId={editMemberId}
-            resetDrawer={() => setView("default")}
-          />
-        ) : null;
+        if (!editMemberId) return null;
+        return <DrawerMemberForm key={editMemberId} intent="edit" memberId={editMemberId} resetDrawer={reset} />;
+      
+      default:
+        return null;
     }
   };
 
+  const isDefaultView = view === "default";
   const showOverlay = members.length === 0;
+  const currentMetadata = viewMetadata[view as keyof typeof viewMetadata] || viewMetadata.default;
 
   return (
     <Drawer.Root open modal={showOverlay} dismissible={false}>
       <Drawer.Portal>
         <Drawer.Overlay
-          className={cn(
-            showOverlay &&
-              "fixed inset-0 z-20 bg-black/80 supports-backdrop-filter:backdrop-blur-xs",
-          )}
+          className={cn(showOverlay && "fixed inset-0 z-20 bg-black/80 backdrop-blur-xs")}
         />
+        
         <Drawer.Content
           asChild
           onEscapeKeyDown={() => setView("default")}
           className={cn(
-            "fixed inset-x-4 bottom-4 z-20 border border-border/50 bg-white shadow-lg backdrop-blur-xl mx-auto overflow-hidden rounded-[36px] outline-hidden md:mx-auto md:w-full",
-            view === "default" ? "max-w-fit" : "max-w-full md:max-w-md",
+            "fixed inset-x-4 bottom-4 z-20 border border-border/50 bg-white shadow-lg backdrop-blur-xl mx-auto overflow-hidden rounded-[36px] outline-hidden md:w-full",
+            {
+              "max-w-fit": isDefaultView,
+              "max-w-full md:max-w-md": !isDefaultView
+            }
           )}
         >
           <motion.div
             animate={{
               height: bounds.height,
-              transition: {
-                duration: 0.27,
-                ease: [0.25, 1, 0.5, 1],
-              },
+              transition: { duration: 0.27, ease: [0.25, 1, 0.5, 1] },
             }}
           >
-            <Drawer.Title className="sr-only">
-              {view === "add_expense"
-                ? m.drawer_title_add_expense()
-                : view === "edit_expense"
-                  ? m.drawer_title_edit_expense()
-                  : view === "edit_member"
-                    ? m.drawer_title_edit_member()
-                    : m.drawer_title_add_member()}
-            </Drawer.Title>
-            <Drawer.Description className="sr-only">
-              {view === "add_expense"
-                ? m.drawer_description_add_expense()
-                : view === "edit_expense"
-                  ? m.drawer_description_add_expense()
-                  : view === "edit_member"
-                    ? m.drawer_description_edit_member()
-                    : m.drawer_description_add_member()}
-            </Drawer.Description>
-            {view !== "default" && (
+            <Drawer.Title className="sr-only">{currentMetadata.title}</Drawer.Title>
+            <Drawer.Description className="sr-only">{currentMetadata.description}</Drawer.Description>
+
+            {!isDefaultView && (
               <Drawer.Close asChild>
                 <Button
                   type="button"
@@ -163,19 +144,17 @@ export function ExpensesDrawer(props?: ExpensesDrawerProps) {
                 </Button>
               </Drawer.Close>
             )}
+
             <div ref={elementRef} className="p-2 antialiased">
-              <AnimatePresence initial={false} mode="popLayout" custom={view}>
+              <AnimatePresence initial={false} mode="popLayout">
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.96 }}
                   key={view}
-                  transition={{
-                    duration: 0.27,
-                    ease: [0.26, 0.08, 0.25, 1],
-                  }}
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ duration: 0.27, ease: [0.26, 0.08, 0.25, 1] }}
                 >
-                  {content(view)}
+                  {renderContent()}
                 </motion.div>
               </AnimatePresence>
             </div>
