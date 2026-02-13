@@ -14,9 +14,11 @@ import {
 } from "@/components/expenses-drawer";
 import { Layout } from "@/components/layout";
 import { PasswordDialog } from "@/components/password-dialog";
+import { historyFiltersSearchSchema } from "@/lib/history-filters-search";
 import { isGroupUnlocked } from "@/lib/unlocked-groups";
 
 export const Route = createFileRoute("/splits/$id")({
+  validateSearch: historyFiltersSearchSchema,
   component: RouteComponent,
   loader: async ({ params }) => {
     const { id } = params;
@@ -32,6 +34,8 @@ export const Route = createFileRoute("/splits/$id")({
 
 function RouteComponent() {
   const { group, members, expense, debts } = Route.useLoaderData();
+  const historyFilters = Route.useSearch();
+  const navigate = Route.useNavigate();
   const [drawerView, setDrawerView] = useState<ExpensesDrawerView>(
     EXPENSES_DRAWER_VIEW.DEFAULT,
   );
@@ -81,6 +85,31 @@ function RouteComponent() {
               expense={expense}
               routeType="splits"
               debts={debts}
+              historyFilters={historyFilters}
+              onHistoryFilterChange={(patch) =>
+                navigate({
+                  search: (prev) => {
+                    const next = {
+                      ...prev,
+                      ...patch,
+                    };
+
+                    return {
+                      ...next,
+                      historyMonths: next.historyMonths.length
+                        ? next.historyMonths
+                        : undefined,
+                      historyCategories: next.historyCategories.length
+                        ? next.historyCategories
+                        : undefined,
+                      historyPaidBy: next.historyPaidBy.length
+                        ? next.historyPaidBy
+                        : undefined,
+                    };
+                  },
+                  replace: true,
+                })
+              }
             />
           )}
         </section>

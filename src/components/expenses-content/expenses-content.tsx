@@ -1,9 +1,10 @@
-import { useRouter } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import {
 	ArrowRightIcon,
 	Car,
+	ChevronDownIcon,
 	EyeIcon,
+	FilterIcon,
 	Gamepad2,
 	Heart,
 	Home,
@@ -16,9 +17,6 @@ import {
 	UtensilsCrossed,
 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
-import { deleteExpense } from "@/api/expenses";
-import { deleteMember } from "@/api/members";
-import type { DeleteExpense, DeleteMember } from "@/api/schema";
 import type { SplitDebt } from "@/api/splits";
 import { useExpensesDrawerActions } from "@/components/expenses-drawer";
 import type { ExpensesDrawerMember } from "@/components/expenses-drawer/types";
@@ -32,15 +30,32 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import {
+	DropdownMenu,
+	DropdownMenuCheckboxItem,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useAppMutation } from "@/hooks/use-app-mutation";
+import { useDeleteExpense } from "@/hooks/expenses/use-delete-expense";
+import { useDeleteMember } from "@/hooks/members/use-delete-member";
 import { formatCurrency } from "@/lib/format-currency";
 import { formatDate } from "@/lib/format-date";
+import {
+	HISTORY_CATEGORY_VALUES,
+	type HistoryCategory,
+	type HistoryFiltersSearch,
+} from "@/lib/history-filters-search";
 import { m } from "@/paraglide/messages";
 import { getLocale } from "@/paraglide/runtime";
 import { ButtonWithSpinner } from "../button-with-spinner";
@@ -117,6 +132,28 @@ type ExpensesContentProps = {
 	expense: ExpenseItem[];
 	routeType: "expenses" | "splits";
 	debts?: SplitDebt[];
+	historyFilters: HistoryFiltersSearch;
+	onHistoryFilterChange: (patch: Partial<HistoryFiltersSearch>) => void;
+};
+
+const categoryLabels: Record<string, string> = {
+	food: m.category_food(),
+	transport: m.category_transport(),
+	housing: m.category_housing(),
+	health: m.category_health(),
+	entertainment: m.category_entertainment(),
+	shopping: m.category_shopping(),
+	subscriptions: m.category_subscriptions(),
+	other: m.category_other(),
+};
+
+const getCategoryLabel = (category: string) =>
+	categoryLabels[category] ?? category;
+
+const getMonthLabel = (monthKey: string) => {
+	if (monthKey === getMonthKey(new Date())) return m.content_total_this_month();
+	const [y, mo] = monthKey.split("-").map(Number);
+	return formatDate(new Date(y, mo - 1, 1), "MMMM yyyy");
 };
 
 export function ExpensesContent({
@@ -125,8 +162,9 @@ export function ExpensesContent({
 	expense,
 	routeType,
 	debts = [],
+	historyFilters,
+	onHistoryFilterChange,
 }: ExpensesContentProps) {
-	const router = useRouter();
 	const drawerActions = useExpensesDrawerActions();
 	const deleteMemberIdRef = useRef<string>(null);
 	const deleteExpenseIdRef = useRef<string>(null);
@@ -139,23 +177,17 @@ export function ExpensesContent({
 		null,
 	);
 
-	const deleteMemberMutation = useAppMutation({
-		mutationFn: (data: DeleteMember) => deleteMember({ data }),
-		invalidateKeys: ["members", groupId],
+	const deleteMemberMutation = useDeleteMember(groupId, {
 		onSuccess: () => {
 			deleteMemberIdRef.current = null;
 			setIsDeleteMemberDialogOpen(false);
-			router.invalidate();
 		},
 	});
 
-	const deleteExpenseMutation = useAppMutation({
-		mutationFn: (data: DeleteExpense) => deleteExpense({ data }),
-		invalidateKeys: ["expenses", groupId],
+	const deleteExpenseMutation = useDeleteExpense(groupId, {
 		onSuccess: () => {
 			deleteExpenseIdRef.current = null;
 			setIsDeleteExpenseDialogOpen(false);
-			router.invalidate();
 		},
 	});
 
@@ -163,28 +195,6 @@ export function ExpensesContent({
 		useExpenseTotals(expense);
 	const [compareMonthKey, setCompareMonthKey] = useState<string | null>(null);
 	const memberById = new Map(members.map((m) => [m.id, m.name]));
-
-	const sortedAndGroupedExpenses = useMemo(() => {
-		const sorted = [...expense].sort((a, b) => {
-			const dateA = a.expense_date ?? a.created_at ?? "";
-			const dateB = b.expense_date ?? b.created_at ?? "";
-			if (dateA !== dateB) return dateB.localeCompare(dateA);
-			return (b.created_at ?? "").localeCompare(a.created_at ?? "");
-		});
-		const byMonth = new Map<string, ExpenseItem[]>();
-		for (const e of sorted) {
-			const key = e.expense_date
-				? e.expense_date.slice(0, 7)
-				: e.created_at
-					? e.created_at.slice(0, 7)
-					: "—";
-			const list = byMonth.get(key) ?? [];
-			list.push(e);
-			byMonth.set(key, list);
-		}
-		const keys = Array.from(byMonth.keys()).sort().reverse();
-		return { byMonth, monthKeys: keys };
-	}, [expense]);
 
 	const compareMonthTotal = compareMonthKey
 		? (totalByMonth.get(compareMonthKey) ?? 0)
@@ -206,47 +216,118 @@ export function ExpensesContent({
 		maximumFractionDigits: 1,
 	});
 
-	const categoryLabels: Record<string, string> = {
-		food: m.category_food(),
-		transport: m.category_transport(),
-		housing: m.category_housing(),
-		health: m.category_health(),
-		entertainment: m.category_entertainment(),
-		shopping: m.category_shopping(),
-		subscriptions: m.category_subscriptions(),
-		other: m.category_other(),
-	};
-	const getCategoryLabel = (category: string) =>
-		categoryLabels[category] ?? category;
+	const monthOptions = useMemo(() => {
+		const keys = new Set<string>();
+		for (const e of expense) {
+			const key = e.expense_date?.slice(0, 7) ?? e.created_at?.slice(0, 7);
+			if (key) keys.add(key);
+		}
+		return Array.from(keys).sort().reverse();
+	}, [expense]);
+
+	const categoryOptions = useMemo(() => {
+		const values = new Set<HistoryCategory>();
+		for (const e of expense) {
+			if (HISTORY_CATEGORY_VALUES.includes(e.category as HistoryCategory)) {
+				values.add(e.category as HistoryCategory);
+			}
+		}
+		return Array.from(values).sort((a, b) =>
+			getCategoryLabel(a).localeCompare(getCategoryLabel(b)),
+		);
+	}, [expense]);
+
+	const paidByOptions = useMemo(() => {
+		const payerIds = new Set(expense.map((e) => e.paid_by));
+		return members
+			.filter((member) => payerIds.has(member.id))
+			.sort((a, b) => a.name.localeCompare(b.name));
+	}, [expense, members]);
+
+	const filteredExpenses = useMemo(() => {
+		return expense.filter((e) => {
+			const monthKey = e.expense_date?.slice(0, 7) ?? e.created_at?.slice(0, 7);
+			if (
+				historyFilters.historyMonths.length &&
+				!historyFilters.historyMonths.includes(monthKey ?? "")
+			) {
+				return false;
+			}
+			if (
+				historyFilters.historyCategories.length &&
+				!historyFilters.historyCategories.includes(e.category as HistoryCategory)
+			) {
+				return false;
+			}
+			if (
+				historyFilters.historyPaidBy.length &&
+				!historyFilters.historyPaidBy.includes(e.paid_by)
+			) {
+				return false;
+			}
+			return true;
+		});
+	}, [expense, historyFilters]);
+
+	const sortedAndGroupedExpenses = useMemo(() => {
+		const sorted = [...filteredExpenses].sort((a, b) => {
+			const dateA = a.expense_date ?? a.created_at ?? "";
+			const dateB = b.expense_date ?? b.created_at ?? "";
+			if (dateA !== dateB) return dateB.localeCompare(dateA);
+			return (b.created_at ?? "").localeCompare(a.created_at ?? "");
+		});
+		const byMonth = new Map<string, ExpenseItem[]>();
+		for (const e of sorted) {
+			const key = e.expense_date
+				? e.expense_date.slice(0, 7)
+				: e.created_at
+					? e.created_at.slice(0, 7)
+					: "—";
+			const list = byMonth.get(key) ?? [];
+			list.push(e);
+			byMonth.set(key, list);
+		}
+		const keys = Array.from(byMonth.keys()).sort().reverse();
+		return { byMonth, monthKeys: keys };
+	}, [filteredExpenses]);
 
 	const handleConfirmDeleteMember = () => {
 		const memberId = deleteMemberIdRef.current;
 		if (!memberId) return;
-		deleteMemberMutation.mutate(
-			{ groupId, memberId },
-			{
-				onSuccess: () => {
-					deleteMemberIdRef.current = null;
-					setIsDeleteMemberDialogOpen(false);
-					router.invalidate();
-				},
-			},
-		);
+		deleteMemberMutation.mutate({ groupId, memberId });
 	};
 
 	const handleConfirmDeleteExpense = () => {
 		const expenseId = deleteExpenseIdRef.current;
 		if (!expenseId) return;
-		deleteExpenseMutation.mutate(
-			{ groupId, expenseId },
-			{
-				onSuccess: () => {
-					deleteExpenseIdRef.current = null;
-					setIsDeleteExpenseDialogOpen(false);
-					router.invalidate();
-				},
-			},
-		);
+		deleteExpenseMutation.mutate({ groupId, expenseId });
+	};
+
+	const toggleMonthFilter = (monthKey: string, checked: boolean) => {
+		const nextValues = checked
+			? Array.from(new Set([...historyFilters.historyMonths, monthKey]))
+			: historyFilters.historyMonths.filter((value) => value !== monthKey);
+		onHistoryFilterChange({
+			historyMonths: nextValues,
+		});
+	};
+
+	const toggleCategoryFilter = (category: HistoryCategory, checked: boolean) => {
+		const nextValues = checked
+			? Array.from(new Set([...historyFilters.historyCategories, category]))
+			: historyFilters.historyCategories.filter((value) => value !== category);
+		onHistoryFilterChange({
+			historyCategories: nextValues,
+		});
+	};
+
+	const togglePaidByFilter = (memberId: string, checked: boolean) => {
+		const nextValues = checked
+			? Array.from(new Set([...historyFilters.historyPaidBy, memberId]))
+			: historyFilters.historyPaidBy.filter((value) => value !== memberId);
+		onHistoryFilterChange({
+			historyPaidBy: nextValues,
+		});
 	};
 
 	return (
@@ -422,9 +503,82 @@ export function ExpensesContent({
 
 			{/* History */}
 			<section className="flex min-h-0 flex-1 flex-col pb-24">
-				<h2 className="mb-3 text-md font-medium text-muted-foreground">
-					{m.content_section_history()}
-				</h2>
+				<div className="mb-3 flex items-center justify-between gap-3">
+					<h2 className="text-md font-medium text-muted-foreground">
+						{m.content_section_history()}
+					</h2>
+					<DropdownMenu>
+						<DropdownMenuTrigger
+							render={<Button variant="outline" size="sm" />}
+						>
+							<FilterIcon className="size-4" />
+							Filtros
+							<ChevronDownIcon className="size-4 opacity-60" />
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end" className="w-56">
+							<DropdownMenuSub>
+								<DropdownMenuSubTrigger>Mes</DropdownMenuSubTrigger>
+								<DropdownMenuSubContent>
+									{monthOptions.map((monthKey) => (
+										<DropdownMenuCheckboxItem
+											key={monthKey}
+											checked={historyFilters.historyMonths.includes(monthKey)}
+											onCheckedChange={(checked) =>
+												toggleMonthFilter(monthKey, Boolean(checked))
+											}
+										>
+											{getMonthLabel(monthKey)}
+										</DropdownMenuCheckboxItem>
+									))}
+								</DropdownMenuSubContent>
+							</DropdownMenuSub>
+							<DropdownMenuSub>
+								<DropdownMenuSubTrigger>Categoría</DropdownMenuSubTrigger>
+								<DropdownMenuSubContent>
+									{categoryOptions.map((category) => (
+										<DropdownMenuCheckboxItem
+											key={category}
+											checked={historyFilters.historyCategories.includes(category)}
+											onCheckedChange={(checked) =>
+												toggleCategoryFilter(category, Boolean(checked))
+											}
+										>
+											{getCategoryLabel(category)}
+										</DropdownMenuCheckboxItem>
+									))}
+								</DropdownMenuSubContent>
+							</DropdownMenuSub>
+							<DropdownMenuSub>
+								<DropdownMenuSubTrigger>Pagado por</DropdownMenuSubTrigger>
+								<DropdownMenuSubContent>
+									{paidByOptions.map((member) => (
+										<DropdownMenuCheckboxItem
+											key={member.id}
+											checked={historyFilters.historyPaidBy.includes(member.id)}
+											onCheckedChange={(checked) =>
+												togglePaidByFilter(member.id, Boolean(checked))
+											}
+										>
+											{member.name}
+										</DropdownMenuCheckboxItem>
+									))}
+								</DropdownMenuSubContent>
+							</DropdownMenuSub>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem
+								onClick={() =>
+									onHistoryFilterChange({
+										historyMonths: [],
+										historyCategories: [],
+										historyPaidBy: [],
+									})
+								}
+							>
+								Limpiar filtros
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
 				{expense.length === 0 ? (
 					<div className="flex flex-1 flex-col items-center justify-center py-12">
 						<Empty className="w-full">
@@ -439,39 +593,40 @@ export function ExpensesContent({
 							</EmptyHeader>
 						</Empty>
 					</div>
-				) : (
-					<div className="flex min-h-0 flex-1 flex-col overflow-auto">
-						<ul className="divide-y divide-border/50 overflow-hidden rounded-2xl border border-border/50 shadow-sm">
-							{sortedAndGroupedExpenses.monthKeys.map((monthKey) => {
-								const monthExpenses =
-									sortedAndGroupedExpenses.byMonth.get(monthKey) ?? [];
-								const isThisMonth = monthKey === getMonthKey(new Date());
-								const [y, mo] = monthKey.split("-").map(Number);
-								const monthLabel = isThisMonth
-									? m.content_total_this_month()
-									: formatDate(new Date(y, mo - 1, 1), "MMMM yyyy");
-								return (
-									<li key={monthKey}>
-										<div className="bg-muted/30 sticky top-0 z-10 px-3 py-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-											{monthLabel}
-										</div>
-										<ul className="divide-y divide-border/50">
-											{monthExpenses.map((e) => {
-												const isExpanded = expandedExpenseId === e.id;
-												const CategoryIcon = getCategoryIcon(e.category);
-												const primaryText =
-													[
-														e.category ? getCategoryLabel(e.category) : null,
-														e.description,
-													]
-														.filter(Boolean)
-														.join(" · ") || "—";
-												return (
-													<li
-														key={e.id}
-														className="transition-colors hover:bg-muted/30"
-													>
-														<div className="flex items-start justify-between gap-2 px-3 py-2.5">
+					) : (
+						<div className="flex min-h-0 flex-1 flex-col overflow-auto">
+							{filteredExpenses.length === 0 ? (
+								<div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 px-4 py-16 text-center text-sm text-muted-foreground">
+									No hay movimientos para los filtros seleccionados.
+								</div>
+							) : (
+								<ul className="divide-y divide-border/50 overflow-hidden rounded-2xl border border-border/50 shadow-sm">
+									{sortedAndGroupedExpenses.monthKeys.map((monthKey) => {
+										const monthExpenses =
+											sortedAndGroupedExpenses.byMonth.get(monthKey) ?? [];
+										const monthLabel = getMonthLabel(monthKey);
+										return (
+											<li key={monthKey}>
+												<div className="bg-muted/30 sticky top-0 z-10 px-3 py-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+													{monthLabel}
+												</div>
+												<ul className="divide-y divide-border/50">
+													{monthExpenses.map((e) => {
+														const isExpanded = expandedExpenseId === e.id;
+														const CategoryIcon = getCategoryIcon(e.category);
+														const primaryText =
+															[
+																e.category ? getCategoryLabel(e.category) : null,
+																e.description,
+															]
+																.filter(Boolean)
+																.join(" · ") || "—";
+														return (
+															<li
+																key={e.id}
+																className="transition-colors hover:bg-muted/30"
+															>
+																<div className="flex items-start justify-between gap-2 px-3 py-2.5">
 															<div className="flex min-w-0 flex-1 items-start gap-2">
 																<span className="text-muted-foreground mt-0.5 shrink-0">
 																	<CategoryIcon className="size-4" />
@@ -639,17 +794,18 @@ export function ExpensesContent({
 																</dl>
 															</div>
 														)}
-													</li>
-												);
-											})}
-										</ul>
-									</li>
-								);
-							})}
-						</ul>
-					</div>
-				)}
-			</section>
+															</li>
+														);
+													})}
+												</ul>
+											</li>
+										);
+									})}
+								</ul>
+							)}
+						</div>
+					)}
+				</section>
 
 			{/* Delete member dialog */}
 			<Dialog
