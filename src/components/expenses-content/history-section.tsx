@@ -219,6 +219,9 @@ export function HistorySection({
 		});
 	};
 
+  const showFilters = members.length > 0 && expense.length > 0;
+  const hasNoExpenses = expense.length === 0;
+
 	return (
 		<>
 			<section className="flex min-h-0 flex-1 flex-col pb-24">
@@ -226,79 +229,81 @@ export function HistorySection({
 					<h2 className="text-md font-medium text-muted-foreground">
 						{m.content_section_history()}
 					</h2>
-					<DropdownMenu>
-						<DropdownMenuTrigger
-							render={<Button variant="outline" size="sm" />}
-						>
-							<FilterIcon className="size-4" />
-							Filtros
-							<ChevronDownIcon className="size-4 opacity-60" />
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="w-56">
-							<DropdownMenuSub>
-								<DropdownMenuSubTrigger>Mes</DropdownMenuSubTrigger>
-								<DropdownMenuSubContent>
-									{monthOptions.map((monthKey) => (
-										<DropdownMenuCheckboxItem
-											key={monthKey}
-											checked={selectedMonths.includes(monthKey)}
-											onCheckedChange={(checked) =>
-												toggleMonthFilter(monthKey, Boolean(checked))
-											}
-										>
-											{getMonthLabel(monthKey)}
-										</DropdownMenuCheckboxItem>
-									))}
-								</DropdownMenuSubContent>
-							</DropdownMenuSub>
-							<DropdownMenuSub>
-								<DropdownMenuSubTrigger>Categoría</DropdownMenuSubTrigger>
-								<DropdownMenuSubContent>
-									{categoryOptions.map((category) => (
-										<DropdownMenuCheckboxItem
-											key={category}
-											checked={selectedCategories.includes(category)}
-											onCheckedChange={(checked) =>
-												toggleCategoryFilter(category, Boolean(checked))
-											}
-										>
-											{getCategoryLabel(category)}
-										</DropdownMenuCheckboxItem>
-									))}
-								</DropdownMenuSubContent>
-							</DropdownMenuSub>
-							<DropdownMenuSub>
-								<DropdownMenuSubTrigger>Pagado por</DropdownMenuSubTrigger>
-								<DropdownMenuSubContent>
-									{paidByOptions.map((member) => (
-										<DropdownMenuCheckboxItem
-											key={member.id}
-											checked={selectedPaidBy.includes(member.id)}
-											onCheckedChange={(checked) =>
-												togglePaidByFilter(member.id, Boolean(checked))
-											}
-										>
-											{member.name}
-										</DropdownMenuCheckboxItem>
-									))}
-								</DropdownMenuSubContent>
-							</DropdownMenuSub>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								onClick={() =>
-									onHistoryFilterChange({
-										historyMonths: undefined,
-										historyCategories: undefined,
-										historyPaidBy: undefined,
-									})
-								}
+					{showFilters && (
+						<DropdownMenu>
+							<DropdownMenuTrigger
+								render={<Button variant="outline" size="sm" />}
 							>
-								Limpiar filtros
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+								<FilterIcon className="size-4" />
+								{m.history_filter_button()}
+								<ChevronDownIcon className="size-4 opacity-60" />
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end" className="w-56">
+								<DropdownMenuSub>
+									<DropdownMenuSubTrigger>{m.history_filter_month()}</DropdownMenuSubTrigger>
+									<DropdownMenuSubContent>
+										{monthOptions.map((monthKey) => (
+												<DropdownMenuCheckboxItem
+													key={monthKey}
+													checked={selectedMonths.includes(monthKey)}
+													onCheckedChange={(checked) =>
+														toggleMonthFilter(monthKey, Boolean(checked))
+													}
+												>
+													{getMonthLabel(monthKey)}
+												</DropdownMenuCheckboxItem>
+											))}
+									</DropdownMenuSubContent>
+								</DropdownMenuSub>
+								<DropdownMenuSub>
+									<DropdownMenuSubTrigger>{m.history_filter_category()}</DropdownMenuSubTrigger>
+									<DropdownMenuSubContent>
+										{categoryOptions.map((category) => (
+												<DropdownMenuCheckboxItem
+													key={category}
+													checked={selectedCategories.includes(category)}
+													onCheckedChange={(checked) =>
+														toggleCategoryFilter(category, Boolean(checked))
+													}
+												>
+													{getCategoryLabel(category)}
+												</DropdownMenuCheckboxItem>
+											))}
+									</DropdownMenuSubContent>
+								</DropdownMenuSub>
+								<DropdownMenuSub>
+									<DropdownMenuSubTrigger>{m.history_filter_paid_by()}</DropdownMenuSubTrigger>
+									<DropdownMenuSubContent>
+										{paidByOptions.map((member) => (
+												<DropdownMenuCheckboxItem
+													key={member.id}
+													checked={selectedPaidBy.includes(member.id)}
+													onCheckedChange={(checked) =>
+														togglePaidByFilter(member.id, Boolean(checked))
+													}
+												>
+													{member.name}
+												</DropdownMenuCheckboxItem>
+											))}
+									</DropdownMenuSubContent>
+								</DropdownMenuSub>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem
+									onClick={() =>
+										onHistoryFilterChange({
+											historyMonths: undefined,
+											historyCategories: undefined,
+											historyPaidBy: undefined,
+										})
+									}
+								>
+									{m.history_filter_clear()}
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					)}
 				</div>
-				{expense.length === 0 ? (
+				{hasNoExpenses ? (
 					<div className="flex flex-1 flex-col items-center justify-center py-12">
 						<Empty className="w-full">
 							<EmptyHeader>
@@ -316,7 +321,7 @@ export function HistorySection({
 					<div className="flex min-h-0 flex-1 flex-col overflow-auto">
 						{filteredExpenses.length === 0 ? (
 							<div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 px-4 py-16 text-center text-sm text-muted-foreground">
-								No hay movimientos para los filtros seleccionados.
+								{m.history_filter_no_results()}
 							</div>
 						) : (
 							<ul className="divide-y divide-border/50 overflow-hidden rounded-2xl border border-border/50 shadow-sm">
