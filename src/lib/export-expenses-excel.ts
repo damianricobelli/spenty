@@ -1,4 +1,4 @@
-import { Workbook } from "exceljs";
+import ExcelJS from "exceljs";
 import { formatDate } from "@/lib/format-date";
 import { m } from "@/paraglide/messages";
 
@@ -31,7 +31,7 @@ export async function exportExpensesToExcel({
 	expenses,
 	members,
 }: ExportExpensesToExcelParams) {
-	const workbook = new Workbook();
+	const workbook = new ExcelJS.Workbook();
 	workbook.creator = "Spenty";
 	workbook.created = new Date();
 
