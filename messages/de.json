@@ -92,6 +92,7 @@
   "history_filter_paid_by": "Bezahlt von",
   "history_filter_clear": "Filter zurücksetzen",
   "history_filter_no_results": "Keine Buchungen für die gewählten Filter.",
+  "history_export_excel_error": "Die Excel-Datei konnte nicht exportiert werden.",
   "content_history_paid_to": "bezahlt an",
   "content_view_details": "Details anzeigen",
   "content_section_who_owes": "Wer schuldet wem",

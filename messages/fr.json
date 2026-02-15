@@ -105,6 +105,7 @@
   "history_filter_paid_by": "Payé par",
   "history_filter_clear": "Effacer les filtres",
   "history_filter_no_results": "Aucun mouvement pour les filtres sélectionnés.",
+  "history_export_excel_error": "Impossible d'exporter le fichier Excel.",
   "content_history_paid_to": "a payé à",
   "content_view_details": "Voir les détails",
   "content_section_who_owes": "Qui doit à qui",

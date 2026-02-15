@@ -92,6 +92,7 @@
   "history_filter_paid_by": "Paid by",
   "history_filter_clear": "Clear filters",
   "history_filter_no_results": "No transactions for the selected filters.",
+  "history_export_excel_error": "Couldn't export the Excel file.",
   "content_history_paid_to": "paid to",
   "content_view_details": "View details",
   "content_section_who_owes": "Who owes whom",

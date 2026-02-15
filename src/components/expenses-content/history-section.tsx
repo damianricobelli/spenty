@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
 	Car,
 	ChevronDownIcon,
+	DownloadIcon,
 	EyeIcon,
 	FilterIcon,
 	Gamepad2,
@@ -16,6 +17,7 @@ import {
 	UtensilsCrossed,
 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import { useExpensesToolbarActions } from "@/components/expenses-toolbar";
 import type { ExpensesToolbarMember } from "@/components/expenses-toolbar/types";
 import { Button } from "@/components/ui/button";
@@ -39,6 +41,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useDeleteExpense } from "@/hooks/expenses/use-delete-expense";
+import { exportExpensesToExcel } from "@/lib/export-expenses-excel";
 import { formatCurrency } from "@/lib/format-currency";
 import { formatDate } from "@/lib/format-date";
 import {
@@ -80,6 +83,8 @@ export type ExpenseItem = {
 
 type ExpensesContentProps = {
 	groupId: string;
+	groupName: string;
+	groupCode: string;
 	members: ExpensesToolbarMember[];
 	expense: ExpenseItem[];
 	historyFilters: HistoryFiltersSearch;
@@ -88,6 +93,8 @@ type ExpensesContentProps = {
 
 export function HistorySection({
 	groupId,
+	groupName,
+	groupCode,
 	members,
 	expense,
 	historyFilters,
@@ -101,6 +108,7 @@ export function HistorySection({
 
 	const [isDeleteExpenseDialogOpen, setIsDeleteExpenseDialogOpen] =
 		useState(false);
+	const [isExporting, setIsExporting] = useState(false);
 	const [expandedExpenseId, setExpandedExpenseId] = useState<string | null>(
 		null,
 	);
@@ -219,8 +227,26 @@ export function HistorySection({
 		});
 	};
 
-  const showFilters = members.length > 0 && expense.length > 0;
-  const hasNoExpenses = expense.length === 0;
+	const handleExportExcel = async () => {
+		try {
+			setIsExporting(true);
+			await exportExpensesToExcel({
+				groupName,
+				groupCode,
+				expenses: filteredExpenses,
+				members,
+			});
+		} catch (error) {
+			console.error("Error exporting expenses:", error);
+			toast.error(m.history_export_excel_error());
+		} finally {
+			setIsExporting(false);
+		}
+	};
+
+	const showFilters = members.length > 0 && expense.length > 0;
+	const hasNoExpenses = expense.length === 0;
+	const canExport = filteredExpenses.length > 0;
 
 	return (
 		<>
@@ -230,19 +256,32 @@ export function HistorySection({
 						{m.content_section_history()}
 					</h2>
 					{showFilters && (
-						<DropdownMenu>
-							<DropdownMenuTrigger
-								render={<Button variant="outline" size="sm" />}
+						<div className="flex items-center gap-2">
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								disabled={!canExport || isExporting}
+								onClick={handleExportExcel}
 							>
-								<FilterIcon className="size-4" />
-								{m.history_filter_button()}
-								<ChevronDownIcon className="size-4 opacity-60" />
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end" className="w-56">
-								<DropdownMenuSub>
-									<DropdownMenuSubTrigger>{m.history_filter_month()}</DropdownMenuSubTrigger>
-									<DropdownMenuSubContent>
-										{monthOptions.map((monthKey) => (
+								<DownloadIcon className="size-4" />
+								Excel
+							</Button>
+							<DropdownMenu>
+								<DropdownMenuTrigger
+									render={<Button variant="outline" size="sm" />}
+								>
+									<FilterIcon className="size-4" />
+									{m.history_filter_button()}
+									<ChevronDownIcon className="size-4 opacity-60" />
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end" className="w-56">
+									<DropdownMenuSub>
+										<DropdownMenuSubTrigger>
+											{m.history_filter_month()}
+										</DropdownMenuSubTrigger>
+										<DropdownMenuSubContent>
+											{monthOptions.map((monthKey) => (
 												<DropdownMenuCheckboxItem
 													key={monthKey}
 													checked={selectedMonths.includes(monthKey)}
@@ -253,12 +292,14 @@ export function HistorySection({
 													{getMonthLabel(monthKey)}
 												</DropdownMenuCheckboxItem>
 											))}
-									</DropdownMenuSubContent>
-								</DropdownMenuSub>
-								<DropdownMenuSub>
-									<DropdownMenuSubTrigger>{m.history_filter_category()}</DropdownMenuSubTrigger>
-									<DropdownMenuSubContent>
-										{categoryOptions.map((category) => (
+										</DropdownMenuSubContent>
+									</DropdownMenuSub>
+									<DropdownMenuSub>
+										<DropdownMenuSubTrigger>
+											{m.history_filter_category()}
+										</DropdownMenuSubTrigger>
+										<DropdownMenuSubContent>
+											{categoryOptions.map((category) => (
 												<DropdownMenuCheckboxItem
 													key={category}
 													checked={selectedCategories.includes(category)}
@@ -269,12 +310,14 @@ export function HistorySection({
 													{getCategoryLabel(category)}
 												</DropdownMenuCheckboxItem>
 											))}
-									</DropdownMenuSubContent>
-								</DropdownMenuSub>
-								<DropdownMenuSub>
-									<DropdownMenuSubTrigger>{m.history_filter_paid_by()}</DropdownMenuSubTrigger>
-									<DropdownMenuSubContent>
-										{paidByOptions.map((member) => (
+										</DropdownMenuSubContent>
+									</DropdownMenuSub>
+									<DropdownMenuSub>
+										<DropdownMenuSubTrigger>
+											{m.history_filter_paid_by()}
+										</DropdownMenuSubTrigger>
+										<DropdownMenuSubContent>
+											{paidByOptions.map((member) => (
 												<DropdownMenuCheckboxItem
 													key={member.id}
 													checked={selectedPaidBy.includes(member.id)}
@@ -285,22 +328,23 @@ export function HistorySection({
 													{member.name}
 												</DropdownMenuCheckboxItem>
 											))}
-									</DropdownMenuSubContent>
-								</DropdownMenuSub>
-								<DropdownMenuSeparator />
-								<DropdownMenuItem
-									onClick={() =>
-										onHistoryFilterChange({
-											historyMonths: undefined,
-											historyCategories: undefined,
-											historyPaidBy: undefined,
-										})
-									}
-								>
-									{m.history_filter_clear()}
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
+										</DropdownMenuSubContent>
+									</DropdownMenuSub>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem
+										onClick={() =>
+											onHistoryFilterChange({
+												historyMonths: undefined,
+												historyCategories: undefined,
+												historyPaidBy: undefined,
+											})
+										}
+									>
+										{m.history_filter_clear()}
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</div>
 					)}
 				</div>
 				{hasNoExpenses ? (

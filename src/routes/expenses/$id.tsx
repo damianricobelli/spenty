@@ -83,6 +83,8 @@ function RouteComponent() {
 					) : (
 						<ExpensesContent
 							groupId={group.id}
+							groupName={group.name}
+							groupCode={group.slug}
 							members={members}
 							expense={expense}
 							historyFilters={historyFilters}

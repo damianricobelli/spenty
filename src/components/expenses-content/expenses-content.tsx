@@ -19,6 +19,8 @@ export type ExpenseItem = {
 
 type ExpensesContentProps = {
 	groupId: string;
+	groupName: string;
+	groupCode: string;
 	members: ExpensesToolbarMember[];
 	expense: ExpenseItem[];
 	debts?: SplitDebt[];
@@ -28,6 +30,8 @@ type ExpensesContentProps = {
 
 export function ExpensesContent({
 	groupId,
+	groupName,
+	groupCode,
 	members,
 	expense,
 	debts = [],
@@ -51,6 +55,8 @@ export function ExpensesContent({
 				historyFilters={historyFilters}
 				onHistoryFilterChange={onHistoryFilterChange}
 				groupId={groupId}
+				groupName={groupName}
+				groupCode={groupCode}
 				members={members}
 			/>
 		</div>

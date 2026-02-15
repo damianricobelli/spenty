@@ -105,6 +105,7 @@
   "history_filter_paid_by": "Betaald door",
   "history_filter_clear": "Filters wissen",
   "history_filter_no_results": "Geen transacties voor de geselecteerde filters.",
+  "history_export_excel_error": "Kon het Excel-bestand niet exporteren.",
   "content_history_paid_to": "betaalde aan",
   "content_view_details": "Details bekijken",
   "content_section_who_owes": "Wie is wat aan wie verschuldigd",
