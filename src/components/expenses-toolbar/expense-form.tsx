@@ -160,7 +160,7 @@ function ToolbarExpenseFormInner({
 			: (expense?.paid_by ?? ""),
 	);
 	const [paidToMemberIds, setPaidToMemberIds] = useState<string[]>(() =>
-		intent === "edit" && expense ? expense.paidToMemberIds ?? [] : [],
+		intent === "edit" && expense ? (expense.paidToMemberIds ?? []) : [],
 	);
 	const [category, setCategory] = useState(() => expense?.category ?? "");
 	const [paymentDate, setPaymentDate] = useState<Date | undefined>(() =>
@@ -415,8 +415,7 @@ function ToolbarExpenseFormInner({
 									{ groupId: group.id, name: item.value.trim() },
 									{
 										onSuccess: () => setCategoryOpen(false),
-										onError: (err) =>
-											toast.error(getErrorMessage(err)),
+										onError: (err) => toast.error(getErrorMessage(err)),
 									},
 								);
 							} else {
@@ -443,7 +442,7 @@ function ToolbarExpenseFormInner({
 									className="border-input bg-input/30 data-placeholder:text-muted-foreground h-9 w-full justify-between rounded-4xl border px-3 py-2 text-base font-normal"
 								>
 									{category
-										? categoryLabels[category] ?? category
+										? (categoryLabels[category] ?? category)
 										: m.toolbar_field_category_placeholder()}
 								</Button>
 							}
@@ -476,8 +475,7 @@ function ToolbarExpenseFormInner({
 															},
 															{
 																onSuccess: () => {
-																	if (category === item.value)
-																		setCategory("");
+																	if (category === item.value) setCategory("");
 																},
 																onError: (err) =>
 																	toast.error(getErrorMessage(err)),
@@ -501,15 +499,13 @@ function ToolbarExpenseFormInner({
 					<Input
 						name="description"
 						placeholder={m.toolbar_field_description_placeholder()}
-						defaultValue={isAdd ? undefined : expense?.description ?? ""}
+						defaultValue={isAdd ? undefined : (expense?.description ?? "")}
 					/>
 				</Field>
 
 				<Field>
 					<FieldLabel>{m.toolbar_field_payment_date()}</FieldLabel>
-					<Popover
-						modal
-					>
+					<Popover modal>
 						<PopoverTrigger
 							type="button"
 							className="border-input bg-input/30 flex h-10 w-full items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
