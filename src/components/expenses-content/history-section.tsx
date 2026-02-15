@@ -344,19 +344,30 @@ export function HistorySection({
 								type="button"
 								variant="outline"
 								size="sm"
+								className="size-8 px-0 sm:h-8 sm:w-auto sm:px-3"
+								aria-label="Export to Excel"
 								disabled={!canExport || isExporting}
 								onClick={handleExportExcel}
 							>
 								<DownloadIcon className="size-4" />
-								Excel
+								<span className="hidden sm:inline">Excel</span>
 							</Button>
 							<DropdownMenu>
 								<DropdownMenuTrigger
-									render={<Button variant="outline" size="sm" />}
+									render={
+										<Button
+											variant="outline"
+											size="sm"
+											className="size-8 px-0 sm:h-8 sm:w-auto sm:px-3"
+											aria-label={m.history_filter_button()}
+										/>
+									}
 								>
 									<FilterIcon className="size-4" />
-									{m.history_filter_button()}
-									<ChevronDownIcon className="size-4 opacity-60" />
+									<span className="hidden sm:inline">
+										{m.history_filter_button()}
+									</span>
+									<ChevronDownIcon className="hidden size-4 opacity-60 sm:inline" />
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="end" className="w-56">
 									<DropdownMenuSub>

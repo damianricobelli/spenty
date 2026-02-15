@@ -105,7 +105,7 @@
   "history_filter_paid_by": "支払い者",
   "history_filter_clear": "フィルターをクリア",
   "history_filter_no_results": "選択したフィルターに一致する履歴はありません。",
-  "history_filter_search_placeholder": "履歴を検索…",
+  "history_filter_search_placeholder": "検索",
   "history_export_excel_error": "Excelファイルをエクスポートできませんでした。",
   "content_history_paid_to": "が支払い先",
   "content_view_details": "詳細を見る",

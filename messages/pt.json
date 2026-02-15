@@ -105,7 +105,7 @@
   "history_filter_paid_by": "Pago por",
   "history_filter_clear": "Limpar filtros",
   "history_filter_no_results": "Nenhum movimento para os filtros selecionados.",
-  "history_filter_search_placeholder": "Buscar no histórico…",
+  "history_filter_search_placeholder": "Buscar",
   "history_export_excel_error": "Não foi possível exportar o arquivo Excel.",
   "content_history_paid_to": "pagou para",
   "content_view_details": "Ver detalhes",
