@@ -105,6 +105,7 @@
   "history_filter_paid_by": "付款人",
   "history_filter_clear": "清除筛选",
   "history_filter_no_results": "没有符合所选筛选条件的记录。",
+  "history_filter_search_placeholder": "搜索记录…",
   "history_export_excel_error": "无法导出 Excel 文件。",
   "content_history_paid_to": "支付给",
   "content_view_details": "查看详情",

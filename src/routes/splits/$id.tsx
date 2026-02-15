@@ -97,17 +97,21 @@ function RouteComponent() {
 
 										return {
 											...next,
-											historyMonths:
-												(next.historyMonths?.length ?? 0)
-													? next.historyMonths
+											months:
+												(next.months?.length ?? 0)
+													? next.months
 													: undefined,
-											historyCategories:
-												(next.historyCategories?.length ?? 0)
-													? next.historyCategories
+											categories:
+												(next.categories?.length ?? 0)
+													? next.categories
 													: undefined,
-											historyPaidBy:
-												(next.historyPaidBy?.length ?? 0)
-													? next.historyPaidBy
+											paidBy:
+												(next.paidBy?.length ?? 0)
+													? next.paidBy
+													: undefined,
+											search:
+												next.search?.trim().length
+													? next.search.trim()
 													: undefined,
 										};
 									},

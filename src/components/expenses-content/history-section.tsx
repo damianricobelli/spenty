@@ -12,11 +12,12 @@ import {
 	PencilIcon,
 	ReceiptIcon,
 	Repeat,
+	SearchIcon,
 	ShoppingBag,
 	Trash2Icon,
 	UtensilsCrossed,
 } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useExpensesToolbarActions } from "@/components/expenses-toolbar";
 import type { ExpensesToolbarMember } from "@/components/expenses-toolbar/types";
@@ -40,7 +41,13 @@ import {
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupInput,
+} from "@/components/ui/input-group";
 import { useDeleteExpense } from "@/hooks/expenses/use-delete-expense";
+import { cn } from "@/lib/cn";
 import { exportExpensesToExcel } from "@/lib/export-expenses-excel";
 import { formatCurrency } from "@/lib/format-currency";
 import { formatDate } from "@/lib/format-date";
@@ -102,9 +109,12 @@ export function HistorySection({
 }: ExpensesContentProps) {
 	const toolbarActions = useExpensesToolbarActions();
 	const deleteExpenseIdRef = useRef<string>(null);
-	const selectedMonths = historyFilters.historyMonths ?? [];
-	const selectedCategories = historyFilters.historyCategories ?? [];
-	const selectedPaidBy = historyFilters.historyPaidBy ?? [];
+	const selectedMonths = historyFilters.months ?? [];
+	const selectedCategories = historyFilters.categories ?? [];
+	const selectedPaidBy = historyFilters.paidBy ?? [];
+	const selectedSearchTerm = historyFilters.search ?? "";
+	const deferredSearchTerm = useDeferredValue(selectedSearchTerm);
+	const normalizedSearchTerm = normalizeHistorySearchText(deferredSearchTerm);
 
 	const [isDeleteExpenseDialogOpen, setIsDeleteExpenseDialogOpen] =
 		useState(false);
@@ -112,6 +122,22 @@ export function HistorySection({
 	const [expandedExpenseId, setExpandedExpenseId] = useState<string | null>(
 		null,
 	);
+	const [isSearchOpen, setIsSearchOpen] = useState(
+		() => selectedSearchTerm.length > 0,
+	);
+	const searchInputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		if (selectedSearchTerm && !isSearchOpen) {
+			setIsSearchOpen(true);
+		}
+	}, [isSearchOpen, selectedSearchTerm]);
+
+	useEffect(() => {
+		if (isSearchOpen) {
+			searchInputRef.current?.focus();
+		}
+	}, [isSearchOpen]);
 
 	const deleteExpenseMutation = useDeleteExpense(groupId, {
 		onSuccess: () => {
@@ -120,7 +146,10 @@ export function HistorySection({
 		},
 	});
 
-	const memberById = new Map(members.map((m) => [m.id, m.name]));
+	const memberById = useMemo(
+		() => new Map(members.map((member) => [member.id, member.name])),
+		[members],
+	);
 
 	const monthOptions = useMemo(() => {
 		const keys = new Set<string>();
@@ -165,9 +194,33 @@ export function HistorySection({
 			if (selectedPaidBy.length && !selectedPaidBy.includes(e.paid_by)) {
 				return false;
 			}
+			if (normalizedSearchTerm) {
+				const payerName = memberById.get(e.paid_by) ?? "";
+				const searchableText = normalizeHistorySearchText(
+					[
+						e.description,
+						e.category,
+						getCategoryLabel(e.category),
+						payerName,
+						String(e.amount),
+					]
+						.filter(Boolean)
+						.join(" "),
+				);
+				if (!searchableText.includes(normalizedSearchTerm)) {
+					return false;
+				}
+			}
 			return true;
 		});
-	}, [expense, selectedCategories, selectedMonths, selectedPaidBy]);
+	}, [
+		expense,
+		memberById,
+		normalizedSearchTerm,
+		selectedCategories,
+		selectedMonths,
+		selectedPaidBy,
+	]);
 
 	const sortedAndGroupedExpenses = useMemo(() => {
 		const sorted = [...filteredExpenses].sort((a, b) => {
@@ -202,7 +255,7 @@ export function HistorySection({
 			? Array.from(new Set([...selectedMonths, monthKey]))
 			: selectedMonths.filter((value) => value !== monthKey);
 		onHistoryFilterChange({
-			historyMonths: nextValues.length ? nextValues : undefined,
+			months: nextValues.length ? nextValues : undefined,
 		});
 	};
 
@@ -214,7 +267,7 @@ export function HistorySection({
 			? Array.from(new Set([...selectedCategories, category]))
 			: selectedCategories.filter((value) => value !== category);
 		onHistoryFilterChange({
-			historyCategories: nextValues.length ? nextValues : undefined,
+			categories: nextValues.length ? nextValues : undefined,
 		});
 	};
 
@@ -223,7 +276,7 @@ export function HistorySection({
 			? Array.from(new Set([...selectedPaidBy, memberId]))
 			: selectedPaidBy.filter((value) => value !== memberId);
 		onHistoryFilterChange({
-			historyPaidBy: nextValues.length ? nextValues : undefined,
+			paidBy: nextValues.length ? nextValues : undefined,
 		});
 	};
 
@@ -256,7 +309,37 @@ export function HistorySection({
 						{m.content_section_history()}
 					</h2>
 					{showFilters && (
-						<div className="flex items-center gap-2">
+						<div className="flex flex-1 items-center justify-end gap-2">
+							<InputGroup
+								className={cn(
+									"shrink-0 overflow-hidden transition-[width] duration-250 ease-out",
+									isSearchOpen ? "w-40 h-8" : "size-8",
+								)}
+								onClick={() => setIsSearchOpen(true)}
+							>
+								<InputGroupInput
+									ref={searchInputRef}
+									type="search"
+									value={selectedSearchTerm}
+									onChange={(event) =>
+										onHistoryFilterChange({
+											search: event.currentTarget.value || undefined,
+										})
+									}
+									onBlur={() => {
+										if (!selectedSearchTerm) setIsSearchOpen(false);
+									}}
+									placeholder={m.history_filter_search_placeholder()}
+									className={cn(
+										isSearchOpen
+											? ""
+											: "!flex-none w-0 min-w-0 px-0 opacity-0 pointer-events-none",
+									)}
+								/>
+								<InputGroupAddon align="inline-end">
+									<SearchIcon />
+								</InputGroupAddon>
+							</InputGroup>
 							<Button
 								type="button"
 								variant="outline"
@@ -334,9 +417,10 @@ export function HistorySection({
 									<DropdownMenuItem
 										onClick={() =>
 											onHistoryFilterChange({
-												historyMonths: undefined,
-												historyCategories: undefined,
-												historyPaidBy: undefined,
+												months: undefined,
+												categories: undefined,
+												paidBy: undefined,
+												search: undefined,
 											})
 										}
 									>
@@ -641,4 +725,8 @@ function getMonthKey(date: Date) {
 	const y = date.getFullYear();
 	const m = date.getMonth() + 1;
 	return `${y}-${String(m).padStart(2, "0")}`;
+}
+
+function normalizeHistorySearchText(value: string) {
+	return value.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().trim();
 }

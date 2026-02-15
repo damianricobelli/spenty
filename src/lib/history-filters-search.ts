@@ -23,6 +23,19 @@ function normalizeSearchArray(value: unknown): string[] {
 			.filter(Boolean);
 	}
 	if (typeof value === "string") {
+		const trimmed = value.trim();
+		if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+			try {
+				const parsed = JSON.parse(trimmed);
+				if (Array.isArray(parsed)) {
+					return parsed
+						.map((item) => String(item).trim())
+						.filter(Boolean);
+				}
+			} catch {
+				// Fallback to plain CSV parsing below.
+			}
+		}
 		return value
 			.split(",")
 			.map((item) => item.trim())
@@ -32,7 +45,7 @@ function normalizeSearchArray(value: unknown): string[] {
 }
 
 export const historyFiltersSearchSchema = z.object({
-	historyMonths: z
+	months: z
 		.unknown()
 		.optional()
 		.transform((value) => {
@@ -41,7 +54,7 @@ export const historyFiltersSearchSchema = z.object({
 			);
 			return items.length ? items : undefined;
 		}),
-	historyCategories: z
+	categories: z
 		.unknown()
 		.optional()
 		.transform((value) => {
@@ -51,12 +64,19 @@ export const historyFiltersSearchSchema = z.object({
 			);
 			return items.length ? items : undefined;
 		}),
-	historyPaidBy: z
+	paidBy: z
 		.unknown()
 		.optional()
 		.transform((value) => {
 			const items = normalizeSearchArray(value);
 			return items.length ? items : undefined;
+		}),
+	search: z
+		.string()
+		.optional()
+		.transform((value) => {
+			const normalized = value?.trim();
+			return normalized ? normalized : undefined;
 		}),
 });
 

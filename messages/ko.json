@@ -105,6 +105,7 @@
   "history_filter_paid_by": "결제자",
   "history_filter_clear": "필터 지우기",
   "history_filter_no_results": "선택한 필터에 해당하는 내역이 없습니다.",
+  "history_filter_search_placeholder": "내역 검색…",
   "history_export_excel_error": "엑셀 파일을 내보내지 못했습니다.",
   "content_history_paid_to": "결제 대상",
   "content_view_details": "자세히 보기",
