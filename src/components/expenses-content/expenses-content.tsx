@@ -1,5 +1,5 @@
 import type { SplitDebt } from "@/api/splits";
-import type { ExpensesDrawerMember } from "@/components/expenses-drawer/types";
+import type { ExpensesToolbarMember } from "@/components/expenses-toolbar/types";
 import type { HistoryFiltersSearch } from "@/lib/history-filters-search";
 import { DebtsSection } from "./debts-section";
 import { HistorySection } from "./history-section";
@@ -19,7 +19,7 @@ export type ExpenseItem = {
 
 type ExpensesContentProps = {
 	groupId: string;
-	members: ExpensesDrawerMember[];
+	members: ExpensesToolbarMember[];
 	expense: ExpenseItem[];
 	debts?: SplitDebt[];
 	historyFilters: HistoryFiltersSearch;

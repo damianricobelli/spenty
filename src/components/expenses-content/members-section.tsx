@@ -14,13 +14,13 @@ import { useDeleteMember } from "@/hooks/members/use-delete-member";
 import { useEntity } from "@/hooks/use-entity";
 import { m } from "@/paraglide/messages";
 import { ButtonWithSpinner } from "../button-with-spinner";
-import { useExpensesDrawerActions } from "../expenses-drawer";
+import { useExpensesToolbarActions } from "../expenses-toolbar";
 
 export function MembersSection() {
 	const entity = useEntity();
 	const { members } = useLoaderData({ from: entity });
 
-	const drawerActions = useExpensesDrawerActions();
+	const toolbarActions = useExpensesToolbarActions();
 
 	const deleteMemberIdRef = useRef<string>(null);
 
@@ -46,14 +46,14 @@ export function MembersSection() {
 								</span>
 								<span className="pr-0.5">{member.name}</span>
 								<div className="flex items-center gap-0">
-									{drawerActions && (
+									{toolbarActions && (
 										<Button
 											type="button"
 											variant="ghost"
 											size="icon-xs"
 											className="shrink-0 rounded-full opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/10"
 											aria-label={m.content_edit()}
-											onClick={() => drawerActions.openEditMember(member.id)}
+											onClick={() => toolbarActions.openEditMember(member.id)}
 										>
 											<PencilIcon className="size-3.5" />
 										</Button>

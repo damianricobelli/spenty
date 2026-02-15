@@ -1,15 +1,15 @@
 import { createContext, useContext } from "react";
 
-type ExpensesDrawerActions = {
+type ExpensesToolbarActions = {
   openAddMember: () => void;
   openEditMember: (memberId: string) => void;
   openEditExpense: (expenseId: string) => void;
 };
 
-const ExpensesDrawerActionsContext =
-  createContext<ExpensesDrawerActions | null>(null);
+const ExpensesToolbarActionsContext =
+  createContext<ExpensesToolbarActions | null>(null);
 
-export function ExpensesDrawerProvider({
+export function ExpensesToolbarProvider({
   children,
   openAddMember,
   openEditMember,
@@ -21,14 +21,14 @@ export function ExpensesDrawerProvider({
   openEditExpense: (expenseId: string) => void;
 }) {
   return (
-    <ExpensesDrawerActionsContext.Provider
+    <ExpensesToolbarActionsContext.Provider
       value={{ openAddMember, openEditMember, openEditExpense }}
     >
       {children}
-    </ExpensesDrawerActionsContext.Provider>
+    </ExpensesToolbarActionsContext.Provider>
   );
 }
 
-export function useExpensesDrawerActions(): ExpensesDrawerActions | null {
-  return useContext(ExpensesDrawerActionsContext);
+export function useExpensesToolbarActions(): ExpensesToolbarActions | null {
+  return useContext(ExpensesToolbarActionsContext);
 }

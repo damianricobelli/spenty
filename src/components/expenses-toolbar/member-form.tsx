@@ -11,7 +11,7 @@ import { m } from "@/paraglide/messages";
 import { ButtonWithSpinner } from "../button-with-spinner";
 
 type BaseProps = {
-	resetDrawer: () => void;
+	resetToolbar: () => void;
 };
 
 type AddProps = BaseProps & {
@@ -23,10 +23,10 @@ type EditProps = BaseProps & {
 	memberId: string;
 };
 
-export type DrawerMemberFormProps = AddProps | EditProps;
+export type ToolbarMemberFormProps = AddProps | EditProps;
 
-export function DrawerMemberForm(props: DrawerMemberFormProps) {
-	const { intent, resetDrawer } = props;
+export function ToolbarMemberForm(props: ToolbarMemberFormProps) {
+	const { intent, resetToolbar } = props;
 	const router = useRouter();
 	const from = useEntity();
 	const { group, members } = useLoaderData({ from });
@@ -64,7 +64,7 @@ export function DrawerMemberForm(props: DrawerMemberFormProps) {
 				{ groupId: group.id, name: result.data.name },
 				{
 					onSuccess: () => {
-						resetDrawer();
+						resetToolbar();
 						router.invalidate();
 					},
 				},
@@ -85,7 +85,7 @@ export function DrawerMemberForm(props: DrawerMemberFormProps) {
 
 		updateMutation.mutate(result.data, {
 			onSuccess: () => {
-				resetDrawer();
+				resetToolbar();
 				router.invalidate();
 			},
 		});
@@ -100,9 +100,9 @@ export function DrawerMemberForm(props: DrawerMemberFormProps) {
 	}
 
 	return (
-		<form className="flex flex-col gap-4 p-4" onSubmit={handleSubmit}>
+		<form className="flex flex-col gap-3 px-3 py-2.5" onSubmit={handleSubmit}>
 			<Field aria-invalid={!!mutation.error}>
-				<FieldLabel>{m.drawer_field_name()}</FieldLabel>
+				<FieldLabel>{m.toolbar_field_name()}</FieldLabel>
 				<Input
 					required
 					name="name"
@@ -115,7 +115,7 @@ export function DrawerMemberForm(props: DrawerMemberFormProps) {
 			)}
 			<ButtonWithSpinner
 				text={
-					isAdd ? m.drawer_submit_add_member() : m.drawer_submit_edit_member()
+					isAdd ? m.toolbar_submit_add_member() : m.toolbar_submit_edit_member()
 				}
 				isPending={mutation.isPending}
 			/>

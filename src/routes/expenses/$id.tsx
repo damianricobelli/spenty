@@ -6,11 +6,11 @@ import { getMembers } from "@/api/members";
 import { EmptyNoMembers } from "@/components/empty-no-members";
 import { ExpensesContent } from "@/components/expenses-content";
 import {
-	EXPENSES_DRAWER_VIEW,
-	ExpensesDrawer,
-	ExpensesDrawerProvider,
-	type ExpensesDrawerView,
-} from "@/components/expenses-drawer";
+	EXPENSES_TOOLBAR_VIEW,
+	ExpensesToolbar,
+	ExpensesToolbarProvider,
+	type ExpensesToolbarView,
+} from "@/components/expenses-toolbar";
 import { Layout } from "@/components/layout";
 import { PasswordDialog } from "@/components/password-dialog";
 import { historyFiltersSearchSchema } from "@/lib/history-filters-search";
@@ -32,8 +32,8 @@ function RouteComponent() {
 	const { group, members, expense } = Route.useLoaderData();
 	const historyFilters = Route.useSearch();
 	const navigate = Route.useNavigate();
-	const [drawerView, setDrawerView] = useState<ExpensesDrawerView>(
-		EXPENSES_DRAWER_VIEW.DEFAULT,
+	const [toolbarView, setToolbarView] = useState<ExpensesToolbarView>(
+		EXPENSES_TOOLBAR_VIEW.DEFAULT,
 	);
 	const [editExpenseId, setEditExpenseId] = useState<string | null>(null);
 	const [editMemberId, setEditMemberId] = useState<string | null>(null);
@@ -41,13 +41,13 @@ function RouteComponent() {
 	const openEditExpense = (id: string) => {
 		if (!id) return;
 		setEditExpenseId(id);
-		setDrawerView(EXPENSES_DRAWER_VIEW.EDIT_EXPENSE);
+		setToolbarView(EXPENSES_TOOLBAR_VIEW.EDIT_EXPENSE);
 	};
 
 	const openEditMember = (id: string) => {
 		if (!id) return;
 		setEditMemberId(id);
-		setDrawerView(EXPENSES_DRAWER_VIEW.EDIT_MEMBER);
+		setToolbarView(EXPENSES_TOOLBAR_VIEW.EDIT_MEMBER);
 	};
 
 	if (group.password && !isGroupUnlocked(group.id)) {
@@ -58,20 +58,20 @@ function RouteComponent() {
 		);
 	}
 
-	const showDrawer =
-		members.length > 0 || drawerView !== EXPENSES_DRAWER_VIEW.DEFAULT;
+	const showToolbar =
+		members.length > 0 || toolbarView !== EXPENSES_TOOLBAR_VIEW.DEFAULT;
 
-	const handleViewChange = (view: ExpensesDrawerView) => {
-		setDrawerView(view);
-		if (view === EXPENSES_DRAWER_VIEW.DEFAULT) {
+	const handleViewChange = (view: ExpensesToolbarView) => {
+		setToolbarView(view);
+		if (view === EXPENSES_TOOLBAR_VIEW.DEFAULT) {
 			setEditExpenseId(null);
 			setEditMemberId(null);
 		}
 	};
 
 	return (
-		<ExpensesDrawerProvider
-			openAddMember={() => setDrawerView(EXPENSES_DRAWER_VIEW.ADD_MEMBER)}
+		<ExpensesToolbarProvider
+			openAddMember={() => setToolbarView(EXPENSES_TOOLBAR_VIEW.ADD_MEMBER)}
 			openEditMember={openEditMember}
 			openEditExpense={openEditExpense}
 		>
@@ -116,15 +116,15 @@ function RouteComponent() {
 						/>
 					)}
 				</section>
-				{showDrawer && (
-					<ExpensesDrawer
-						view={drawerView}
+				{showToolbar && (
+					<ExpensesToolbar
+						view={toolbarView}
 						onViewChange={handleViewChange}
 						editExpenseId={editExpenseId}
 						editMemberId={editMemberId}
 					/>
 				)}
 			</Layout.Container>
-		</ExpensesDrawerProvider>
+		</ExpensesToolbarProvider>
 	);
 }

@@ -16,8 +16,8 @@ import {
 	UtensilsCrossed,
 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
-import { useExpensesDrawerActions } from "@/components/expenses-drawer";
-import type { ExpensesDrawerMember } from "@/components/expenses-drawer/types";
+import { useExpensesToolbarActions } from "@/components/expenses-toolbar";
+import type { ExpensesToolbarMember } from "@/components/expenses-toolbar/types";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -80,7 +80,7 @@ export type ExpenseItem = {
 
 type ExpensesContentProps = {
 	groupId: string;
-	members: ExpensesDrawerMember[];
+	members: ExpensesToolbarMember[];
 	expense: ExpenseItem[];
 	historyFilters: HistoryFiltersSearch;
 	onHistoryFilterChange: (patch: Partial<HistoryFiltersSearch>) => void;
@@ -93,7 +93,7 @@ export function HistorySection({
 	historyFilters,
 	onHistoryFilterChange,
 }: ExpensesContentProps) {
-	const drawerActions = useExpensesDrawerActions();
+	const toolbarActions = useExpensesToolbarActions();
 	const deleteExpenseIdRef = useRef<string>(null);
 	const selectedMonths = historyFilters.historyMonths ?? [];
 	const selectedCategories = historyFilters.historyCategories ?? [];
@@ -415,7 +415,7 @@ export function HistorySection({
 																	>
 																		<EyeIcon className="size-3.5" />
 																	</Button>
-																	{drawerActions && (
+																	{toolbarActions && (
 																		<Button
 																			type="button"
 																			variant="ghost"
@@ -423,7 +423,7 @@ export function HistorySection({
 																			className="shrink-0 rounded-full opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/10"
 																			aria-label={m.content_edit()}
 																			onClick={() =>
-																				drawerActions.openEditExpense(e.id)
+																				toolbarActions.openEditExpense(e.id)
 																			}
 																		>
 																			<PencilIcon className="size-3.5" />
@@ -449,7 +449,7 @@ export function HistorySection({
 																	<dl className="grid gap-2 sm:grid-cols-2">
 																		<div>
 																			<dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-																				{m.drawer_field_amount()}
+																				{m.toolbar_field_amount()}
 																			</dt>
 																			<dd className="mt-0.5 font-semibold tabular-nums">
 																				{formatCurrency(e.amount)}
@@ -458,7 +458,7 @@ export function HistorySection({
 																		{e.expense_date && (
 																			<div>
 																				<dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-																					{m.drawer_field_payment_date()}
+																					{m.toolbar_field_payment_date()}
 																				</dt>
 																				<dd className="mt-0.5">
 																					{formatDate(
@@ -472,7 +472,7 @@ export function HistorySection({
 																		)}
 																		<div className="sm:col-span-2">
 																			<dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-																				{m.drawer_field_category()}
+																				{m.toolbar_field_category()}
 																			</dt>
 																			<dd className="mt-0.5">
 																				{e.category
@@ -483,7 +483,7 @@ export function HistorySection({
 																		{e.description && (
 																			<div className="sm:col-span-2">
 																				<dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-																					{m.drawer_field_description()}
+																					{m.toolbar_field_description()}
 																				</dt>
 																				<dd className="mt-0.5">
 																					{e.description}
@@ -492,7 +492,7 @@ export function HistorySection({
 																		)}
 																		<div className="sm:col-span-2">
 																			<dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-																				{m.drawer_field_person()}
+																				{m.toolbar_field_person()}
 																			</dt>
 																			<dd className="mt-0.5">
 																				{memberById.get(e.paid_by) ?? "—"}
@@ -501,7 +501,7 @@ export function HistorySection({
 																		{e.paid_to_member_ids?.length ? (
 																			<div className="sm:col-span-2">
 																				<dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-																					{m.drawer_field_paid_to()}
+																					{m.toolbar_field_paid_to()}
 																				</dt>
 																				<dd className="mt-0.5 inline-flex flex-wrap gap-1">
 																					{e.paid_to_member_ids.map((id) => (

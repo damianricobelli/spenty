@@ -1,17 +1,17 @@
 import { DollarSignIcon, UserPlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { m } from "@/paraglide/messages";
-import type { ExpensesDrawerMember, ExpensesDrawerView } from "./types";
+import type { ExpensesToolbarMember, ExpensesToolbarView } from "./types";
 
-type DrawerDefaultViewProps = {
-  members: ExpensesDrawerMember[];
-  onViewChange: (view: ExpensesDrawerView) => void;
+type ToolbarDefaultViewProps = {
+  members: ExpensesToolbarMember[];
+  onViewChange: (view: ExpensesToolbarView) => void;
 };
 
-export function DrawerDefaultView({
+export function ToolbarDefaultView({
   members,
   onViewChange,
-}: DrawerDefaultViewProps) {
+}: ToolbarDefaultViewProps) {
   const hasMembers = members.length > 0;
 
   return (
@@ -21,10 +21,10 @@ export function DrawerDefaultView({
           <Button
             size="lg"
             onClick={() => onViewChange("add_expense")}
-            aria-label={m.drawer_button_add_expense()}
+            aria-label={m.toolbar_button_add_expense()}
           >
             <DollarSignIcon data-icon="inline-start" />
-            {m.drawer_button_add_expense()}
+            {m.toolbar_button_add_expense()}
           </Button>
         )}
 
@@ -32,11 +32,11 @@ export function DrawerDefaultView({
           variant={hasMembers ? "ghost" : "default"}
           size="lg"
           onClick={() => onViewChange("add_member")}
-          aria-label={m.drawer_button_add_member()}
+          aria-label={m.toolbar_button_add_member()}
           className={hasMembers ? "bg-muted/70" : undefined}
         >
           <UserPlusIcon data-icon="inline-start" />
-          {m.drawer_button_add_member()}
+          {m.toolbar_button_add_member()}
         </Button>
       </div>
     </div>

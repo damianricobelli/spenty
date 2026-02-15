@@ -17,7 +17,7 @@ import { cn } from "@/lib/cn";
 import { formatDate } from "@/lib/format-date";
 
 type BaseProps = {
-	resetDrawer: () => void;
+	resetToolbar: () => void;
 };
 
 type AddProps = BaseProps & {
@@ -29,7 +29,7 @@ type EditProps = BaseProps & {
 	expenseId: string;
 };
 
-export type DrawerExpenseFormProps = AddProps | EditProps;
+export type ToolbarExpenseFormProps = AddProps | EditProps;
 
 export function SimpleDatePicker({
 	selected,

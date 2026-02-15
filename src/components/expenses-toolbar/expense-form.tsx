@@ -46,7 +46,7 @@ import { ButtonWithSpinner } from "../button-with-spinner";
 import { SimpleDatePicker } from "../ui/calendar";
 
 type BaseProps = {
-	resetDrawer: () => void;
+	resetToolbar: () => void;
 };
 
 type AddProps = BaseProps & {
@@ -58,7 +58,7 @@ type EditProps = BaseProps & {
 	expenseId: string;
 };
 
-export type DrawerExpenseFormProps = AddProps | EditProps;
+export type ToolbarExpenseFormProps = AddProps | EditProps;
 
 type MemberItem = { value: string; label: string };
 
@@ -75,7 +75,7 @@ const categoryLabels: Record<string, string> = {
 	other: m.category_other(),
 };
 
-export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
+export function ToolbarExpenseForm(props: ToolbarExpenseFormProps) {
 	const { intent } = props;
 	const from = useEntity();
 	const { group, members } = useLoaderData({ from });
@@ -105,7 +105,7 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 	}
 
 	return (
-		<DrawerExpenseFormInner
+		<ToolbarExpenseFormInner
 			props={props}
 			expense={expense}
 			group={group}
@@ -121,8 +121,8 @@ export function DrawerExpenseForm(props: DrawerExpenseFormProps) {
 	);
 }
 
-type DrawerExpenseFormInnerProps = {
-	props: DrawerExpenseFormProps;
+type ToolbarExpenseFormInnerProps = {
+	props: ToolbarExpenseFormProps;
 	expense: Awaited<ReturnType<typeof useExpenseWithSplits>>["data"];
 	group: { id: string };
 	members: { id: string; name: string }[];
@@ -135,7 +135,7 @@ type DrawerExpenseFormInnerProps = {
 	isSplits: boolean;
 };
 
-function DrawerExpenseFormInner({
+function ToolbarExpenseFormInner({
 	props,
 	expense,
 	group,
@@ -147,8 +147,8 @@ function DrawerExpenseFormInner({
 	deleteCategoryMutation,
 	customCategories,
 	isSplits,
-}: DrawerExpenseFormInnerProps) {
-	const { intent, resetDrawer } = props;
+}: ToolbarExpenseFormInnerProps) {
+	const { intent, resetToolbar } = props;
 	const router = useRouter();
 
 	const [categoryOpen, setCategoryOpen] = useState(false);
@@ -239,7 +239,7 @@ function DrawerExpenseFormInner({
 
 		if (intent === "edit" && !expense) return;
 		if (!expenseMemberId) {
-			toast.error(m.drawer_field_person());
+			toast.error(m.toolbar_field_person());
 			return;
 		}
 
@@ -251,12 +251,12 @@ function DrawerExpenseFormInner({
 				: NaN;
 
 		if (Number.isNaN(amount) || amount <= 0) {
-			toast.error(m.drawer_field_amount());
+			toast.error(m.toolbar_field_amount());
 			return;
 		}
 
 		if (isSplits && paidToMemberIds.length === 0) {
-			toast.error(m.drawer_field_paid_to_required());
+			toast.error(m.toolbar_field_paid_to_required());
 			return;
 		}
 
@@ -279,7 +279,7 @@ function DrawerExpenseFormInner({
 			}
 			addMutation.mutate(result.data, {
 				onSuccess: () => {
-					resetDrawer();
+					resetToolbar();
 					router.invalidate();
 				},
 				onError: (err) => toast.error(getErrorMessage(err)),
@@ -305,7 +305,7 @@ function DrawerExpenseFormInner({
 		}
 		updateMutation.mutate(result.data, {
 			onSuccess: () => {
-				resetDrawer();
+				resetToolbar();
 				router.invalidate();
 			},
 			onError: (err) => toast.error(getErrorMessage(err)),
@@ -315,11 +315,11 @@ function DrawerExpenseFormInner({
 	const isAdd = intent === "add";
 
 	return (
-		<form className="flex flex-col gap-4 p-4" onSubmit={handleSubmit}>
+		<form className="flex flex-col gap-3 px-3 py-2.5" onSubmit={handleSubmit}>
 			<input type="hidden" name="memberId" value={expenseMemberId} />
 			<FieldGroup>
 				<Field>
-					<FieldLabel>{m.drawer_field_person()}</FieldLabel>
+					<FieldLabel>{m.toolbar_field_person()}</FieldLabel>
 					<Select
 						required
 						value={expenseMemberId}
@@ -344,7 +344,7 @@ function DrawerExpenseFormInner({
 
 				{isSplits && (
 					<Field>
-						<FieldLabel>{m.drawer_field_paid_to()}</FieldLabel>
+						<FieldLabel>{m.toolbar_field_paid_to()}</FieldLabel>
 						<Combobox<MemberItem, true>
 							multiple
 							autoHighlight
@@ -384,20 +384,20 @@ function DrawerExpenseFormInner({
 				)}
 
 				<Field>
-					<FieldLabel>{m.drawer_field_amount()}</FieldLabel>
+					<FieldLabel>{m.toolbar_field_amount()}</FieldLabel>
 					<Input
 						name="amount"
 						type="text"
 						inputMode="decimal"
 						autoComplete="off"
-						placeholder={m.drawer_field_amount_placeholder()}
+						placeholder={m.toolbar_field_amount_placeholder()}
 						required
 						defaultValue={isAdd ? undefined : expense?.amount}
 					/>
 				</Field>
 
 				<Field>
-					<FieldLabel>{m.drawer_field_category()}</FieldLabel>
+					<FieldLabel>{m.toolbar_field_category()}</FieldLabel>
 					<Combobox<CategoryItem>
 						value={selectedCategoryItem}
 						onValueChange={(item: CategoryItem | null) => {
@@ -444,11 +444,11 @@ function DrawerExpenseFormInner({
 								>
 									{category
 										? categoryLabels[category] ?? category
-										: m.drawer_field_category_placeholder()}
+										: m.toolbar_field_category_placeholder()}
 								</Button>
 							}
 						/>
-						<ComboboxContent>
+						<ComboboxContent className="min-w-(--anchor-width) max-w-(--anchor-width)">
 							<ComboboxInput
 								showTrigger={false}
 								placeholder={m.combobox_search_category_placeholder()}
@@ -497,16 +497,16 @@ function DrawerExpenseFormInner({
 				</Field>
 
 				<Field>
-					<FieldLabel>{m.drawer_field_description()}</FieldLabel>
+					<FieldLabel>{m.toolbar_field_description()}</FieldLabel>
 					<Input
 						name="description"
-						placeholder={m.drawer_field_description_placeholder()}
+						placeholder={m.toolbar_field_description_placeholder()}
 						defaultValue={isAdd ? undefined : expense?.description ?? ""}
 					/>
 				</Field>
 
 				<Field>
-					<FieldLabel>{m.drawer_field_payment_date()}</FieldLabel>
+					<FieldLabel>{m.toolbar_field_payment_date()}</FieldLabel>
 					<Popover
 						modal
 					>
@@ -521,7 +521,7 @@ function DrawerExpenseFormInner({
 							>
 								{paymentDate
 									? formatDate(paymentDate, "PPP")
-									: m.drawer_field_payment_date_placeholder()}
+									: m.toolbar_field_payment_date_placeholder()}
 							</span>
 							<CalendarIcon className="size-4 shrink-0 opacity-50" />
 						</PopoverTrigger>
@@ -539,8 +539,8 @@ function DrawerExpenseFormInner({
 			<ButtonWithSpinner
 				text={
 					isAdd
-						? m.drawer_submit_add_expense()
-						: m.drawer_submit_edit_expense()
+						? m.toolbar_submit_add_expense()
+						: m.toolbar_submit_edit_expense()
 				}
 				isPending={isAdd ? addMutation.isPending : updateMutation.isPending}
 			/>
