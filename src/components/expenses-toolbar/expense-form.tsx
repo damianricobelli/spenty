@@ -64,6 +64,9 @@ type MemberItem = { value: string; label: string };
 
 type CategoryItem = { value: string; label: string; id?: string };
 
+const capitalizeFirstLetter = (value: string) =>
+	value.charAt(0).toUpperCase() + value.slice(1);
+
 const categoryLabels: Record<string, string> = {
 	food: m.category_food(),
 	transport: m.category_transport(),
@@ -214,15 +217,17 @@ function ToolbarExpenseFormInner({
 	}, [baseCategoryItems, customCategoryItems, intent, expense?.category]);
 
 	const filteredCategoryItems = useMemo(() => {
-		const q = categoryInputValue.trim().toLowerCase();
+		const query = categoryInputValue.trim();
+		const q = query.toLowerCase();
 		const matched = categoryItems.filter((i) =>
 			i.label.toLowerCase().includes(q),
 		);
-		if (matched.length === 0 && q.length > 0) {
+		if (matched.length === 0 && query.length > 0) {
+			const normalizedQuery = capitalizeFirstLetter(query);
 			return [
 				{
-					value: q,
-					label: m.combobox_create_category({ query: q }),
+					value: normalizedQuery,
+					label: m.combobox_create_category({ query: normalizedQuery }),
 				} as CategoryItem,
 			];
 		}
@@ -405,14 +410,17 @@ function ToolbarExpenseFormInner({
 								setCategory("");
 								return;
 							}
-							setCategory(item.value);
 							const isCreateItem =
 								!item.id &&
 								!Object.hasOwn(categoryLabels, item.value) &&
 								!customCategoryItems.some((c) => c.value === item.value);
+							const normalizedValue = isCreateItem
+								? capitalizeFirstLetter(item.value.trim())
+								: item.value;
+							setCategory(normalizedValue);
 							if (isCreateItem && item.value.trim()) {
 								createCategoryMutation.mutate(
-									{ groupId: group.id, name: item.value.trim() },
+									{ groupId: group.id, name: normalizedValue },
 									{
 										onSuccess: () => setCategoryOpen(false),
 										onError: (err) => toast.error(getErrorMessage(err)),

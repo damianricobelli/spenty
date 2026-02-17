@@ -17,4 +17,6 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   )
 }
 
+type TextAreaProps = React.ComponentProps<"textarea">
+
 export { Input }
