@@ -1,10 +1,10 @@
 # Spenty
 
-Open-source expense and split tracker. Create groups, add members, log expenses, and settle up—no sign-up required. Share a code (and optional password) to collaborate.
+Open-source expense and split tracker. Create groups, add members, log expenses, and settle up—no sign-up required. Share a link (and optional password) to collaborate.
 
 ## Features
 
-- **Expense groups** — Create a group, get a shareable code
+- **Expense groups** — Create a group, get a shareable link
 - **Members & expenses** — Add people, log who paid what and how to split
 - **Splits** — See who owes whom and settle up
 - **Optional password** — Lock groups with a password

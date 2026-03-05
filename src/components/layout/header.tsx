@@ -69,12 +69,14 @@ export function Header() {
     });
   };
 
-  const copyCode = () => {
+  const copyShareLink = () => {
     try {
-      navigator.clipboard.writeText(group.slug);
+      const sharePath = from.replace("$id", group.slug);
+      const shareUrl = new URL(sharePath, window.location.origin).toString();
+      navigator.clipboard.writeText(shareUrl);
       toast.success(m.header_copy_code_toast());
     } catch (error) {
-      console.error("Failed to copy code:", error);
+      console.error("Failed to copy link:", error);
     }
   };
 
@@ -131,7 +133,7 @@ export function Header() {
               <DropdownMenuItem
                 onClick={(e) => {
                   e.preventDefault();
-                  copyCode();
+                  copyShareLink();
                 }}
               >
                 <ShareIcon />
