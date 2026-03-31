@@ -5,7 +5,6 @@ import { getErrorMessage } from "@/lib/get-error-message";
 import { useAppMutation } from "../use-app-mutation";
 
 export const useUpdateGroupName = () => {
-
   return useAppMutation({
     mutationFn: ({ name, groupId }: UpdateGroupName) =>
       updateGroupName({ data: { name, groupId } }),

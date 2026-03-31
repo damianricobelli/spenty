@@ -41,9 +41,10 @@ export function useAppMutation<
     ...options,
     onSuccess: (...args) => {
       const [data, variables] = args;
-      const keys = typeof options.invalidateKeys === "function"
-        ? options.invalidateKeys(data, variables)
-        : options.invalidateKeys ?? [];
+      const keys =
+        typeof options.invalidateKeys === "function"
+          ? options.invalidateKeys(data, variables)
+          : (options.invalidateKeys ?? []);
       queryClient.invalidateQueries({ queryKey: keys });
       options.onSuccess?.(...args);
     },

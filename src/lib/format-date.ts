@@ -1,5 +1,6 @@
 import { format as dateFnsFormat } from "date-fns";
 import {
+  type Locale as DateFnsLocale,
   de,
   enUS,
   es,
@@ -10,7 +11,6 @@ import {
   nl,
   pt,
   zhCN,
-  type Locale as DateFnsLocale,
 } from "date-fns/locale";
 import { getLocale } from "@/paraglide/runtime";
 

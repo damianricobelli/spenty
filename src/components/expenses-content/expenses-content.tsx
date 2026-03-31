@@ -7,58 +7,58 @@ import { MembersSection } from "./members-section";
 import { TotalsSection } from "./totals-section";
 
 export type ExpenseItem = {
-	id: string;
-	amount: number;
-	category: string;
-	description: string;
-	paid_by: string;
-	created_at: string | null;
-	expense_date: string | null;
-	paid_to_member_ids?: string[];
+  id: string;
+  amount: number;
+  category: string;
+  description: string;
+  paid_by: string;
+  created_at: string | null;
+  expense_date: string | null;
+  paid_to_member_ids?: string[];
 };
 
 type ExpensesContentProps = {
-	groupId: string;
-	groupName: string;
-	groupCode: string;
-	members: ExpensesToolbarMember[];
-	expense: ExpenseItem[];
-	debts?: SplitDebt[];
-	historyFilters: HistoryFiltersSearch;
-	onHistoryFilterChange: (patch: Partial<HistoryFiltersSearch>) => void;
+  groupId: string;
+  groupName: string;
+  groupCode: string;
+  members: ExpensesToolbarMember[];
+  expense: ExpenseItem[];
+  debts?: SplitDebt[];
+  historyFilters: HistoryFiltersSearch;
+  onHistoryFilterChange: (patch: Partial<HistoryFiltersSearch>) => void;
 };
 
 export function ExpensesContent({
-	groupId,
-	groupName,
-	groupCode,
-	members,
-	expense,
-	debts = [],
-	historyFilters,
-	onHistoryFilterChange,
+  groupId,
+  groupName,
+  groupCode,
+  members,
+  expense,
+  debts = [],
+  historyFilters,
+  onHistoryFilterChange,
 }: ExpensesContentProps) {
-	return (
-		<div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-6">
-			{/* Members */}
-			<MembersSection />
+  return (
+    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-6">
+      {/* Members */}
+      <MembersSection />
 
-			{/* Total */}
-			<TotalsSection expense={expense} />
+      {/* Total */}
+      <TotalsSection expense={expense} />
 
-			{/* Who owes whom (splits only) */}
-			<DebtsSection debts={debts} />
+      {/* Who owes whom (splits only) */}
+      <DebtsSection debts={debts} />
 
-			{/* History */}
-			<HistorySection
-				expense={expense}
-				historyFilters={historyFilters}
-				onHistoryFilterChange={onHistoryFilterChange}
-				groupId={groupId}
-				groupName={groupName}
-				groupCode={groupCode}
-				members={members}
-			/>
-		</div>
-	);
+      {/* History */}
+      <HistorySection
+        expense={expense}
+        historyFilters={historyFilters}
+        onHistoryFilterChange={onHistoryFilterChange}
+        groupId={groupId}
+        groupName={groupName}
+        groupCode={groupCode}
+        members={members}
+      />
+    </div>
+  );
 }

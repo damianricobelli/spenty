@@ -5,8 +5,7 @@ import { groupCategoriesQueryKey } from "./use-group-categories";
 
 export function useDeleteGroupCategory() {
   return useAppMutation({
-    mutationFn: (data: DeleteGroupCategory) =>
-      deleteGroupCategory({ data }),
+    mutationFn: (data: DeleteGroupCategory) => deleteGroupCategory({ data }),
     invalidateKeys: (_, { groupId }) => groupCategoriesQueryKey(groupId),
   });
 }

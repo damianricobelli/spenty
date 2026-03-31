@@ -5,8 +5,7 @@ import { groupCategoriesQueryKey } from "./use-group-categories";
 
 export function useCreateGroupCategory() {
   return useAppMutation({
-    mutationFn: (data: CreateGroupCategory) =>
-      createGroupCategory({ data }),
+    mutationFn: (data: CreateGroupCategory) => createGroupCategory({ data }),
     invalidateKeys: (_, { groupId }) => groupCategoriesQueryKey(groupId),
   });
 }

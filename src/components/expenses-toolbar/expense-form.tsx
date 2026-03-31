@@ -5,32 +5,32 @@ import { toast } from "sonner";
 import { AddExpenseEntrySchema, UpdateExpenseEntrySchema } from "@/api/schema";
 import { Button } from "@/components/ui/button";
 import {
-	Combobox,
-	ComboboxChip,
-	ComboboxChips,
-	ComboboxChipsInput,
-	ComboboxContent,
-	ComboboxEmpty,
-	ComboboxInput,
-	ComboboxItem,
-	ComboboxList,
-	ComboboxTrigger,
-	ComboboxValue,
-	useComboboxAnchor,
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxTrigger,
+  ComboboxValue,
+  useComboboxAnchor,
 } from "@/components/ui/combobox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { useCreateGroupCategory } from "@/hooks/categories/use-create-group-category";
 import { useDeleteGroupCategory } from "@/hooks/categories/use-delete-group-category";
@@ -46,16 +46,16 @@ import { ButtonWithSpinner } from "../button-with-spinner";
 import { SimpleDatePicker } from "../ui/calendar";
 
 type BaseProps = {
-	resetToolbar: () => void;
+  resetToolbar: () => void;
 };
 
 type AddProps = BaseProps & {
-	intent: "add";
+  intent: "add";
 };
 
 type EditProps = BaseProps & {
-	intent: "edit";
-	expenseId: string;
+  intent: "edit";
+  expenseId: string;
 };
 
 export type ToolbarExpenseFormProps = AddProps | EditProps;
@@ -65,489 +65,489 @@ type MemberItem = { value: string; label: string };
 type CategoryItem = { value: string; label: string; id?: string };
 
 const capitalizeFirstLetter = (value: string) =>
-	value.charAt(0).toUpperCase() + value.slice(1);
+  value.charAt(0).toUpperCase() + value.slice(1);
 
 const categoryLabels: Record<string, string> = {
-	food: m.category_food(),
-	transport: m.category_transport(),
-	housing: m.category_housing(),
-	health: m.category_health(),
-	entertainment: m.category_entertainment(),
-	shopping: m.category_shopping(),
-	subscriptions: m.category_subscriptions(),
-	other: m.category_other(),
+  food: m.category_food(),
+  transport: m.category_transport(),
+  housing: m.category_housing(),
+  health: m.category_health(),
+  entertainment: m.category_entertainment(),
+  shopping: m.category_shopping(),
+  subscriptions: m.category_subscriptions(),
+  other: m.category_other(),
 };
 
 export function ToolbarExpenseForm(props: ToolbarExpenseFormProps) {
-	const { intent } = props;
-	const from = useEntity();
-	const { group, members } = useLoaderData({ from });
+  const { intent } = props;
+  const from = useEntity();
+  const { group, members } = useLoaderData({ from });
 
-	const isSplits = from === "/splits/$id";
+  const isSplits = from === "/splits/$id";
 
-	const addMutation = useAddExpenseEntry();
-	const updateMutation = useUpdateExpenseEntry();
-	const createCategoryMutation = useCreateGroupCategory();
-	const deleteCategoryMutation = useDeleteGroupCategory();
-	const { data: customCategories = [] } = useGroupCategories(group.id);
+  const addMutation = useAddExpenseEntry();
+  const updateMutation = useUpdateExpenseEntry();
+  const createCategoryMutation = useCreateGroupCategory();
+  const deleteCategoryMutation = useDeleteGroupCategory();
+  const { data: customCategories = [] } = useGroupCategories(group.id);
 
-	const anchor = useComboboxAnchor();
+  const anchor = useComboboxAnchor();
 
-	const expenseIdForQuery = intent === "edit" ? props.expenseId : "";
-	const { data: expense, isLoading } = useExpenseWithSplits(
-		expenseIdForQuery,
-		intent === "edit",
-	);
+  const expenseIdForQuery = intent === "edit" ? props.expenseId : "";
+  const { data: expense, isLoading } = useExpenseWithSplits(
+    expenseIdForQuery,
+    intent === "edit",
+  );
 
-	if (intent === "edit" && (isLoading || !expense)) {
-		return (
-			<div className="flex items-center justify-center p-6 text-muted-foreground">
-				<Loader2Icon className="size-8 animate-spin" />
-			</div>
-		);
-	}
+  if (intent === "edit" && (isLoading || !expense)) {
+    return (
+      <div className="flex items-center justify-center p-6 text-muted-foreground">
+        <Loader2Icon className="size-8 animate-spin" />
+      </div>
+    );
+  }
 
-	return (
-		<ToolbarExpenseFormInner
-			props={props}
-			expense={expense}
-			group={group}
-			members={members}
-			anchor={anchor}
-			addMutation={addMutation}
-			updateMutation={updateMutation}
-			createCategoryMutation={createCategoryMutation}
-			deleteCategoryMutation={deleteCategoryMutation}
-			customCategories={customCategories}
-			isSplits={isSplits}
-		/>
-	);
+  return (
+    <ToolbarExpenseFormInner
+      props={props}
+      expense={expense}
+      group={group}
+      members={members}
+      anchor={anchor}
+      addMutation={addMutation}
+      updateMutation={updateMutation}
+      createCategoryMutation={createCategoryMutation}
+      deleteCategoryMutation={deleteCategoryMutation}
+      customCategories={customCategories}
+      isSplits={isSplits}
+    />
+  );
 }
 
 type ToolbarExpenseFormInnerProps = {
-	props: ToolbarExpenseFormProps;
-	expense: Awaited<ReturnType<typeof useExpenseWithSplits>>["data"];
-	group: { id: string };
-	members: { id: string; name: string }[];
-	anchor: ReturnType<typeof useComboboxAnchor>;
-	addMutation: ReturnType<typeof useAddExpenseEntry>;
-	updateMutation: ReturnType<typeof useUpdateExpenseEntry>;
-	createCategoryMutation: ReturnType<typeof useCreateGroupCategory>;
-	deleteCategoryMutation: ReturnType<typeof useDeleteGroupCategory>;
-	customCategories: { id: string; name: string }[];
-	isSplits: boolean;
+  props: ToolbarExpenseFormProps;
+  expense: Awaited<ReturnType<typeof useExpenseWithSplits>>["data"];
+  group: { id: string };
+  members: { id: string; name: string }[];
+  anchor: ReturnType<typeof useComboboxAnchor>;
+  addMutation: ReturnType<typeof useAddExpenseEntry>;
+  updateMutation: ReturnType<typeof useUpdateExpenseEntry>;
+  createCategoryMutation: ReturnType<typeof useCreateGroupCategory>;
+  deleteCategoryMutation: ReturnType<typeof useDeleteGroupCategory>;
+  customCategories: { id: string; name: string }[];
+  isSplits: boolean;
 };
 
 function ToolbarExpenseFormInner({
-	props,
-	expense,
-	group,
-	members,
-	anchor,
-	addMutation,
-	updateMutation,
-	createCategoryMutation,
-	deleteCategoryMutation,
-	customCategories,
-	isSplits,
+  props,
+  expense,
+  group,
+  members,
+  anchor,
+  addMutation,
+  updateMutation,
+  createCategoryMutation,
+  deleteCategoryMutation,
+  customCategories,
+  isSplits,
 }: ToolbarExpenseFormInnerProps) {
-	const { intent, resetToolbar } = props;
-	const router = useRouter();
+  const { intent, resetToolbar } = props;
+  const router = useRouter();
 
-	const [categoryOpen, setCategoryOpen] = useState(false);
-	const [categoryInputValue, setCategoryInputValue] = useState("");
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [categoryInputValue, setCategoryInputValue] = useState("");
 
-	const [expenseMemberId, setExpenseMemberId] = useState(() =>
-		intent === "add" && members.length === 1
-			? members[0].id
-			: (expense?.paid_by ?? ""),
-	);
-	const [paidToMemberIds, setPaidToMemberIds] = useState<string[]>(() =>
-		intent === "edit" && expense ? (expense.paidToMemberIds ?? []) : [],
-	);
-	const [category, setCategory] = useState(() => expense?.category ?? "");
-	const [paymentDate, setPaymentDate] = useState<Date | undefined>(() =>
-		intent === "add"
-			? new Date()
-			: expense?.expense_date
-				? new Date(`${expense.expense_date}T12:00:00`)
-				: undefined,
-	);
+  const [expenseMemberId, setExpenseMemberId] = useState(() =>
+    intent === "add" && members.length === 1
+      ? members[0].id
+      : (expense?.paid_by ?? ""),
+  );
+  const [paidToMemberIds, setPaidToMemberIds] = useState<string[]>(() =>
+    intent === "edit" && expense ? (expense.paidToMemberIds ?? []) : [],
+  );
+  const [category, setCategory] = useState(() => expense?.category ?? "");
+  const [paymentDate, setPaymentDate] = useState<Date | undefined>(() =>
+    intent === "add"
+      ? new Date()
+      : expense?.expense_date
+        ? new Date(`${expense.expense_date}T12:00:00`)
+        : undefined,
+  );
 
-	const memberItems: MemberItem[] = useMemo(
-		() => members.map((m) => ({ value: m.id, label: m.name })),
-		[members],
-	);
-	const paidToValues: MemberItem[] = useMemo(
-		() =>
-			paidToMemberIds
-				.map((id) => memberItems.find((item) => item.value === id))
-				.filter((item): item is MemberItem => item != null),
-		[paidToMemberIds, memberItems],
-	);
+  const memberItems: MemberItem[] = useMemo(
+    () => members.map((m) => ({ value: m.id, label: m.name })),
+    [members],
+  );
+  const paidToValues: MemberItem[] = useMemo(
+    () =>
+      paidToMemberIds
+        .map((id) => memberItems.find((item) => item.value === id))
+        .filter((item): item is MemberItem => item != null),
+    [paidToMemberIds, memberItems],
+  );
 
-	const baseCategoryItems: CategoryItem[] = useMemo(
-		() =>
-			Object.entries(categoryLabels).map(([value, label]) => ({
-				value,
-				label,
-			})),
-		[],
-	);
-	const customCategoryItems: CategoryItem[] = useMemo(
-		() =>
-			customCategories.map((c) => ({
-				value: c.name,
-				label: c.name,
-				id: c.id,
-			})),
-		[customCategories],
-	);
-	const categoryItems: CategoryItem[] = useMemo(() => {
-		const list = [...baseCategoryItems, ...customCategoryItems];
-		if (intent === "edit" && expense?.category) {
-			const exists = list.some((i) => i.value === expense.category);
-			if (!exists)
-				list.push({
-					value: expense.category,
-					label: expense.category,
-				});
-		}
-		return list;
-	}, [baseCategoryItems, customCategoryItems, intent, expense?.category]);
+  const baseCategoryItems: CategoryItem[] = useMemo(
+    () =>
+      Object.entries(categoryLabels).map(([value, label]) => ({
+        value,
+        label,
+      })),
+    [],
+  );
+  const customCategoryItems: CategoryItem[] = useMemo(
+    () =>
+      customCategories.map((c) => ({
+        value: c.name,
+        label: c.name,
+        id: c.id,
+      })),
+    [customCategories],
+  );
+  const categoryItems: CategoryItem[] = useMemo(() => {
+    const list = [...baseCategoryItems, ...customCategoryItems];
+    if (intent === "edit" && expense?.category) {
+      const exists = list.some((i) => i.value === expense.category);
+      if (!exists)
+        list.push({
+          value: expense.category,
+          label: expense.category,
+        });
+    }
+    return list;
+  }, [baseCategoryItems, customCategoryItems, intent, expense?.category]);
 
-	const filteredCategoryItems = useMemo(() => {
-		const query = categoryInputValue.trim();
-		const q = query.toLowerCase();
-		const matched = categoryItems.filter((i) =>
-			i.label.toLowerCase().includes(q),
-		);
-		if (matched.length === 0 && query.length > 0) {
-			const normalizedQuery = capitalizeFirstLetter(query);
-			return [
-				{
-					value: normalizedQuery,
-					label: m.combobox_create_category({ query: normalizedQuery }),
-				} as CategoryItem,
-			];
-		}
-		return matched;
-	}, [categoryItems, categoryInputValue]);
+  const filteredCategoryItems = useMemo(() => {
+    const query = categoryInputValue.trim();
+    const q = query.toLowerCase();
+    const matched = categoryItems.filter((i) =>
+      i.label.toLowerCase().includes(q),
+    );
+    if (matched.length === 0 && query.length > 0) {
+      const normalizedQuery = capitalizeFirstLetter(query);
+      return [
+        {
+          value: normalizedQuery,
+          label: m.combobox_create_category({ query: normalizedQuery }),
+        } as CategoryItem,
+      ];
+    }
+    return matched;
+  }, [categoryItems, categoryInputValue]);
 
-	const selectedCategoryItem: CategoryItem | null = useMemo(
-		() => categoryItems.find((i) => i.value === category) ?? null,
-		[categoryItems, category],
-	);
+  const selectedCategoryItem: CategoryItem | null = useMemo(
+    () => categoryItems.find((i) => i.value === category) ?? null,
+    [categoryItems, category],
+  );
 
-	const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
-		e.preventDefault();
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-		if (intent === "edit" && !expense) return;
-		if (!expenseMemberId) {
-			toast.error(m.toolbar_field_person());
-			return;
-		}
+    if (intent === "edit" && !expense) return;
+    if (!expenseMemberId) {
+      toast.error(m.toolbar_field_person());
+      return;
+    }
 
-		const formData = new FormData(e.currentTarget);
-		const amountRaw = formData.get("amount");
-		const amount =
-			typeof amountRaw === "string"
-				? Number.parseFloat(amountRaw.replace(",", "."))
-				: NaN;
+    const formData = new FormData(e.currentTarget);
+    const amountRaw = formData.get("amount");
+    const amount =
+      typeof amountRaw === "string"
+        ? Number.parseFloat(amountRaw.replace(",", "."))
+        : NaN;
 
-		if (Number.isNaN(amount) || amount <= 0) {
-			toast.error(m.toolbar_field_amount());
-			return;
-		}
+    if (Number.isNaN(amount) || amount <= 0) {
+      toast.error(m.toolbar_field_amount());
+      return;
+    }
 
-		if (isSplits && paidToMemberIds.length === 0) {
-			toast.error(m.toolbar_field_paid_to_required());
-			return;
-		}
+    if (isSplits && paidToMemberIds.length === 0) {
+      toast.error(m.toolbar_field_paid_to_required());
+      return;
+    }
 
-		const rawDescription = (formData.get("description") as string)?.trim();
-		const description = rawDescription || m.expense_default_description();
+    const rawDescription = (formData.get("description") as string)?.trim();
+    const description = rawDescription || m.expense_default_description();
 
-		if (intent === "add") {
-			const result = AddExpenseEntrySchema.safeParse({
-				groupId: group.id,
-				memberId: expenseMemberId,
-				amount,
-				category: category || "other",
-				description,
-				...(isSplits ? { paidToMemberIds } : {}),
-				paymentDate: dateToLocalISOString(paymentDate ?? new Date()),
-			});
-			if (!result.success) {
-				console.error("Invalid expense:", result.error);
-				return;
-			}
-			addMutation.mutate(result.data, {
-				onSuccess: () => {
-					resetToolbar();
-					router.invalidate();
-				},
-				onError: (err) => toast.error(getErrorMessage(err)),
-			});
-			return;
-		}
+    if (intent === "add") {
+      const result = AddExpenseEntrySchema.safeParse({
+        groupId: group.id,
+        memberId: expenseMemberId,
+        amount,
+        category: category || "other",
+        description,
+        ...(isSplits ? { paidToMemberIds } : {}),
+        paymentDate: dateToLocalISOString(paymentDate ?? new Date()),
+      });
+      if (!result.success) {
+        console.error("Invalid expense:", result.error);
+        return;
+      }
+      addMutation.mutate(result.data, {
+        onSuccess: () => {
+          resetToolbar();
+          router.invalidate();
+        },
+        onError: (err) => toast.error(getErrorMessage(err)),
+      });
+      return;
+    }
 
-		const result = UpdateExpenseEntrySchema.safeParse({
-			groupId: group.id,
-			expenseId: props.expenseId,
-			memberId: expenseMemberId,
-			amount,
-			category: category || "other",
-			description,
-			...(isSplits ? { paidToMemberIds } : {}),
-			...(paymentDate
-				? { paymentDate: dateToLocalISOString(paymentDate) }
-				: {}),
-		});
-		if (!result.success) {
-			console.error("Invalid expense:", result.error);
-			return;
-		}
-		updateMutation.mutate(result.data, {
-			onSuccess: () => {
-				resetToolbar();
-				router.invalidate();
-			},
-			onError: (err) => toast.error(getErrorMessage(err)),
-		});
-	};
+    const result = UpdateExpenseEntrySchema.safeParse({
+      groupId: group.id,
+      expenseId: props.expenseId,
+      memberId: expenseMemberId,
+      amount,
+      category: category || "other",
+      description,
+      ...(isSplits ? { paidToMemberIds } : {}),
+      ...(paymentDate
+        ? { paymentDate: dateToLocalISOString(paymentDate) }
+        : {}),
+    });
+    if (!result.success) {
+      console.error("Invalid expense:", result.error);
+      return;
+    }
+    updateMutation.mutate(result.data, {
+      onSuccess: () => {
+        resetToolbar();
+        router.invalidate();
+      },
+      onError: (err) => toast.error(getErrorMessage(err)),
+    });
+  };
 
-	const isAdd = intent === "add";
+  const isAdd = intent === "add";
 
-	return (
-		<form className="flex flex-col gap-3 px-3 py-2.5" onSubmit={handleSubmit}>
-			<input type="hidden" name="memberId" value={expenseMemberId} />
-			<FieldGroup>
-				<Field>
-					<FieldLabel>{m.toolbar_field_person()}</FieldLabel>
-					<Select
-						required
-						value={expenseMemberId}
-						onValueChange={(v) => setExpenseMemberId(v ?? "")}
-					>
-						<SelectTrigger className="w-full">
-							<SelectValue>
-								{expenseMemberId
-									? members.find((m) => m.id === expenseMemberId)?.name
-									: null}
-							</SelectValue>
-						</SelectTrigger>
-						<SelectContent alignItemWithTrigger={false}>
-							{members.map((member) => (
-								<SelectItem key={member.id} value={member.id}>
-									{member.name}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</Field>
+  return (
+    <form className="flex flex-col gap-3 px-3 py-2.5" onSubmit={handleSubmit}>
+      <input type="hidden" name="memberId" value={expenseMemberId} />
+      <FieldGroup>
+        <Field>
+          <FieldLabel>{m.toolbar_field_person()}</FieldLabel>
+          <Select
+            required
+            value={expenseMemberId}
+            onValueChange={(v) => setExpenseMemberId(v ?? "")}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue>
+                {expenseMemberId
+                  ? members.find((m) => m.id === expenseMemberId)?.name
+                  : null}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              {members.map((member) => (
+                <SelectItem key={member.id} value={member.id}>
+                  {member.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
 
-				{isSplits && (
-					<Field>
-						<FieldLabel>{m.toolbar_field_paid_to()}</FieldLabel>
-						<Combobox<MemberItem, true>
-							multiple
-							autoHighlight
-							value={paidToValues}
-							onValueChange={(arr: MemberItem[] | null) =>
-								setPaidToMemberIds(arr?.map((i) => i.value) ?? [])
-							}
-							items={memberItems}
-							itemToStringValue={(item) => item.label}
-						>
-							<ComboboxChips ref={anchor} className="w-full">
-								<ComboboxValue>
-									{(values) => (
-										<React.Fragment>
-											{values.map((value: MemberItem) => (
-												<ComboboxChip key={value.value}>
-													{value.label}
-												</ComboboxChip>
-											))}
-											<ComboboxChipsInput />
-										</React.Fragment>
-									)}
-								</ComboboxValue>
-							</ComboboxChips>
-							<ComboboxContent anchor={anchor}>
-								<ComboboxEmpty>{m.combobox_no_results()}</ComboboxEmpty>
-								<ComboboxList>
-									{(item: MemberItem) => (
-										<ComboboxItem key={item.value} value={item}>
-											{item.label}
-										</ComboboxItem>
-									)}
-								</ComboboxList>
-							</ComboboxContent>
-						</Combobox>
-					</Field>
-				)}
+        {isSplits && (
+          <Field>
+            <FieldLabel>{m.toolbar_field_paid_to()}</FieldLabel>
+            <Combobox<MemberItem, true>
+              multiple
+              autoHighlight
+              value={paidToValues}
+              onValueChange={(arr: MemberItem[] | null) =>
+                setPaidToMemberIds(arr?.map((i) => i.value) ?? [])
+              }
+              items={memberItems}
+              itemToStringValue={(item) => item.label}
+            >
+              <ComboboxChips ref={anchor} className="w-full">
+                <ComboboxValue>
+                  {(values) => (
+                    <React.Fragment>
+                      {values.map((value: MemberItem) => (
+                        <ComboboxChip key={value.value}>
+                          {value.label}
+                        </ComboboxChip>
+                      ))}
+                      <ComboboxChipsInput />
+                    </React.Fragment>
+                  )}
+                </ComboboxValue>
+              </ComboboxChips>
+              <ComboboxContent anchor={anchor}>
+                <ComboboxEmpty>{m.combobox_no_results()}</ComboboxEmpty>
+                <ComboboxList>
+                  {(item: MemberItem) => (
+                    <ComboboxItem key={item.value} value={item}>
+                      {item.label}
+                    </ComboboxItem>
+                  )}
+                </ComboboxList>
+              </ComboboxContent>
+            </Combobox>
+          </Field>
+        )}
 
-				<Field>
-					<FieldLabel>{m.toolbar_field_amount()}</FieldLabel>
-					<Input
-						name="amount"
-						type="text"
-						inputMode="decimal"
-						autoComplete="off"
-						placeholder={m.toolbar_field_amount_placeholder()}
-						required
-						defaultValue={isAdd ? undefined : expense?.amount}
-					/>
-				</Field>
+        <Field>
+          <FieldLabel>{m.toolbar_field_amount()}</FieldLabel>
+          <Input
+            name="amount"
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            placeholder={m.toolbar_field_amount_placeholder()}
+            required
+            defaultValue={isAdd ? undefined : expense?.amount}
+          />
+        </Field>
 
-				<Field>
-					<FieldLabel>{m.toolbar_field_category()}</FieldLabel>
-					<Combobox<CategoryItem>
-						value={selectedCategoryItem}
-						onValueChange={(item: CategoryItem | null) => {
-							if (!item) {
-								setCategory("");
-								return;
-							}
-							const isCreateItem =
-								!item.id &&
-								!Object.hasOwn(categoryLabels, item.value) &&
-								!customCategoryItems.some((c) => c.value === item.value);
-							const normalizedValue = isCreateItem
-								? capitalizeFirstLetter(item.value.trim())
-								: item.value;
-							setCategory(normalizedValue);
-							if (isCreateItem && item.value.trim()) {
-								createCategoryMutation.mutate(
-									{ groupId: group.id, name: normalizedValue },
-									{
-										onSuccess: () => setCategoryOpen(false),
-										onError: (err) => toast.error(getErrorMessage(err)),
-									},
-								);
-							} else {
-								setCategoryOpen(false);
-							}
-						}}
-						items={categoryItems}
-						filteredItems={filteredCategoryItems}
-						inputValue={categoryInputValue}
-						onInputValueChange={(v) => setCategoryInputValue(v)}
-						open={categoryOpen}
-						onOpenChange={(open) => {
-							setCategoryOpen(open);
-							if (!open) setCategoryInputValue("");
-						}}
-						itemToStringValue={(item) => item.label}
-						isItemEqualToValue={(a, b) => a?.value === b?.value}
-					>
-						<ComboboxTrigger
-							render={
-								<Button
-									type="button"
-									variant="outline"
-									className="border-input bg-input/30 data-placeholder:text-muted-foreground h-9 w-full justify-between rounded-4xl border px-3 py-2 text-base font-normal"
-								>
-									{category
-										? (categoryLabels[category] ?? category)
-										: m.toolbar_field_category_placeholder()}
-								</Button>
-							}
-						/>
-						<ComboboxContent className="min-w-(--anchor-width) max-w-(--anchor-width)">
-							<ComboboxInput
-								showTrigger={false}
-								placeholder={m.combobox_search_category_placeholder()}
-							/>
-							<ComboboxEmpty>{m.combobox_no_results()}</ComboboxEmpty>
-							<ComboboxList>
-								{(item: CategoryItem) => (
-									<ComboboxItem key={item.id ?? item.value} value={item}>
-										<span className="flex flex-1 items-center gap-2">
-											{item.label}
-											{item.id != null && (
-												<Button
-													type="button"
-													variant="destructive"
-													size="icon-xs"
-													className="ml-auto"
-													aria-label={m.category_delete_aria_label()}
-													onClick={(e) => {
-														e.preventDefault();
-														e.stopPropagation();
-														deleteCategoryMutation.mutate(
-															{
-																groupId: group.id,
-																categoryId: item.id as string,
-															},
-															{
-																onSuccess: () => {
-																	if (category === item.value) setCategory("");
-																},
-																onError: (err) =>
-																	toast.error(getErrorMessage(err)),
-															},
-														);
-													}}
-												>
-													<Trash2Icon className="size-3.5" />
-												</Button>
-											)}
-										</span>
-									</ComboboxItem>
-								)}
-							</ComboboxList>
-						</ComboboxContent>
-					</Combobox>
-				</Field>
+        <Field>
+          <FieldLabel>{m.toolbar_field_category()}</FieldLabel>
+          <Combobox<CategoryItem>
+            value={selectedCategoryItem}
+            onValueChange={(item: CategoryItem | null) => {
+              if (!item) {
+                setCategory("");
+                return;
+              }
+              const isCreateItem =
+                !item.id &&
+                !Object.hasOwn(categoryLabels, item.value) &&
+                !customCategoryItems.some((c) => c.value === item.value);
+              const normalizedValue = isCreateItem
+                ? capitalizeFirstLetter(item.value.trim())
+                : item.value;
+              setCategory(normalizedValue);
+              if (isCreateItem && item.value.trim()) {
+                createCategoryMutation.mutate(
+                  { groupId: group.id, name: normalizedValue },
+                  {
+                    onSuccess: () => setCategoryOpen(false),
+                    onError: (err) => toast.error(getErrorMessage(err)),
+                  },
+                );
+              } else {
+                setCategoryOpen(false);
+              }
+            }}
+            items={categoryItems}
+            filteredItems={filteredCategoryItems}
+            inputValue={categoryInputValue}
+            onInputValueChange={(v) => setCategoryInputValue(v)}
+            open={categoryOpen}
+            onOpenChange={(open) => {
+              setCategoryOpen(open);
+              if (!open) setCategoryInputValue("");
+            }}
+            itemToStringValue={(item) => item.label}
+            isItemEqualToValue={(a, b) => a?.value === b?.value}
+          >
+            <ComboboxTrigger
+              render={
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="border-input bg-input/30 data-placeholder:text-muted-foreground h-9 w-full justify-between rounded-4xl border px-3 py-2 text-base font-normal"
+                >
+                  {category
+                    ? (categoryLabels[category] ?? category)
+                    : m.toolbar_field_category_placeholder()}
+                </Button>
+              }
+            />
+            <ComboboxContent className="min-w-(--anchor-width) max-w-(--anchor-width)">
+              <ComboboxInput
+                showTrigger={false}
+                placeholder={m.combobox_search_category_placeholder()}
+              />
+              <ComboboxEmpty>{m.combobox_no_results()}</ComboboxEmpty>
+              <ComboboxList>
+                {(item: CategoryItem) => (
+                  <ComboboxItem key={item.id ?? item.value} value={item}>
+                    <span className="flex flex-1 items-center gap-2">
+                      {item.label}
+                      {item.id != null && (
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon-xs"
+                          className="ml-auto"
+                          aria-label={m.category_delete_aria_label()}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            deleteCategoryMutation.mutate(
+                              {
+                                groupId: group.id,
+                                categoryId: item.id as string,
+                              },
+                              {
+                                onSuccess: () => {
+                                  if (category === item.value) setCategory("");
+                                },
+                                onError: (err) =>
+                                  toast.error(getErrorMessage(err)),
+                              },
+                            );
+                          }}
+                        >
+                          <Trash2Icon className="size-3.5" />
+                        </Button>
+                      )}
+                    </span>
+                  </ComboboxItem>
+                )}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
+        </Field>
 
-				<Field>
-					<FieldLabel>{m.toolbar_field_description()}</FieldLabel>
-					<Input
-						name="description"
-						placeholder={m.toolbar_field_description_placeholder()}
-						defaultValue={isAdd ? undefined : (expense?.description ?? "")}
-					/>
-				</Field>
+        <Field>
+          <FieldLabel>{m.toolbar_field_description()}</FieldLabel>
+          <Input
+            name="description"
+            placeholder={m.toolbar_field_description_placeholder()}
+            defaultValue={isAdd ? undefined : (expense?.description ?? "")}
+          />
+        </Field>
 
-				<Field>
-					<FieldLabel>{m.toolbar_field_payment_date()}</FieldLabel>
-					<Popover modal>
-						<PopoverTrigger
-							type="button"
-							className="border-input bg-input/30 flex h-10 w-full items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
-						>
-							<span
-								className={
-									paymentDate ? "text-foreground" : "text-muted-foreground"
-								}
-							>
-								{paymentDate
-									? formatDate(paymentDate, "PPP")
-									: m.toolbar_field_payment_date_placeholder()}
-							</span>
-							<CalendarIcon className="size-4 shrink-0 opacity-50" />
-						</PopoverTrigger>
-						<PopoverContent align="start" className="w-(--anchor-width) p-0">
-							<SimpleDatePicker
-								selected={paymentDate}
-								onSelect={setPaymentDate}
-								maxDate={new Date()}
-							/>
-						</PopoverContent>
-					</Popover>
-				</Field>
-			</FieldGroup>
+        <Field>
+          <FieldLabel>{m.toolbar_field_payment_date()}</FieldLabel>
+          <Popover modal>
+            <PopoverTrigger
+              type="button"
+              className="border-input bg-input/30 flex h-10 w-full items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
+            >
+              <span
+                className={
+                  paymentDate ? "text-foreground" : "text-muted-foreground"
+                }
+              >
+                {paymentDate
+                  ? formatDate(paymentDate, "PPP")
+                  : m.toolbar_field_payment_date_placeholder()}
+              </span>
+              <CalendarIcon className="size-4 shrink-0 opacity-50" />
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-(--anchor-width) p-0">
+              <SimpleDatePicker
+                selected={paymentDate}
+                onSelect={setPaymentDate}
+                maxDate={new Date()}
+              />
+            </PopoverContent>
+          </Popover>
+        </Field>
+      </FieldGroup>
 
-			<ButtonWithSpinner
-				text={
-					isAdd
-						? m.toolbar_submit_add_expense()
-						: m.toolbar_submit_edit_expense()
-				}
-				isPending={isAdd ? addMutation.isPending : updateMutation.isPending}
-			/>
-		</form>
-	);
+      <ButtonWithSpinner
+        text={
+          isAdd
+            ? m.toolbar_submit_add_expense()
+            : m.toolbar_submit_edit_expense()
+        }
+        isPending={isAdd ? addMutation.isPending : updateMutation.isPending}
+      />
+    </form>
+  );
 }
