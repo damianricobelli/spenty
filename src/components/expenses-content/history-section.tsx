@@ -1,22 +1,14 @@
-import type { LucideIcon } from "lucide-react";
 import {
-  Car,
   ChevronDownIcon,
   DownloadIcon,
-  EyeIcon,
   FilterIcon,
-  Gamepad2,
-  Heart,
-  Home,
-  MoreHorizontal,
   PencilIcon,
   ReceiptIcon,
-  Repeat,
   SearchIcon,
-  ShoppingBag,
   Trash2Icon,
-  UtensilsCrossed,
+  XIcon,
 } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useExpensesToolbarActions } from "@/components/expenses-toolbar";
@@ -47,6 +39,11 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { useDeleteExpense } from "@/hooks/expenses/use-delete-expense";
+import {
+  getCategoryColorClasses,
+  getCategoryIcon,
+  getCategoryLabel,
+} from "@/lib/categories";
 import { cn } from "@/lib/cn";
 import { exportExpensesToExcel } from "@/lib/export-expenses-excel";
 import { formatCurrency } from "@/lib/format-currency";
@@ -56,6 +53,7 @@ import {
   type HistoryCategory,
   type HistoryFiltersSearch,
 } from "@/lib/history-filters-search";
+import { expandPanel, listItem, reducedFade, springGentle } from "@/lib/motion";
 import { m } from "@/paraglide/messages";
 import { ButtonWithSpinner } from "../button-with-spinner";
 import {
@@ -65,17 +63,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "../ui/empty";
-
-const CATEGORY_ICONS: Record<string, LucideIcon> = {
-  food: UtensilsCrossed,
-  transport: Car,
-  housing: Home,
-  health: Heart,
-  entertainment: Gamepad2,
-  shopping: ShoppingBag,
-  subscriptions: Repeat,
-  other: MoreHorizontal,
-};
 
 export type ExpenseItem = {
   id: string;
@@ -108,6 +95,7 @@ export function HistorySection({
   onHistoryFilterChange,
 }: ExpensesContentProps) {
   const toolbarActions = useExpensesToolbarActions();
+  const reduceMotion = useReducedMotion();
   const deleteExpenseIdRef = useRef<string>(null);
   const selectedMonths = historyFilters.months ?? [];
   const selectedCategories = historyFilters.categories ?? [];
@@ -230,6 +218,7 @@ export function HistorySection({
       return (b.created_at ?? "").localeCompare(a.created_at ?? "");
     });
     const byMonth = new Map<string, ExpenseItem[]>();
+    const totalByMonth = new Map<string, number>();
     for (const e of sorted) {
       const key = e.expense_date
         ? e.expense_date.slice(0, 7)
@@ -239,9 +228,10 @@ export function HistorySection({
       const list = byMonth.get(key) ?? [];
       list.push(e);
       byMonth.set(key, list);
+      totalByMonth.set(key, (totalByMonth.get(key) ?? 0) + e.amount);
     }
     const keys = Array.from(byMonth.keys()).sort().reverse();
-    return { byMonth, monthKeys: keys };
+    return { byMonth, totalByMonth, monthKeys: keys };
   }, [filteredExpenses]);
 
   const handleConfirmDeleteExpense = () => {
@@ -301,6 +291,36 @@ export function HistorySection({
   const hasNoExpenses = expense.length === 0;
   const canExport = filteredExpenses.length > 0;
 
+  const activeFilterChips = useMemo(() => {
+    const chips: Array<{ key: string; label: string; onRemove: () => void }> =
+      [];
+    for (const monthKey of selectedMonths) {
+      chips.push({
+        key: `month-${monthKey}`,
+        label: getMonthLabel(monthKey),
+        onRemove: () => toggleMonthFilter(monthKey, false),
+      });
+    }
+    for (const category of selectedCategories) {
+      chips.push({
+        key: `category-${category}`,
+        label: getCategoryLabel(category),
+        onRemove: () => toggleCategoryFilter(category, false),
+      });
+    }
+    for (const memberId of selectedPaidBy) {
+      chips.push({
+        key: `paidBy-${memberId}`,
+        label: memberById.get(memberId) ?? memberId,
+        onRemove: () => togglePaidByFilter(memberId, false),
+      });
+    }
+    return chips;
+    // toggle handlers are stable per render and derived from the same state
+  }, [selectedMonths, selectedCategories, selectedPaidBy, memberById]);
+
+  const rowTransition = reduceMotion ? reducedFade : springGentle;
+
   return (
     <>
       <section className="flex min-h-0 flex-1 flex-col pb-24">
@@ -345,7 +365,7 @@ export function HistorySection({
                 variant="outline"
                 size="sm"
                 className="size-8 px-0 sm:h-8 sm:w-auto sm:px-3"
-                aria-label="Export to Excel"
+                aria-label={m.history_export_excel_aria()}
                 disabled={!canExport || isExporting}
                 onClick={handleExportExcel}
               >
@@ -442,6 +462,56 @@ export function HistorySection({
             </div>
           )}
         </div>
+
+        {/* Active filter chips */}
+        <AnimatePresence initial={false}>
+          {activeFilterChips.length > 0 && (
+            <motion.div
+              key="filter-chips"
+              initial={expandPanel.initial}
+              animate={expandPanel.animate}
+              exit={expandPanel.exit}
+              transition={rowTransition}
+              className="overflow-hidden"
+            >
+              <div className="mb-3 flex flex-wrap items-center gap-1.5">
+                <AnimatePresence initial={false}>
+                  {activeFilterChips.map((chip) => (
+                    <motion.button
+                      key={chip.key}
+                      type="button"
+                      layout="position"
+                      initial={listItem.initial}
+                      animate={listItem.animate}
+                      exit={listItem.exit}
+                      transition={rowTransition}
+                      onClick={chip.onRemove}
+                      className="group flex items-center gap-1 rounded-full border border-border/70 bg-muted/50 py-1 pl-2.5 pr-1.5 text-xs font-medium text-foreground transition-colors hover:border-border hover:bg-muted"
+                    >
+                      {chip.label}
+                      <XIcon className="size-3 text-muted-foreground transition-colors group-hover:text-foreground" />
+                    </motion.button>
+                  ))}
+                </AnimatePresence>
+                <button
+                  type="button"
+                  onClick={() =>
+                    onHistoryFilterChange({
+                      months: undefined,
+                      categories: undefined,
+                      paidBy: undefined,
+                      search: undefined,
+                    })
+                  }
+                  className="px-1.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {m.history_filter_clear()}
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {hasNoExpenses ? (
           <div className="flex flex-1 flex-col items-center justify-center py-12">
             <Empty className="w-full">
@@ -467,199 +537,46 @@ export function HistorySection({
                 {sortedAndGroupedExpenses.monthKeys.map((monthKey) => {
                   const monthExpenses =
                     sortedAndGroupedExpenses.byMonth.get(monthKey) ?? [];
+                  const monthTotal =
+                    sortedAndGroupedExpenses.totalByMonth.get(monthKey) ?? 0;
                   const monthLabel = getMonthLabel(monthKey);
                   return (
                     <li key={monthKey}>
-                      <div className="bg-muted/30 sticky top-0 z-10 px-3 py-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {monthLabel}
+                      <div className="bg-muted/30 sticky top-0 z-10 flex items-baseline justify-between gap-3 px-3 py-2 backdrop-blur-sm">
+                        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          {monthLabel}
+                        </span>
+                        <span className="text-xs font-semibold tabular-nums text-muted-foreground">
+                          {formatCurrency(monthTotal)}
+                        </span>
                       </div>
                       <ul className="divide-y divide-border/50">
-                        {monthExpenses.map((e) => {
-                          const isExpanded = expandedExpenseId === e.id;
-                          const CategoryIcon = getCategoryIcon(e.category);
-                          const primaryText =
-                            [
-                              e.category ? getCategoryLabel(e.category) : null,
-                              e.description,
-                            ]
-                              .filter(Boolean)
-                              .join(" · ") || "—";
-                          return (
-                            <li
+                        <AnimatePresence initial={false}>
+                          {monthExpenses.map((e) => (
+                            <HistoryRow
                               key={e.id}
-                              className="transition-colors hover:bg-muted/30"
-                            >
-                              <div className="flex items-start justify-between gap-2 px-3 py-2.5">
-                                <div className="flex min-w-0 flex-1 items-start gap-2">
-                                  <span className="text-muted-foreground mt-0.5 shrink-0">
-                                    <CategoryIcon className="size-4" />
-                                  </span>
-                                  <div className="min-w-0 flex-1">
-                                    <div className="flex items-baseline justify-between gap-2">
-                                      <p className="truncate text-sm font-medium text-foreground">
-                                        {primaryText}
-                                      </p>
-                                      <span className="shrink-0 text-sm font-semibold tabular-nums tracking-tight">
-                                        {formatCurrency(e.amount)}
-                                      </span>
-                                    </div>
-                                    <p className="mt-0.5 flex flex-wrap items-baseline gap-x-1.5 text-xs text-muted-foreground">
-                                      {e.expense_date && (
-                                        <span>
-                                          {formatDate(
-                                            new Date(
-                                              `${e.expense_date}T12:00:00`,
-                                            ),
-                                            "PPP",
-                                          )}
-                                        </span>
-                                      )}
-                                      <span>·</span>
-                                      <span>
-                                        {memberById.get(e.paid_by) ?? "—"}
-                                      </span>
-                                      {e.paid_to_member_ids?.length ? (
-                                        <>
-                                          <span>
-                                            {m.content_history_paid_to()}
-                                          </span>
-                                          <span className="inline-flex flex-wrap gap-x-1 gap-y-0.5">
-                                            {e.paid_to_member_ids.map((id) => (
-                                              <span
-                                                key={id}
-                                                className="rounded-md bg-muted/80 px-1.5 py-0.5 text-xs font-medium text-foreground/90"
-                                              >
-                                                {memberById.get(id) ?? id}
-                                              </span>
-                                            ))}
-                                          </span>
-                                        </>
-                                      ) : null}
-                                    </p>
-                                  </div>
-                                </div>
-                                <div className="flex shrink-0 items-center gap-0.5">
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon-xs"
-                                    className="shrink-0 rounded-full opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/10"
-                                    aria-label={m.content_view_details()}
-                                    aria-expanded={isExpanded}
-                                    onClick={() =>
-                                      setExpandedExpenseId((id) =>
-                                        id === e.id ? null : e.id,
-                                      )
-                                    }
-                                  >
-                                    <EyeIcon className="size-3.5" />
-                                  </Button>
-                                  {toolbarActions && (
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="icon-xs"
-                                      className="shrink-0 rounded-full opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/10"
-                                      aria-label={m.content_edit()}
-                                      onClick={() =>
-                                        toolbarActions.openEditExpense(e.id)
-                                      }
-                                    >
-                                      <PencilIcon className="size-3.5" />
-                                    </Button>
-                                  )}
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon-xs"
-                                    className="shrink-0 rounded-full opacity-60 hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
-                                    aria-label={m.content_delete()}
-                                    onClick={() => {
-                                      deleteExpenseIdRef.current = e.id;
-                                      setIsDeleteExpenseDialogOpen(true);
-                                    }}
-                                  >
-                                    <Trash2Icon className="size-3.5" />
-                                  </Button>
-                                </div>
-                              </div>
-                              {isExpanded && (
-                                <div className="border-t border-border/50 bg-muted/20 px-3 py-3 pl-9 text-sm">
-                                  <dl className="grid gap-2 sm:grid-cols-2">
-                                    <div>
-                                      <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                                        {m.toolbar_field_amount()}
-                                      </dt>
-                                      <dd className="mt-0.5 font-semibold tabular-nums">
-                                        {formatCurrency(e.amount)}
-                                      </dd>
-                                    </div>
-                                    {e.expense_date && (
-                                      <div>
-                                        <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                                          {m.toolbar_field_payment_date()}
-                                        </dt>
-                                        <dd className="mt-0.5">
-                                          {formatDate(
-                                            new Date(
-                                              `${e.expense_date}T12:00:00`,
-                                            ),
-                                            "PPP",
-                                          )}
-                                        </dd>
-                                      </div>
-                                    )}
-                                    <div className="sm:col-span-2">
-                                      <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                                        {m.toolbar_field_category()}
-                                      </dt>
-                                      <dd className="mt-0.5">
-                                        {e.category
-                                          ? getCategoryLabel(e.category)
-                                          : "—"}
-                                      </dd>
-                                    </div>
-                                    {e.description && (
-                                      <div className="sm:col-span-2">
-                                        <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                                          {m.toolbar_field_description()}
-                                        </dt>
-                                        <dd className="mt-0.5">
-                                          {e.description}
-                                        </dd>
-                                      </div>
-                                    )}
-                                    <div className="sm:col-span-2">
-                                      <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                                        {m.toolbar_field_person()}
-                                      </dt>
-                                      <dd className="mt-0.5">
-                                        {memberById.get(e.paid_by) ?? "—"}
-                                      </dd>
-                                    </div>
-                                    {e.paid_to_member_ids?.length ? (
-                                      <div className="sm:col-span-2">
-                                        <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                                          {m.toolbar_field_paid_to()}
-                                        </dt>
-                                        <dd className="mt-0.5 inline-flex flex-wrap gap-1">
-                                          {e.paid_to_member_ids.map((id) => (
-                                            <span
-                                              key={id}
-                                              className="rounded-md bg-muted/80 px-1.5 py-0.5 text-xs font-medium"
-                                            >
-                                              {memberById.get(id) ?? id}
-                                            </span>
-                                          ))}
-                                        </dd>
-                                      </div>
-                                    ) : null}
-                                  </dl>
-                                </div>
-                              )}
-                            </li>
-                          );
-                        })}
+                              expense={e}
+                              memberById={memberById}
+                              isExpanded={expandedExpenseId === e.id}
+                              transition={rowTransition}
+                              reduceMotion={Boolean(reduceMotion)}
+                              onToggle={() =>
+                                setExpandedExpenseId((id) =>
+                                  id === e.id ? null : e.id,
+                                )
+                              }
+                              onEdit={
+                                toolbarActions
+                                  ? () => toolbarActions.openEditExpense(e.id)
+                                  : undefined
+                              }
+                              onDelete={() => {
+                                deleteExpenseIdRef.current = e.id;
+                                setIsDeleteExpenseDialogOpen(true);
+                              }}
+                            />
+                          ))}
+                        </AnimatePresence>
                       </ul>
                     </li>
                   );
@@ -708,29 +625,206 @@ export function HistorySection({
   );
 }
 
-const categoryLabels: Record<string, string> = {
-  food: m.category_food(),
-  transport: m.category_transport(),
-  housing: m.category_housing(),
-  health: m.category_health(),
-  entertainment: m.category_entertainment(),
-  shopping: m.category_shopping(),
-  subscriptions: m.category_subscriptions(),
-  other: m.category_other(),
+type HistoryRowProps = {
+  expense: ExpenseItem;
+  memberById: Map<string, string>;
+  isExpanded: boolean;
+  transition: typeof springGentle;
+  reduceMotion: boolean;
+  onToggle: () => void;
+  onEdit?: () => void;
+  onDelete: () => void;
 };
 
-const getCategoryLabel = (category: string) =>
-  categoryLabels[category] ?? category;
+function HistoryRow({
+  expense: e,
+  memberById,
+  isExpanded,
+  transition,
+  reduceMotion,
+  onToggle,
+  onEdit,
+  onDelete,
+}: HistoryRowProps) {
+  const CategoryIcon = getCategoryIcon(e.category);
+  const primaryText =
+    [e.category ? getCategoryLabel(e.category) : null, e.description]
+      .filter(Boolean)
+      .join(" · ") || "—";
+
+  return (
+    <motion.li
+      layout={reduceMotion ? false : "position"}
+      initial={listItem.initial}
+      animate={listItem.animate}
+      exit={listItem.exit}
+      transition={transition}
+      className="bg-background"
+    >
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isExpanded}
+        className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-muted/30"
+      >
+        <span
+          className={cn(
+            "flex size-8 shrink-0 items-center justify-center rounded-full",
+            getCategoryColorClasses(e.category),
+          )}
+        >
+          <CategoryIcon className="size-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="truncate text-sm font-medium text-foreground">
+              {primaryText}
+            </p>
+            <span className="shrink-0 text-sm font-semibold tabular-nums tracking-tight">
+              {formatCurrency(e.amount)}
+            </span>
+          </div>
+          <p className="mt-0.5 flex flex-wrap items-baseline gap-x-1.5 text-xs text-muted-foreground">
+            {e.expense_date && (
+              <span>
+                {formatDate(new Date(`${e.expense_date}T12:00:00`), "PPP")}
+              </span>
+            )}
+            <span>·</span>
+            <span>{memberById.get(e.paid_by) ?? "—"}</span>
+            {e.paid_to_member_ids?.length ? (
+              <>
+                <span>{m.content_history_paid_to()}</span>
+                <span className="inline-flex flex-wrap gap-x-1 gap-y-0.5">
+                  {e.paid_to_member_ids.map((id) => (
+                    <span
+                      key={id}
+                      className="rounded-md bg-muted/80 px-1.5 py-0.5 text-xs font-medium text-foreground/90"
+                    >
+                      {memberById.get(id) ?? id}
+                    </span>
+                  ))}
+                </span>
+              </>
+            ) : null}
+          </p>
+        </div>
+        <ChevronDownIcon
+          className={cn(
+            "size-4 shrink-0 text-muted-foreground/60 transition-transform duration-200 ease-out",
+            isExpanded && "rotate-180",
+          )}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {isExpanded && (
+          <motion.div
+            key="detail"
+            initial={expandPanel.initial}
+            animate={expandPanel.animate}
+            exit={expandPanel.exit}
+            transition={transition}
+            className="overflow-hidden"
+          >
+            <div className="border-t border-border/50 bg-muted/20 px-3 py-3 pl-14 text-sm">
+              <dl className="grid gap-2 sm:grid-cols-2">
+                <div>
+                  <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                    {m.toolbar_field_amount()}
+                  </dt>
+                  <dd className="mt-0.5 font-semibold tabular-nums">
+                    {formatCurrency(e.amount)}
+                  </dd>
+                </div>
+                {e.expense_date && (
+                  <div>
+                    <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                      {m.toolbar_field_payment_date()}
+                    </dt>
+                    <dd className="mt-0.5">
+                      {formatDate(
+                        new Date(`${e.expense_date}T12:00:00`),
+                        "PPP",
+                      )}
+                    </dd>
+                  </div>
+                )}
+                <div className="sm:col-span-2">
+                  <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                    {m.toolbar_field_category()}
+                  </dt>
+                  <dd className="mt-0.5">
+                    {e.category ? getCategoryLabel(e.category) : "—"}
+                  </dd>
+                </div>
+                {e.description && (
+                  <div className="sm:col-span-2">
+                    <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                      {m.toolbar_field_description()}
+                    </dt>
+                    <dd className="mt-0.5">{e.description}</dd>
+                  </div>
+                )}
+                <div className="sm:col-span-2">
+                  <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                    {m.toolbar_field_person()}
+                  </dt>
+                  <dd className="mt-0.5">{memberById.get(e.paid_by) ?? "—"}</dd>
+                </div>
+                {e.paid_to_member_ids?.length ? (
+                  <div className="sm:col-span-2">
+                    <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                      {m.toolbar_field_paid_to()}
+                    </dt>
+                    <dd className="mt-0.5 inline-flex flex-wrap gap-1">
+                      {e.paid_to_member_ids.map((id) => (
+                        <span
+                          key={id}
+                          className="rounded-md bg-muted/80 px-1.5 py-0.5 text-xs font-medium"
+                        >
+                          {memberById.get(id) ?? id}
+                        </span>
+                      ))}
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
+              <div className="mt-3 flex justify-end gap-2">
+                {onEdit && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={onEdit}
+                  >
+                    <PencilIcon className="size-3.5" />
+                    {m.content_edit()}
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  onClick={onDelete}
+                >
+                  <Trash2Icon className="size-3.5" />
+                  {m.content_delete()}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.li>
+  );
+}
 
 const getMonthLabel = (monthKey: string) => {
   if (monthKey === getMonthKey(new Date())) return m.content_total_this_month();
   const [y, mo] = monthKey.split("-").map(Number);
   return formatDate(new Date(y, mo - 1, 1), "MMMM yyyy");
 };
-
-function getCategoryIcon(category: string) {
-  return CATEGORY_ICONS[category] ?? MoreHorizontal;
-}
 
 function getMonthKey(date: Date) {
   const y = date.getFullYear();

@@ -1,8 +1,27 @@
 import { ArrowRightIcon } from "lucide-react";
 import type { SplitDebt } from "@/api/splits";
+import { AnimatedCurrency } from "@/components/animated-currency";
 import { useEntity } from "@/hooks/use-entity";
-import { formatCurrency } from "@/lib/format-currency";
+import { getAvatarColorClasses } from "@/lib/avatar-colors";
+import { cn } from "@/lib/cn";
 import { m } from "@/paraglide/messages";
+
+function MemberBadge({ name }: { name: string }) {
+  const initial = name.trim().charAt(0).toUpperCase() || "?";
+  return (
+    <span className="inline-flex items-center gap-1.5 align-middle">
+      <span
+        className={cn(
+          "flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
+          getAvatarColorClasses(name),
+        )}
+      >
+        {initial}
+      </span>
+      <span>{name}</span>
+    </span>
+  );
+}
 
 export function DebtsSection({ debts }: { debts: SplitDebt[] }) {
   const entity = useEntity();
@@ -24,16 +43,16 @@ export function DebtsSection({ debts }: { debts: SplitDebt[] }) {
           >
             <div className="min-w-0 flex-1 text-sm">
               <p className="font-medium text-foreground">
-                <span>{d.fromName}</span>
+                <MemberBadge name={d.fromName} />
                 <ArrowRightIcon
                   className="mx-1.5 inline-block size-3.5 shrink-0 align-middle text-muted-foreground"
                   aria-hidden
                 />
-                <span>{d.toName}</span>
+                <MemberBadge name={d.toName} />
               </p>
             </div>
             <span className="shrink-0 text-sm font-semibold tabular-nums tracking-tight">
-              {formatCurrency(d.amount)}
+              <AnimatedCurrency value={d.amount} />
             </span>
           </li>
         ))}

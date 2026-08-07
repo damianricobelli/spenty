@@ -39,6 +39,7 @@ import { useAddExpenseEntry } from "@/hooks/expenses/use-add-expense-entry";
 import { useExpenseWithSplits } from "@/hooks/expenses/use-expense-with-splits";
 import { useUpdateExpenseEntry } from "@/hooks/expenses/use-update-expense-entry";
 import { useEntity } from "@/hooks/use-entity";
+import { getCurrencySymbol } from "@/lib/format-currency";
 import { dateToLocalISOString, formatDate } from "@/lib/format-date";
 import { getErrorMessage } from "@/lib/get-error-message";
 import { m } from "@/paraglide/messages";
@@ -324,6 +325,31 @@ function ToolbarExpenseFormInner({
       <input type="hidden" name="memberId" value={expenseMemberId} />
       <FieldGroup>
         <Field>
+          <FieldLabel className="sr-only">
+            {m.toolbar_field_amount()}
+          </FieldLabel>
+          <div className="flex h-16 items-center justify-center gap-1.5">
+            <span
+              aria-hidden
+              className="text-4xl font-semibold tracking-tight text-muted-foreground/50"
+            >
+              {getCurrencySymbol()}
+            </span>
+            <Input
+              name="amount"
+              type="text"
+              inputMode="decimal"
+              autoComplete="off"
+              autoFocus={isAdd}
+              placeholder={m.toolbar_field_amount_placeholder()}
+              required
+              defaultValue={isAdd ? undefined : expense?.amount}
+              className="h-16 w-auto min-w-28 max-w-full field-sizing-content border-transparent bg-transparent px-1 text-4xl font-semibold tabular-nums tracking-tight caret-primary placeholder:text-muted-foreground/40 focus-visible:border-transparent focus-visible:ring-0"
+            />
+          </div>
+        </Field>
+
+        <Field>
           <FieldLabel>{m.toolbar_field_person()}</FieldLabel>
           <Select
             required
@@ -387,19 +413,6 @@ function ToolbarExpenseFormInner({
             </Combobox>
           </Field>
         )}
-
-        <Field>
-          <FieldLabel>{m.toolbar_field_amount()}</FieldLabel>
-          <Input
-            name="amount"
-            type="text"
-            inputMode="decimal"
-            autoComplete="off"
-            placeholder={m.toolbar_field_amount_placeholder()}
-            required
-            defaultValue={isAdd ? undefined : expense?.amount}
-          />
-        </Field>
 
         <Field>
           <FieldLabel>{m.toolbar_field_category()}</FieldLabel>
@@ -541,6 +554,7 @@ function ToolbarExpenseFormInner({
       </FieldGroup>
 
       <ButtonWithSpinner
+        className="relative mt-3"
         text={
           isAdd
             ? m.toolbar_submit_add_expense()

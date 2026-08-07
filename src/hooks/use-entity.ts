@@ -1,15 +1,11 @@
-import { useMatchRoute } from "@tanstack/react-router";
+import { useRouterState } from "@tanstack/react-router";
 
-export const useEntity = () => {
-  const matchRoute = useMatchRoute();
-  const isExpensesRoute = !!matchRoute({ to: "/expenses/$id" });
-  const isSplitsRoute = !!matchRoute({ to: "/splits/$id" });
-
-  if (!isExpensesRoute && !isSplitsRoute) {
-    throw new Error(
-      "UseEntity hook must be used in an expenses or splits route",
-    );
-  }
-
-  return isExpensesRoute ? "/expenses/$id" : "/splits/$id";
+/**
+ * Resolves which entity route the UI is rendering under. Derived from the
+ * latest router location (not the committed match) so it stays stable while
+ * a client-side transition into these routes is still pending.
+ */
+export const useEntity = (): "/expenses/$id" | "/splits/$id" => {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  return pathname.startsWith("/splits") ? "/splits/$id" : "/expenses/$id";
 };

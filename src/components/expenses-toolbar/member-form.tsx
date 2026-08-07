@@ -114,6 +114,7 @@ export function ToolbarMemberForm(props: ToolbarMemberFormProps) {
         <FieldError errors={[{ message: getErrorMessage(mutation.error) }]} />
       )}
       <ButtonWithSpinner
+        className="relative mt-3"
         text={
           isAdd ? m.toolbar_submit_add_member() : m.toolbar_submit_edit_member()
         }

@@ -1,10 +1,12 @@
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
+import { AnimatedCurrency } from "@/components/animated-currency";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { getCategoryLabel } from "@/lib/categories";
 import { formatCurrency } from "@/lib/format-currency";
 import { formatDate } from "@/lib/format-date";
 import { m } from "@/paraglide/messages";
@@ -42,18 +44,18 @@ export function TotalsSection({ expense }: { expense: ExpenseItem[] }) {
                 {m.content_total_this_month()} · {thisMonthLabel}
               </p>
               <p className="mt-1 truncate text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl">
-                {formatCurrency(summary.totalThisMonth)}
+                <AnimatedCurrency value={summary.totalThisMonth} />
               </p>
             </div>
             <CollapsibleTrigger className="text-muted-foreground group flex shrink-0 items-center gap-1.5 rounded-md text-xs">
               {m.content_view_details()}
-              <ChevronDownIcon className="size-4 transition-all ease-out `group-data-panel-open:rotate-180" />
+              <ChevronDownIcon className="size-4 transition-transform duration-200 ease-out group-data-panel-open:rotate-180" />
             </CollapsibleTrigger>
           </div>
           <div className="mt-3 space-y-1.5">
-            <div className="bg-muted h-2 overflow-hidden rounded-full">
+            <div className="bg-muted h-1.5 overflow-hidden rounded-full">
               <div
-                className="h-full rounded-full bg-emerald-500"
+                className="h-full rounded-full bg-primary/60 transition-[width] duration-500 ease-out"
                 style={{ width: `${Math.min(monthProgressPct, 100)}%` }}
               />
             </div>
@@ -62,11 +64,18 @@ export function TotalsSection({ expense }: { expense: ExpenseItem[] }) {
                 day: String(summary.daysElapsed),
                 total: String(summary.daysInMonth),
               })}
+              {summary.totalThisMonth > 0 && (
+                <>
+                  {" · "}
+                  {m.content_total_projection_label()}{" "}
+                  {formatCurrency(summary.projectionEndOfMonth)}
+                </>
+              )}
             </p>
           </div>
         </div>
 
-        <CollapsibleContent className="h-(--collapsible-panel-height) overflow-hidden transition-all duration-150 ease-out `data-ending-style:h-0 data-starting-style:h- [&[hidden]:not([hidden='until-found'])]:hidden">
+        <CollapsibleContent className="h-(--collapsible-panel-height) overflow-hidden transition-[height,opacity] duration-250 ease-out data-starting-style:h-0 data-starting-style:opacity-0 data-ending-style:h-0 data-ending-style:opacity-0 [&[hidden]:not([hidden='until-found'])]:hidden">
           <div className="grid grid-cols-1 divide-y divide-border/50 sm:grid-cols-2 sm:divide-y-0 sm:divide-x">
             <MetricCard
               label={m.content_total_projection_label()}
@@ -77,18 +86,22 @@ export function TotalsSection({ expense }: { expense: ExpenseItem[] }) {
                 month: previousMonthLabel,
               })}
               value={
-                diffPct > 0
-                  ? `+${formattedDiffPct}%`
-                  : diffPct < 0
-                    ? `-${formattedDiffPct}%`
-                    : "0%"
+                summary.totalPreviousMonth <= 0
+                  ? "—"
+                  : diffPct > 0
+                    ? `+${formattedDiffPct}%`
+                    : diffPct < 0
+                      ? `-${formattedDiffPct}%`
+                      : "0%"
               }
               valueClassName={
-                diffPct > 0
-                  ? "text-destructive"
-                  : diffPct < 0
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-foreground"
+                summary.totalPreviousMonth <= 0
+                  ? "text-muted-foreground"
+                  : diffPct > 0
+                    ? "text-destructive"
+                    : diffPct < 0
+                      ? "text-success"
+                      : "text-foreground"
               }
             />
             <MetricCard
@@ -121,7 +134,7 @@ export function TotalsSection({ expense }: { expense: ExpenseItem[] }) {
                       </div>
                       <div className="bg-muted h-1.5 overflow-hidden rounded-full">
                         <div
-                          className="h-full rounded-full bg-sky-500"
+                          className="h-full rounded-full bg-chart-1 transition-[width] duration-500 ease-out"
                           style={{ width: `${Math.max(6, item.share)}%` }}
                         />
                       </div>
@@ -154,7 +167,7 @@ export function TotalsSection({ expense }: { expense: ExpenseItem[] }) {
                       </div>
                       <div className="bg-muted h-1.5 overflow-hidden rounded-full">
                         <div
-                          className="h-full rounded-full bg-amber-500"
+                          className="h-full rounded-full bg-chart-3 transition-[width] duration-500 ease-out"
                           style={{ width: `${Math.max(6, item.share)}%` }}
                         />
                       </div>
@@ -306,24 +319,3 @@ function getFormattedPct(diffPctValue: number) {
   });
 }
 
-const categoryLabels: Record<string, string> = {
-  food: m.category_food(),
-  transport: m.category_transport(),
-  housing: m.category_housing(),
-  health: m.category_health(),
-  entertainment: m.category_entertainment(),
-  shopping: m.category_shopping(),
-  subscriptions: m.category_subscriptions(),
-  other: m.category_other(),
-};
-
-function getCategoryLabel(rawCategory: string) {
-  const category = rawCategory.trim();
-  if (categoryLabels[category]) return categoryLabels[category];
-  if (category.startsWith("category_")) {
-    const normalized = category.replace("category_", "");
-    if (categoryLabels[normalized]) return categoryLabels[normalized];
-    return normalized.replaceAll("_", " ");
-  }
-  return category;
-}

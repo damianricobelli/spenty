@@ -1,3 +1,4 @@
+import { useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 
 interface FloatingObject {
@@ -73,6 +74,7 @@ interface FloatingElementsProps {
 
 export function FloatingElements({ count = 18 }: FloatingElementsProps) {
   const [elements, setElements] = useState<FloatingObject[] | null>(null);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     setElements(generateElements(count));
@@ -83,7 +85,7 @@ export function FloatingElements({ count = 18 }: FloatingElementsProps) {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 overflow-hidden"
+      className="pointer-events-none fixed inset-0 overflow-hidden animate-in fade-in duration-700"
     >
       {elements.map((obj) => {
         const Icon = obj.Icon;
@@ -98,7 +100,9 @@ export function FloatingElements({ count = 18 }: FloatingElementsProps) {
               width: obj.size,
               height: obj.size,
               opacity: obj.opacity,
-              animation: `float-element ${obj.duration}s ease-in-out ${obj.delay}s infinite`,
+              animation: reduceMotion
+                ? undefined
+                : `float-element ${obj.duration}s ease-in-out ${obj.delay}s infinite`,
             }}
           >
             <Icon width="100%" height="100%" />

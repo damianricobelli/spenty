@@ -10,22 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SplitsIdRouteImport } from './routes/splits/$id'
 import { Route as ExpensesIdRouteImport } from './routes/expenses/$id'
+import { Route as SplitsIdRouteImport } from './routes/splits/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SplitsIdRoute = SplitsIdRouteImport.update({
-  id: '/splits/$id',
-  path: '/splits/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ExpensesIdRoute = ExpensesIdRouteImport.update({
   id: '/expenses/$id',
   path: '/expenses/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SplitsIdRoute = SplitsIdRouteImport.update({
+  id: '/splits/$id',
+  path: '/splits/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -68,18 +68,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/splits/$id': {
-      id: '/splits/$id'
-      path: '/splits/$id'
-      fullPath: '/splits/$id'
-      preLoaderRoute: typeof SplitsIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/expenses/$id': {
       id: '/expenses/$id'
       path: '/expenses/$id'
       fullPath: '/expenses/$id'
       preLoaderRoute: typeof ExpensesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/splits/$id': {
+      id: '/splits/$id'
+      path: '/splits/$id'
+      fullPath: '/splits/$id'
+      preLoaderRoute: typeof SplitsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

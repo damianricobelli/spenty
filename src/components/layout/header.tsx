@@ -3,12 +3,17 @@ import {
   ArrowLeftIcon,
   GlobeIcon,
   LockIcon,
+  MonitorIcon,
+  MoonIcon,
+  PencilIcon,
   SettingsIcon,
   ShareIcon,
+  SunIcon,
   Trash2Icon,
   UnlockIcon,
 } from "lucide-react";
-import React, { useState, useTransition } from "react";
+import { useTheme } from "next-themes";
+import React, { useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { DeleteGroupDialog } from "@/components/delete-group-dialog";
@@ -46,11 +51,20 @@ export function Header() {
     from,
   });
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
 
   const updateName = useUpdateGroupName();
 
   const isUnnamed = !group.name.trim();
   const [groupName, setGroupName] = useState(isUnnamed ? "" : group.name);
+
+  // Keep the title in sync when the name changes elsewhere (e.g. renamed
+  // from the guided empty state), without clobbering an in-progress edit.
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (document.activeElement === nameInputRef.current) return;
+    setGroupName(group.name.trim() ? group.name : "");
+  }, [group.name]);
 
   const [_, startTransition] = useTransition();
 
@@ -62,9 +76,13 @@ export function Header() {
       setGroupName(group.name);
       return;
     }
+    if (groupName.trim() === group.name.trim()) return;
     setGroupName(groupName);
     startTransition(() => {
-      updateName.mutate({ name: groupName, groupId: group.id });
+      updateName.mutate(
+        { name: groupName, groupId: group.id },
+        { onSuccess: () => toast.success(m.header_name_saved()) },
+      );
       router.invalidate();
     });
   };
@@ -101,17 +119,25 @@ export function Header() {
           </Link>
 
           <div className="min-w-0 flex-1 flex flex-col items-center justify-center py-0.5">
-            <div className="flex h-8 items-center">
+            <div className="group/name relative flex h-8 items-center">
               <Input
+                ref={nameInputRef}
                 type="text"
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
                 onBlur={handleUpdateGroupName}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") e.currentTarget.blur();
+                }}
                 placeholder={m.header_group_name_placeholder()}
-                className="w-64 text-center font-semibold bg-transparent not-focus-within:border-none uppercase tracking-wider text-muted-foreground"
+                className="w-64 border-transparent bg-transparent text-center font-semibold text-foreground transition-colors not-focus-within:hover:border-border/60 pr-8"
                 aria-invalid={
                   !!updateName.error || groupName.trim().length === 0
                 }
+              />
+              <PencilIcon
+                aria-hidden
+                className="pointer-events-none absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground/50 transition-opacity group-focus-within/name:opacity-0"
               />
             </div>
           </div>
@@ -166,6 +192,37 @@ export function Header() {
                         {locale.toUpperCase()}
                       </DropdownMenuRadioItem>
                     ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  {theme === "dark" ? (
+                    <MoonIcon />
+                  ) : theme === "light" ? (
+                    <SunIcon />
+                  ) : (
+                    <MonitorIcon />
+                  )}
+                  {m.header_theme()}
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent>
+                  <DropdownMenuRadioGroup
+                    value={theme ?? "system"}
+                    onValueChange={(v) => setTheme(v)}
+                  >
+                    <DropdownMenuRadioItem value="light">
+                      <SunIcon />
+                      {m.theme_light()}
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="dark">
+                      <MoonIcon />
+                      {m.theme_dark()}
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="system">
+                      <MonitorIcon />
+                      {m.theme_system()}
+                    </DropdownMenuRadioItem>
                   </DropdownMenuRadioGroup>
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
