@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { SplitDebt } from "@/api/splits";
 import { EmptyNoMembers } from "@/components/empty-no-members";
 import {
@@ -15,8 +15,10 @@ import {
 import { Layout } from "@/components/layout";
 import { PasswordDialog } from "@/components/password-dialog";
 import type { HistoryFiltersSearch } from "@/lib/history-filters-search";
+import { rememberGroup } from "@/lib/recent-groups";
 
 type GroupPageProps = {
+	kind: "expense" | "split";
 	group: { id: string; name: string; slug: string; isLocked: boolean };
 	members: ExpensesToolbarMember[];
 	expense: ExpenseItem[];
@@ -41,6 +43,7 @@ function cleanFilters(filters: HistoryFiltersSearch): HistoryFiltersSearch {
  * load data; everything the user sees and does lives here.
  */
 export function GroupPage({
+	kind,
 	group,
 	members,
 	expense,
@@ -53,6 +56,11 @@ export function GroupPage({
 	);
 	const [editExpenseId, setEditExpenseId] = useState<string | null>(null);
 	const [editMemberId, setEditMemberId] = useState<string | null>(null);
+
+	// Remember the group on this device so it shows up on the home screen.
+	useEffect(() => {
+		rememberGroup({ slug: group.slug, name: group.name, kind });
+	}, [group.slug, group.name, kind]);
 
 	if (group.isLocked) {
 		return (

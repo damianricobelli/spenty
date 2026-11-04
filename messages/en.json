@@ -152,5 +152,18 @@
 	"header_name_saved": "Name saved",
 	"error_deleting_group": "We couldn't delete the group. Check the delete policy (RLS) on the groups table.",
 	"common_close": "Close",
-	"content_delete_confirm_tap": "Tap again to remove"
+	"content_delete_confirm_tap": "Tap again to remove",
+	"common_done": "Done",
+	"common_undo": "Undo",
+	"toolbar_member_added": "{name} added",
+	"toolbar_expense_added": "Expense added",
+	"toolbar_expense_saved": "Changes saved",
+	"debts_settle": "Settle",
+	"debts_settled_toast": "{from} paid {to}",
+	"debts_all_settled": "All settled up",
+	"category_settlement": "Payment",
+	"home_recent_groups": "Your groups",
+	"home_recent_personal": "Personal",
+	"home_recent_split": "Split",
+	"home_recent_forget": "Remove from this list"
 }

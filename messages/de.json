@@ -152,5 +152,18 @@
 	"header_name_saved": "Name gespeichert",
 	"error_deleting_group": "Die Gruppe konnte nicht gelöscht werden. Prüfe die Lösch-Policy (RLS) der Tabelle groups.",
 	"common_close": "Schließen",
-	"content_delete_confirm_tap": "Zum Entfernen erneut tippen"
+	"content_delete_confirm_tap": "Zum Entfernen erneut tippen",
+	"common_done": "Fertig",
+	"common_undo": "Rückgängig",
+	"toolbar_member_added": "{name} hinzugefügt",
+	"toolbar_expense_added": "Ausgabe hinzugefügt",
+	"toolbar_expense_saved": "Änderungen gespeichert",
+	"debts_settle": "Begleichen",
+	"debts_settled_toast": "{from} hat {to} bezahlt",
+	"debts_all_settled": "Alles beglichen",
+	"category_settlement": "Zahlung",
+	"home_recent_groups": "Deine Gruppen",
+	"home_recent_personal": "Persönlich",
+	"home_recent_split": "Geteilt",
+	"home_recent_forget": "Aus dieser Liste entfernen"
 }

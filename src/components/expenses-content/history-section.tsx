@@ -33,6 +33,7 @@ import {
   getCategoryColorClasses,
   getCategoryIcon,
   getCategoryLabel,
+  isSettlement,
 } from "@/lib/categories";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format-currency";
@@ -202,7 +203,9 @@ export function HistorySection({
       const list = byMonth.get(key) ?? [];
       list.push(e);
       byMonth.set(key, list);
-      totalByMonth.set(key, (totalByMonth.get(key) ?? 0) + e.amount);
+      if (!isSettlement(e.category)) {
+        totalByMonth.set(key, (totalByMonth.get(key) ?? 0) + e.amount);
+      }
     }
     const keys = Array.from(byMonth.keys()).sort().reverse();
     return { byMonth, totalByMonth, monthKeys: keys };
@@ -566,8 +569,15 @@ function HistoryRow({
   onOpen,
 }: HistoryRowProps) {
   const CategoryIcon = getCategoryIcon(e.category);
-  const primaryText =
-    e.description?.trim() || (e.category ? getCategoryLabel(e.category) : "—");
+  const settlement = isSettlement(e.category);
+  const payerName = memberById.get(e.paid_by) ?? "—";
+  const primaryText = settlement
+    ? m.debts_settled_toast({
+        from: payerName,
+        to: memberById.get(e.paid_to_member_ids?.[0] ?? "") ?? "—",
+      })
+    : e.description?.trim() ||
+      (e.category ? getCategoryLabel(e.category) : "—");
   const paidToNames = e.paid_to_member_ids
     ?.map((id) => memberById.get(id))
     .filter(Boolean)
@@ -606,8 +616,10 @@ function HistoryRow({
           </div>
           <p className="mt-0.5 truncate text-xs text-muted-foreground">
             {[
-              memberById.get(e.paid_by) ?? "—",
-              paidToNames ? `${m.content_history_paid_to()} ${paidToNames}` : null,
+              settlement ? m.category_settlement() : payerName,
+              paidToNames && !settlement
+                ? `${m.content_history_paid_to()} ${paidToNames}`
+                : null,
               e.expense_date
                 ? formatDate(new Date(`${e.expense_date}T12:00:00`), "d MMM")
                 : null,

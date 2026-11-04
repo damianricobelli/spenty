@@ -1,5 +1,6 @@
 import { GlobeIcon } from "lucide-react";
 import { localeFlags } from "@/lib/locale-flags";
+import { m } from "@/paraglide/messages";
 import type { Locale } from "@/paraglide/runtime";
 import { getLocale, locales, setLocale } from "@/paraglide/runtime";
 import { Button } from "./ui/button";
@@ -22,7 +23,12 @@ export const LocaleMenu = () => {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="ghost" className="bg-muted">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="bg-muted"
+            aria-label={m.header_language()}
+          >
             <GlobeIcon />
           </Button>
         }

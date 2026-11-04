@@ -152,5 +152,18 @@
 	"header_name_saved": "Nome guardado",
 	"error_deleting_group": "Não foi possível eliminar o grupo. Verifica a política de eliminação (RLS) da tabela groups.",
 	"common_close": "Fechar",
-	"content_delete_confirm_tap": "Toque de novo para remover"
+	"content_delete_confirm_tap": "Toque de novo para remover",
+	"common_done": "Pronto",
+	"common_undo": "Desfazer",
+	"toolbar_member_added": "{name} adicionado",
+	"toolbar_expense_added": "Gasto adicionado",
+	"toolbar_expense_saved": "Alterações salvas",
+	"debts_settle": "Quitar",
+	"debts_settled_toast": "{from} pagou {to}",
+	"debts_all_settled": "Tudo quitado",
+	"category_settlement": "Pagamento",
+	"home_recent_groups": "Seus grupos",
+	"home_recent_personal": "Pessoal",
+	"home_recent_split": "Dividido",
+	"home_recent_forget": "Remover desta lista"
 }

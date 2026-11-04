@@ -1,12 +1,17 @@
 import { useLoaderData, useRouter } from "@tanstack/react-router";
 import type React from "react";
+import { useRef } from "react";
+import { toast } from "sonner";
 import { AddMemberSchema, UpdateMemberSchema } from "@/api/schema";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAddMember } from "@/hooks/members/use-add-member";
 import { useDeleteMember } from "@/hooks/members/use-delete-member";
 import { useUpdateMember } from "@/hooks/members/use-update-member";
 import { useEntity } from "@/hooks/use-entity";
+import { getAvatarColorClasses } from "@/lib/avatar-colors";
+import { cn } from "@/lib/cn";
 import { getErrorMessage } from "@/lib/get-error-message";
 import { m } from "@/paraglide/messages";
 import { ButtonWithSpinner } from "../button-with-spinner";
@@ -42,9 +47,12 @@ export function ToolbarMemberForm(props: ToolbarMemberFormProps) {
       ? members.find((m) => m.id === (props as EditProps).memberId)
       : null;
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
     const rawName = formData.get("name");
 
     const name =
@@ -66,8 +74,11 @@ export function ToolbarMemberForm(props: ToolbarMemberFormProps) {
       addMutation.mutate(
         { groupId: group.id, name: result.data.name },
         {
+          // Stay open so several people can be added in a row.
           onSuccess: () => {
-            resetToolbar();
+            form.reset();
+            inputRef.current?.focus();
+            toast.success(m.toolbar_member_added({ name: result.data.name }));
             router.invalidate();
           },
         },
@@ -104,17 +115,39 @@ export function ToolbarMemberForm(props: ToolbarMemberFormProps) {
 
   return (
     <form className="flex flex-col gap-3 px-3 py-2.5" onSubmit={handleSubmit}>
+      {isAdd && members.length > 0 ? (
+        <ul className="flex flex-wrap gap-1.5 pr-8" aria-live="polite">
+          {members.map((item) => (
+            <li
+              key={item.id}
+              className="animate-in fade-in zoom-in-95 flex h-7 items-center gap-1.5 rounded-full bg-muted pl-1 pr-2.5 text-xs font-medium duration-200 ease-out"
+            >
+              <span
+                className={cn(
+                  "flex size-5 items-center justify-center rounded-full text-[10px] font-semibold",
+                  getAvatarColorClasses(item.name),
+                )}
+              >
+                {item.name.trim().charAt(0).toUpperCase()}
+              </span>
+              {item.name}
+            </li>
+          ))}
+        </ul>
+      ) : null}
       <Field aria-invalid={!!mutation.error}>
         <FieldLabel>{m.toolbar_field_name()}</FieldLabel>
         <Input
+          ref={inputRef}
           required
           name="name"
           autoFocus
           autoComplete="off"
           autoCapitalize="words"
-          enterKeyHint="done"
+          enterKeyHint={isAdd ? "next" : "done"}
           defaultValue={intent === "edit" ? member?.name : ""}
           aria-invalid={!!mutation.error}
+          onChange={() => mutation.error && mutation.reset()}
         />
       </Field>
       {mutation.error && (
@@ -127,6 +160,11 @@ export function ToolbarMemberForm(props: ToolbarMemberFormProps) {
         }
         isPending={mutation.isPending}
       />
+      {isAdd && members.length > 0 ? (
+        <Button type="button" variant="ghost" onClick={resetToolbar}>
+          {m.common_done()}
+        </Button>
+      ) : null}
       {intent === "edit" ? (
         <ConfirmDeleteButton
           label={m.content_delete_member_title()}

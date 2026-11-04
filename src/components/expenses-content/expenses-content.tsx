@@ -62,7 +62,7 @@ export function ExpensesContent({
   groupCode,
   members,
   expense,
-  debts = [],
+  debts,
   historyFilters,
   onHistoryFilterChange,
 }: ExpensesContentProps) {
@@ -79,11 +79,11 @@ export function ExpensesContent({
       </StaggeredSection>
 
       {/* Who owes whom (splits only) */}
-      {debts.length > 0 && (
+      {debts && expense.length > 0 ? (
         <StaggeredSection index={2}>
-          <DebtsSection debts={debts} />
+          <DebtsSection groupId={groupId} debts={debts} />
         </StaggeredSection>
-      )}
+      ) : null}
 
       {/* History */}
       <StaggeredSection index={3} className="flex min-h-0 flex-1 flex-col">

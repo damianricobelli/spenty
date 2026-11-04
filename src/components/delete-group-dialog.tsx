@@ -1,6 +1,7 @@
 import { useLoaderData, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { useDeleteGroup } from "@/hooks/groups/use-delete-group";
+import { forgetGroup } from "@/lib/recent-groups";
 import { useEntity } from "@/hooks/use-entity";
 import { getErrorMessage } from "@/lib/get-error-message";
 import { isDefaultGroupName } from "@/lib/group-name";
@@ -46,6 +47,7 @@ export function DeleteGroupDialog({
       {
         onSuccess: () => {
           onOpenChange(false);
+          forgetGroup(group.slug);
           router.navigate({ to: "/" });
         },
       },

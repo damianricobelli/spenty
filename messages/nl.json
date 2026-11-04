@@ -152,5 +152,18 @@
 	"header_name_saved": "Naam opgeslagen",
 	"error_deleting_group": "De groep kon niet worden verwijderd. Controleer het verwijderbeleid (RLS) van de tabel groups.",
 	"common_close": "Sluiten",
-	"content_delete_confirm_tap": "Tik nogmaals om te verwijderen"
+	"content_delete_confirm_tap": "Tik nogmaals om te verwijderen",
+	"common_done": "Klaar",
+	"common_undo": "Ongedaan maken",
+	"toolbar_member_added": "{name} toegevoegd",
+	"toolbar_expense_added": "Uitgave toegevoegd",
+	"toolbar_expense_saved": "Wijzigingen opgeslagen",
+	"debts_settle": "Afrekenen",
+	"debts_settled_toast": "{from} heeft {to} betaald",
+	"debts_all_settled": "Alles verrekend",
+	"category_settlement": "Betaling",
+	"home_recent_groups": "Je groepen",
+	"home_recent_personal": "Persoonlijk",
+	"home_recent_split": "Gedeeld",
+	"home_recent_forget": "Uit deze lijst verwijderen"
 }

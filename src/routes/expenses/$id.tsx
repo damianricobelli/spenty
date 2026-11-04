@@ -27,6 +27,7 @@ function RouteComponent() {
 
 	return (
 		<GroupPage
+			kind="expense"
 			group={group}
 			members={members}
 			expense={expense}

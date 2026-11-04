@@ -31,6 +31,7 @@ function RouteComponent() {
 
 	return (
 		<GroupPage
+			kind="split"
 			group={group}
 			members={members}
 			expense={expense}

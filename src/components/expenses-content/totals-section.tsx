@@ -6,7 +6,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { getCategoryLabel } from "@/lib/categories";
+import { getCategoryLabel, isSettlement } from "@/lib/categories";
 import { formatCurrency } from "@/lib/format-currency";
 import { formatDate } from "@/lib/format-date";
 import { m } from "@/paraglide/messages";
@@ -240,6 +240,8 @@ function getExpenseSummary(expense: ExpenseItem[]) {
   }> = [];
 
   for (const e of expense) {
+    // Payments between members aren't spending.
+    if (isSettlement(e.category)) continue;
     totalHistorical += e.amount;
     const key = e.expense_date ? e.expense_date.slice(0, 7) : null;
 

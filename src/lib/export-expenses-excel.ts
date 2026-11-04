@@ -1,5 +1,5 @@
 import ExcelJS from "exceljs";
-import { getCategoryLabel } from "@/lib/categories";
+import { getCategoryLabel, isSettlement } from "@/lib/categories";
 import { formatDate } from "@/lib/format-date";
 
 type ExportExpenseItem = {
@@ -45,9 +45,12 @@ export async function exportExpensesToExcel({
     return (b.created_at ?? "").localeCompare(a.created_at ?? "");
   });
 
+  // Settle-up payments stay listed but don't count as spending.
   const totalAmount = sortedExpenses.reduce(
     (sum, expense) =>
-      sum + (Number.isFinite(expense.amount) ? expense.amount : 0),
+      isSettlement(expense.category) || !Number.isFinite(expense.amount)
+        ? sum
+        : sum + expense.amount,
     0,
   );
 
@@ -190,6 +193,7 @@ export async function exportExpensesToExcel({
 
   const summaryByMonth = new Map<string, { count: number; total: number }>();
   for (const expense of sortedExpenses) {
+    if (isSettlement(expense.category)) continue;
     const key = getMonthKeyFromExpense(expense) ?? "Unknown";
     const current = summaryByMonth.get(key) ?? { count: 0, total: 0 };
     current.count += 1;

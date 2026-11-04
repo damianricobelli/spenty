@@ -152,5 +152,18 @@
 	"header_name_saved": "Nom enregistré",
 	"error_deleting_group": "Impossible de supprimer le groupe. Vérifiez la politique de suppression (RLS) de la table groups.",
 	"common_close": "Fermer",
-	"content_delete_confirm_tap": "Touchez à nouveau pour supprimer"
+	"content_delete_confirm_tap": "Touchez à nouveau pour supprimer",
+	"common_done": "Terminé",
+	"common_undo": "Annuler",
+	"toolbar_member_added": "{name} ajouté",
+	"toolbar_expense_added": "Dépense ajoutée",
+	"toolbar_expense_saved": "Modifications enregistrées",
+	"debts_settle": "Régler",
+	"debts_settled_toast": "{from} a payé {to}",
+	"debts_all_settled": "Tout est réglé",
+	"category_settlement": "Paiement",
+	"home_recent_groups": "Vos groupes",
+	"home_recent_personal": "Personnel",
+	"home_recent_split": "Partagé",
+	"home_recent_forget": "Retirer de cette liste"
 }

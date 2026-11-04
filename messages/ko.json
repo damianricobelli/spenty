@@ -152,5 +152,18 @@
 	"header_name_saved": "이름이 저장되었습니다",
 	"error_deleting_group": "그룹을 삭제할 수 없습니다. groups 테이블의 삭제 정책(RLS)을 확인하세요.",
 	"common_close": "닫기",
-	"content_delete_confirm_tap": "한 번 더 탭하여 삭제"
+	"content_delete_confirm_tap": "한 번 더 탭하여 삭제",
+	"common_done": "완료",
+	"common_undo": "실행 취소",
+	"toolbar_member_added": "{name} 추가됨",
+	"toolbar_expense_added": "지출이 추가되었습니다",
+	"toolbar_expense_saved": "변경 사항이 저장되었습니다",
+	"debts_settle": "정산",
+	"debts_settled_toast": "{from}님이 {to}님에게 지불했습니다",
+	"debts_all_settled": "모두 정산됨",
+	"category_settlement": "지불",
+	"home_recent_groups": "내 그룹",
+	"home_recent_personal": "개인",
+	"home_recent_split": "분할",
+	"home_recent_forget": "이 목록에서 제거"
 }

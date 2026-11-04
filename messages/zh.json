@@ -152,5 +152,18 @@
 	"header_name_saved": "名称已保存",
 	"error_deleting_group": "无法删除群组。请检查 groups 表的删除策略（RLS）。",
 	"common_close": "关闭",
-	"content_delete_confirm_tap": "再点一次即可删除"
+	"content_delete_confirm_tap": "再点一次即可删除",
+	"common_done": "完成",
+	"common_undo": "撤销",
+	"toolbar_member_added": "已添加 {name}",
+	"toolbar_expense_added": "已添加支出",
+	"toolbar_expense_saved": "更改已保存",
+	"debts_settle": "结清",
+	"debts_settled_toast": "{from} 已付款给 {to}",
+	"debts_all_settled": "已全部结清",
+	"category_settlement": "付款",
+	"home_recent_groups": "你的群组",
+	"home_recent_personal": "个人",
+	"home_recent_split": "分摊",
+	"home_recent_forget": "从此列表移除"
 }

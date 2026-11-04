@@ -1,5 +1,6 @@
 import {
   Car,
+  HandCoins,
   Gamepad2,
   Heart,
   Home,
@@ -11,6 +12,16 @@ import {
 } from "lucide-react";
 import { m } from "@/paraglide/messages";
 
+/**
+ * Category used for "settle up" payments between members. They move money
+ * inside the group, so they count for balances but not as spending.
+ */
+export const SETTLEMENT_CATEGORY = "settlement";
+
+export function isSettlement(category: string | null | undefined) {
+  return category === SETTLEMENT_CATEGORY;
+}
+
 export const CATEGORY_ICONS: Record<string, LucideIcon> = {
   food: UtensilsCrossed,
   transport: Car,
@@ -20,6 +31,7 @@ export const CATEGORY_ICONS: Record<string, LucideIcon> = {
   shopping: ShoppingBag,
   subscriptions: Repeat,
   other: MoreHorizontal,
+  [SETTLEMENT_CATEGORY]: HandCoins,
 };
 
 /**
@@ -53,6 +65,7 @@ export function getCategoryIcon(category: string): LucideIcon {
 
 export function getCategoryLabel(rawCategory: string): string {
   const category = rawCategory.trim();
+  if (isSettlement(category)) return m.category_settlement();
   if (isBaseCategory(category)) return CATEGORY_MESSAGES[category]();
   if (category.startsWith("category_")) {
     const normalized = category.replace("category_", "");
@@ -71,6 +84,7 @@ const CATEGORY_COLOR_CLASSES: Record<string, string> = {
   shopping: "bg-pink-500/15 text-pink-700 dark:text-pink-400",
   subscriptions: "bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
   other: "bg-muted text-muted-foreground",
+  [SETTLEMENT_CATEGORY]: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
 };
 
 const CATEGORY_COLOR_POOL = [

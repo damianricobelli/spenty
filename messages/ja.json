@@ -152,5 +152,18 @@
 	"header_name_saved": "名前を保存しました",
 	"error_deleting_group": "グループを削除できませんでした。groupsテーブルの削除ポリシー（RLS）を確認してください。",
 	"common_close": "閉じる",
-	"content_delete_confirm_tap": "もう一度タップして削除"
+	"content_delete_confirm_tap": "もう一度タップして削除",
+	"common_done": "完了",
+	"common_undo": "元に戻す",
+	"toolbar_member_added": "{name} を追加しました",
+	"toolbar_expense_added": "支出を追加しました",
+	"toolbar_expense_saved": "変更を保存しました",
+	"debts_settle": "精算",
+	"debts_settled_toast": "{from} が {to} に支払いました",
+	"debts_all_settled": "すべて精算済み",
+	"category_settlement": "支払い",
+	"home_recent_groups": "あなたのグループ",
+	"home_recent_personal": "個人",
+	"home_recent_split": "割り勘",
+	"home_recent_forget": "このリストから削除"
 }

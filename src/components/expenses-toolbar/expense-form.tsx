@@ -70,6 +70,24 @@ export type ToolbarExpenseFormProps = AddProps | EditProps;
 
 type MemberItem = { value: string; label: string };
 
+const lastPayerKey = (groupId: string) => `spenty:last-payer:${groupId}`;
+
+function readLastPayer(groupId: string) {
+  try {
+    return localStorage.getItem(lastPayerKey(groupId)) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function writeLastPayer(groupId: string, memberId: string) {
+  try {
+    localStorage.setItem(lastPayerKey(groupId), memberId);
+  } catch {
+    // Storage blocked: the form just won't prefill next time.
+  }
+}
+
 type CategoryItem = { value: string; label: string; id?: string };
 
 const capitalizeFirstLetter = (value: string) =>
@@ -158,11 +176,14 @@ function ToolbarExpenseFormInner({
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [categoryInputValue, setCategoryInputValue] = useState("");
 
-  const [expenseMemberId, setExpenseMemberId] = useState(() =>
-    intent === "add" && members.length === 1
-      ? members[0].id
-      : (expense?.paid_by ?? ""),
-  );
+  // New expenses start with whoever paid last time on this device (or the
+  // only member), so most entries are just amount + description.
+  const [expenseMemberId, setExpenseMemberId] = useState(() => {
+    if (intent === "edit") return expense?.paid_by ?? "";
+    if (members.length === 1) return members[0].id;
+    const lastPayer = readLastPayer(group.id);
+    return members.some((member) => member.id === lastPayer) ? lastPayer : "";
+  });
   // New split expenses are shared by everyone unless the user narrows it down.
   const [paidToMemberIds, setPaidToMemberIds] = useState<string[]>(() =>
     intent === "edit" && expense
@@ -288,6 +309,8 @@ function ToolbarExpenseFormInner({
       }
       addMutation.mutate(result.data, {
         onSuccess: () => {
+          writeLastPayer(group.id, expenseMemberId);
+          toast.success(m.toolbar_expense_added());
           resetToolbar();
           router.invalidate();
         },
@@ -314,6 +337,7 @@ function ToolbarExpenseFormInner({
     }
     updateMutation.mutate(result.data, {
       onSuccess: () => {
+        toast.success(m.toolbar_expense_saved());
         resetToolbar();
         router.invalidate();
       },
@@ -363,7 +387,7 @@ function ToolbarExpenseFormInner({
           />
         </Field>
 
-        <Field>
+        <Field hidden={members.length === 1}>
           <FieldLabel>{m.toolbar_field_person()}</FieldLabel>
           <Select
             required
