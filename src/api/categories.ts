@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { assertGroupAccess } from "@/lib/group-access.server";
 import { serverDb } from "@/lib/supabase/server";
 import {
 	CreateGroupCategorySchema,
@@ -15,6 +16,7 @@ export const getGroupCategories = createServerFn({
 	.validator(GroupSchema)
 	.handler(
 		async ({ data: { groupId } }): Promise<{ id: string; name: string }[]> => {
+			await assertGroupAccess(groupId);
 			const { data, error } = await serverDb()
 				.from("group_categories")
 				.select("id, name")
@@ -34,6 +36,7 @@ export const createGroupCategory = createServerFn({
 })
 	.validator(CreateGroupCategorySchema)
 	.handler(async ({ data: { groupId, name } }) => {
+		await assertGroupAccess(groupId);
 		const db = serverDb();
 		const trimmed = name.trim();
 		const normalizedName = capitalizeFirstLetter(trimmed);
@@ -66,6 +69,7 @@ export const deleteGroupCategory = createServerFn({
 })
 	.validator(DeleteGroupCategorySchema)
 	.handler(async ({ data: { groupId, categoryId } }) => {
+		await assertGroupAccess(groupId);
 		const { error } = await serverDb()
 			.from("group_categories")
 			.delete()

@@ -171,8 +171,8 @@ export function Header() {
                   setPasswordDialogOpen(true);
                 }}
               >
-                {group.password ? <LockIcon /> : <UnlockIcon />}
-                {group.password
+                {group.hasPassword ? <LockIcon /> : <UnlockIcon />}
+                {group.hasPassword
                   ? m.header_change_remove_password()
                   : m.header_protect_with_password()}
               </DropdownMenuItem>

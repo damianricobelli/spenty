@@ -1,12 +1,11 @@
 import { useLoaderData, useRouter } from "@tanstack/react-router";
 import { EyeIcon, EyeOffIcon, LockIcon, UnlockIcon } from "lucide-react";
 import { useState } from "react";
-import { removePassword, setPassword } from "@/api/group";
-import { type GroupPassword, PasswordSchema } from "@/api/schema";
+import { removePassword, setPassword, unlockGroup } from "@/api/group";
+import { PasswordSchema } from "@/api/schema";
 import { useAppMutation } from "@/hooks/use-app-mutation";
 import { useEntity } from "@/hooks/use-entity";
 import { getErrorMessage } from "@/lib/get-error-message";
-import { setGroupUnlocked } from "@/lib/unlocked-groups";
 import { m } from "@/paraglide/messages";
 import { ButtonWithSpinner } from "./button-with-spinner";
 import { Button } from "./ui/button";
@@ -47,20 +46,18 @@ export const PasswordDialog = ({
 
   const [showPassword, setShowPassword] = useState(false);
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
-  const [unlockError, setUnlockError] = useState<string | null>(null);
 
   const isControlled =
     controlledOpen !== undefined && controlledSetOpen != null;
   const open = isControlled ? controlledOpen : internalOpen;
   const setOpen = isControlled ? controlledSetOpen : setInternalOpen;
 
-  const isUnlockMode = defaultOpen && !!group.password;
-
-  const mode: Mode = isUnlockMode
-    ? "unlock"
-    : group.password
-      ? "remove"
-      : "set";
+  const mode: Mode =
+    defaultOpen && group.isLocked
+      ? "unlock"
+      : group.hasPassword
+        ? "remove"
+        : "set";
 
   const titleByMode = {
     unlock: m.password_unlock_title(),
@@ -86,22 +83,21 @@ export const PasswordDialog = ({
     set: m.password_set_submit(),
   };
 
-  const updatePassword = useAppMutation<void, string, GroupPassword>({
+  // Every check happens on the server; the password never reaches the client.
+  const updatePassword = useAppMutation<
+    void,
+    Error,
+    { password: string; groupId: string; intent: Mode }
+  >({
     mutationFn: ({ password, groupId, intent }) => {
-      if (intent === "remove") {
-        return removePassword({
-          data: { password, groupId },
-        });
-      }
-
-      return setPassword({
-        data: { password, groupId },
-      });
+      const data = { password, groupId };
+      if (intent === "unlock") return unlockGroup({ data });
+      if (intent === "remove") return removePassword({ data });
+      return setPassword({ data });
     },
-    onSuccess: (_, variables) => {
-      setGroupUnlocked(variables.groupId, variables.intent === "set");
-      router.invalidate();
+    onSuccess: () => {
       setOpen(false);
+      router.invalidate();
     },
     invalidateKeys: ["update-password"],
   });
@@ -121,22 +117,10 @@ export const PasswordDialog = ({
       return;
     }
 
-    if (mode === "unlock") {
-      if (result.data.password.trim() === group.password) {
-        setGroupUnlocked(group.id, true);
-        setUnlockError(null);
-        setOpen(false);
-        router.invalidate();
-      } else {
-        setUnlockError(m.password_incorrect());
-      }
-      return;
-    }
-
     updatePassword.mutate({
       groupId: group.id,
       password: result.data.password,
-      intent: mode === "remove" ? "remove" : "set",
+      intent: mode,
     });
   };
 
@@ -146,7 +130,7 @@ export const PasswordDialog = ({
         <DialogTrigger
           render={(domProps) => (
             <Button variant="ghost" size="icon-sm" {...domProps}>
-              {group.password ? <LockIcon /> : <UnlockIcon />}
+              {group.hasPassword ? <LockIcon /> : <UnlockIcon />}
             </Button>
           )}
         />
@@ -177,7 +161,7 @@ export const PasswordDialog = ({
                   autoComplete={mode === "set" ? "new-password" : "current-password"}
                   autoFocus
                   required
-                  onChange={() => unlockError && setUnlockError(null)}
+                  onChange={() => updatePassword.error && updatePassword.reset()}
                   aria-invalid={!!updatePassword.error}
                 />
                 <InputGroupAddon align="inline-end">
@@ -191,14 +175,9 @@ export const PasswordDialog = ({
                   </InputGroupButton>
                 </InputGroupAddon>
               </InputGroup>
-              {(unlockError || updatePassword.error) && (
+              {updatePassword.error && (
                 <FieldError
-                  errors={[
-                    {
-                      message:
-                        unlockError ?? getErrorMessage(updatePassword.error),
-                    },
-                  ]}
+                  errors={[{ message: getErrorMessage(updatePassword.error) }]}
                 />
               )}
             </Field>

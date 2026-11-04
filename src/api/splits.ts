@@ -1,5 +1,6 @@
 import { redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
+import { assertGroupAccess } from "@/lib/group-access.server";
 import { serverDb } from "@/lib/supabase/server";
 import { createUniqueSlug } from "./create-unique-slug";
 import { GroupSchema } from "./schema";
@@ -26,6 +27,7 @@ export const getSplit = createServerFn({
 })
 	.validator(GroupSchema)
 	.handler(async ({ data: { groupId } }) => {
+		await assertGroupAccess(groupId);
 		const { data, error } = await serverDb()
 			.from("expenses")
 			.select("*")
@@ -74,6 +76,7 @@ export const getSplitDebts = createServerFn({
 })
 	.validator(GroupSchema)
 	.handler(async ({ data: { groupId } }): Promise<SplitDebt[]> => {
+		await assertGroupAccess(groupId);
 		const db = serverDb();
 		const { data: expenses } = await db
 			.from("expenses")

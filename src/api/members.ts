@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { assertGroupAccess } from "@/lib/group-access.server";
 import { serverDb } from "@/lib/supabase/server";
 import { m } from "@/paraglide/messages";
 import {
@@ -13,6 +14,7 @@ export const getMembers = createServerFn({
 })
 	.validator(GroupSchema)
 	.handler(async ({ data: { groupId } }) => {
+		await assertGroupAccess(groupId);
 		const { data, error } = await serverDb()
 			.from("members")
 			.select("*")
@@ -32,6 +34,7 @@ export const addMember = createServerFn({
 })
 	.validator(AddMemberSchema)
 	.handler(async ({ data: { groupId, name } }) => {
+		await assertGroupAccess(groupId);
 		const { data: existing } = await serverDb()
 			.from("members")
 			.select("id")
@@ -62,6 +65,7 @@ export const updateMember = createServerFn({
 })
 	.validator(UpdateMemberSchema)
 	.handler(async ({ data: { groupId, memberId, name } }) => {
+		await assertGroupAccess(groupId);
 		const { data: existing } = await serverDb()
 			.from("members")
 			.select("id")
@@ -91,7 +95,17 @@ export const deleteMember = createServerFn({
 })
 	.validator(DeleteMemberSchema)
 	.handler(async ({ data: { groupId, memberId } }) => {
+		await assertGroupAccess(groupId);
 		const db = serverDb();
+		// Splits below are deleted by member id, so make sure the member really
+		// belongs to the group the caller has access to.
+		const { data: member } = await db
+			.from("members")
+			.select("id")
+			.eq("id", memberId)
+			.eq("group_id", groupId)
+			.maybeSingle();
+		if (!member) return;
 		// Delete expenses where this member was the payer (and their splits)
 		const { data: expenseIds } = await db
 			.from("expenses")

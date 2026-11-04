@@ -1,6 +1,7 @@
 import { redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { assertGroupAccess } from "@/lib/group-access.server";
 import { serverDb } from "@/lib/supabase/server";
 import { m } from "@/paraglide/messages";
 import { createUniqueSlug } from "./create-unique-slug";
@@ -25,6 +26,7 @@ export const getExpense = createServerFn({
 })
 	.validator(GroupSchema)
 	.handler(async ({ data: { groupId } }) => {
+		await assertGroupAccess(groupId);
 		const db = serverDb();
 		const { data: expenses, error } = await db
 			.from("expenses")
@@ -74,6 +76,7 @@ export const addExpenseEntry = createServerFn({
 				paymentDate,
 			},
 		}) => {
+			await assertGroupAccess(groupId);
 			const { data, error } = await serverDb()
 				.from("expenses")
 				.insert({
@@ -127,6 +130,7 @@ export const getExpenseWithSplits = createServerFn({
 			.eq("id", expenseId)
 			.maybeSingle();
 		if (expenseError || !expense) return null;
+		await assertGroupAccess(expense.group_id);
 		const { data: splits } = await db
 			.from("expense_splits")
 			.select("member_id")
@@ -154,6 +158,7 @@ export const updateExpenseEntry = createServerFn({
 				paymentDate,
 			},
 		}) => {
+			await assertGroupAccess(groupId);
 			const db = serverDb();
 			const { data: existing } = await db
 				.from("expenses")
@@ -200,6 +205,7 @@ export const deleteExpense = createServerFn({
 })
 	.validator(DeleteExpenseSchema)
 	.handler(async ({ data: { groupId, expenseId } }) => {
+		await assertGroupAccess(groupId);
 		const db = serverDb();
 		const { data: expense } = await db
 			.from("expenses")

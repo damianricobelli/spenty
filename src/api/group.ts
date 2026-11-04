@@ -1,14 +1,26 @@
 import { createServerFn } from "@tanstack/react-start";
+import {
+	assertGroupAccess,
+	getStoredPassword,
+	grantGroupAccess,
+	hashPassword,
+	hasGroupAccess,
+	revokeGroupAccess,
+	verifyPassword,
+} from "@/lib/group-access.server";
 import { serverDb } from "@/lib/supabase/server";
 import { m } from "@/paraglide/messages";
 import {
 	CodeSchema,
 	DeleteGroupSchema,
 	GroupPasswordSchema,
-	GroupSchema,
 	UpdateGroupNameSchema,
 } from "./schema";
 
+/**
+ * Public group info. Never includes the password: the client only learns
+ * whether the group is protected and whether this browser has unlocked it.
+ */
 export const getGroup = createServerFn({
 	method: "GET",
 })
@@ -25,7 +37,12 @@ export const getGroup = createServerFn({
 			throw error;
 		}
 
-		return data;
+		const { password, ...group } = data;
+		return {
+			...group,
+			hasPassword: Boolean(password),
+			isLocked: !hasGroupAccess(group.id, password),
+		};
 	});
 
 export const updateGroupName = createServerFn({
@@ -33,6 +50,7 @@ export const updateGroupName = createServerFn({
 })
 	.validator(UpdateGroupNameSchema)
 	.handler(async ({ data: { name, groupId } }) => {
+		await assertGroupAccess(groupId);
 		const { error } = await serverDb()
 			.from("groups")
 			.update({ name: name.trim() })
@@ -44,39 +62,40 @@ export const updateGroupName = createServerFn({
 		}
 	});
 
-export const getGroupPassword = createServerFn({
-	method: "GET",
+/** Checks the password and, if it matches, remembers the unlock in a cookie. */
+export const unlockGroup = createServerFn({
+	method: "POST",
 })
-	.validator(GroupSchema)
-	.handler(async ({ data: { groupId } }) => {
-		const { data, error } = await serverDb()
-			.from("groups")
-			.select("password")
-			.eq("id", groupId)
-			.single();
-
-		if (error) {
-			console.error("Error fetching group password:", error.message);
-			throw error;
+	.validator(GroupPasswordSchema)
+	.handler(async ({ data: { password, groupId } }) => {
+		const stored = await getStoredPassword(groupId);
+		if (!stored) return;
+		if (!(await verifyPassword(password, stored))) {
+			throw new Error(m.password_incorrect());
 		}
-
-		return data.password;
+		const hash = await upgradeLegacyPassword(groupId, password, stored);
+		grantGroupAccess(groupId, hash);
 	});
 
+/** Sets or changes the password. Changing it requires access to the group. */
 export const setPassword = createServerFn({
 	method: "POST",
 })
 	.validator(GroupPasswordSchema)
 	.handler(async ({ data: { password, groupId } }) => {
+		await assertGroupAccess(groupId);
+		const hash = await hashPassword(password);
 		const { error } = await serverDb()
 			.from("groups")
-			.update({ password: password.trim() })
+			.update({ password: hash })
 			.eq("id", groupId);
 
 		if (error) {
 			console.error("Error updating group password:", error.message);
 			throw error.message;
 		}
+		// The person who set it stays in; everyone else needs the new password.
+		grantGroupAccess(groupId, hash);
 	});
 
 export const removePassword = createServerFn({
@@ -84,8 +103,9 @@ export const removePassword = createServerFn({
 })
 	.validator(GroupPasswordSchema)
 	.handler(async ({ data: { password, groupId } }) => {
-		const currentPassword = await getGroupPassword({ data: { groupId } });
-		if (currentPassword !== password) {
+		const stored = await getStoredPassword(groupId);
+		if (!stored) return;
+		if (!(await verifyPassword(password, stored))) {
 			throw new Error(m.password_incorrect());
 		}
 		const { error } = await serverDb()
@@ -97,13 +117,34 @@ export const removePassword = createServerFn({
 			console.error("Error removing group password:", error.message);
 			throw error.message;
 		}
+		revokeGroupAccess(groupId);
 	});
+
+/** Replaces a pre-hashing plaintext password with its hash. */
+async function upgradeLegacyPassword(
+	groupId: string,
+	plain: string,
+	stored: string,
+) {
+	if (stored.startsWith("scrypt$")) return stored;
+	const hash = await hashPassword(plain);
+	const { error } = await serverDb()
+		.from("groups")
+		.update({ password: hash })
+		.eq("id", groupId);
+	if (error) {
+		console.error("Error upgrading group password:", error.message);
+		return stored;
+	}
+	return hash;
+}
 
 export const deleteGroup = createServerFn({
 	method: "POST",
 })
 	.validator(DeleteGroupSchema)
 	.handler(async ({ data: { groupId, name } }) => {
+		await assertGroupAccess(groupId);
 		const db = serverDb();
 		const { data: group, error: fetchError } = await db
 			.from("groups")

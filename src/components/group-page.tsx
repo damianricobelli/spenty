@@ -15,10 +15,9 @@ import {
 import { Layout } from "@/components/layout";
 import { PasswordDialog } from "@/components/password-dialog";
 import type { HistoryFiltersSearch } from "@/lib/history-filters-search";
-import { isGroupUnlocked } from "@/lib/unlocked-groups";
 
 type GroupPageProps = {
-	group: { id: string; name: string; slug: string; password?: string | null };
+	group: { id: string; name: string; slug: string; isLocked: boolean };
 	members: ExpensesToolbarMember[];
 	expense: ExpenseItem[];
 	debts?: SplitDebt[];
@@ -55,7 +54,7 @@ export function GroupPage({
 	const [editExpenseId, setEditExpenseId] = useState<string | null>(null);
 	const [editMemberId, setEditMemberId] = useState<string | null>(null);
 
-	if (group.password && !isGroupUnlocked(group.id)) {
+	if (group.isLocked) {
 		return (
 			<main className="relative flex min-h-dvh flex-col items-center justify-center bg-background px-4">
 				<PasswordDialog defaultOpen={true} />

@@ -10,6 +10,8 @@ export const Route = createFileRoute("/expenses/$id")({
 	component: RouteComponent,
 	loader: async ({ params }) => {
 		const group = await getGroup({ data: { code: params.id } });
+		// A locked group only exposes its name until the password is entered.
+		if (group.isLocked) return { group, members: [], expense: [] };
 		const [members, expense] = await Promise.all([
 			getMembers({ data: { groupId: group.id } }),
 			getExpense({ data: { groupId: group.id } }),

@@ -23,12 +23,6 @@ export const GroupPasswordSchema = z.object({
   groupId: z.uuid(),
 });
 
-export const GroupPasswordWithIntentSchema = GroupPasswordSchema.extend({
-  intent: z.enum(["set", "remove"]),
-});
-
-export type GroupPassword = z.infer<typeof GroupPasswordWithIntentSchema>;
-
 export const AddMemberSchema = GroupSchema.extend({
   name: z.string().trim().min(1).max(120),
 });
