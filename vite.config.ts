@@ -23,11 +23,7 @@ const config = defineConfig({
     }),
     nitro(),
     tailwindcss(),
-    tanstackStart({
-      router: {
-        enableRouteGeneration: true,
-      },
-    }),
+    tanstackStart(),
     react(),
     babel({
       presets: [reactCompilerPreset()],

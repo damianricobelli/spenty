@@ -116,7 +116,7 @@ export const addExpenseEntry = createServerFn({
 export const getExpenseWithSplits = createServerFn({
 	method: "GET",
 })
-	.validator(z.object({ expenseId: z.string().uuid() }))
+	.validator(z.object({ expenseId: z.uuid() }))
 	.handler(async ({ data: { expenseId } }) => {
 		const db = serverDb();
 		const { data: expense, error: expenseError } = await db

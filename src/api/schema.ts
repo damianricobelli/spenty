@@ -86,7 +86,7 @@ export const CreateGroupCategorySchema = GroupSchema.extend({
 export type CreateGroupCategory = z.infer<typeof CreateGroupCategorySchema>;
 
 export const DeleteGroupCategorySchema = GroupSchema.extend({
-  categoryId: z.string().uuid(),
+  categoryId: z.uuid(),
 });
 export type DeleteGroupCategory = z.infer<typeof DeleteGroupCategorySchema>;
 
