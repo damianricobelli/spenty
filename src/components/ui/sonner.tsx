@@ -9,6 +9,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
+      // Top keeps toasts clear of the floating bottom toolbar and the thumb.
+      position="top-center"
+      mobileOffset={{ top: "calc(env(safe-area-inset-top, 0px) + 12px)" }}
       icons={{
         success: (
           <CircleCheckIcon className="size-4" />

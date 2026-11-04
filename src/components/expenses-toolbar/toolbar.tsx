@@ -1,12 +1,12 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { useLoaderData } from "@tanstack/react-router";
-import { DollarSignIcon, UserPlusIcon, XIcon } from "lucide-react";
+import { PlusIcon, XIcon } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { type ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Toolbar, ToolbarButton } from "@/components/ui/toolbar";
 import { useEntity } from "@/hooks/use-entity";
-import { reducedFade, spring } from "@/lib/motion";
+import { easeOut, sheetMotion } from "@/lib/motion";
 import { m } from "@/paraglide/messages";
 import { ToolbarExpenseForm } from "./expense-form";
 import { ToolbarMemberForm } from "./member-form";
@@ -19,41 +19,45 @@ type ExpensesToolbarProps = {
   editMemberId?: string | null;
 };
 
-const viewMetadata = {
-  add_expense: {
-    title: m.toolbar_title_add_expense(),
-    description: m.toolbar_description_add_expense(),
-  },
-  edit_expense: {
-    title: m.toolbar_title_edit_expense(),
-    description: m.toolbar_description_add_expense(),
-  },
-  add_member: {
-    title: m.toolbar_title_add_member(),
-    description: m.toolbar_description_add_member(),
-  },
-  edit_member: {
-    title: m.toolbar_title_edit_member(),
-    description: m.toolbar_description_edit_member(),
-  },
-  default: { title: "", description: "" },
-};
-
-const contentTransition = {
-  duration: 0.3,
-  ease: [0.22, 1, 0.36, 1],
-} as const;
-
-const popupMotion = {
-  initial: { opacity: 0, y: 24, scale: 0.96 },
-  animate: { opacity: 1, y: 0, scale: 1 },
-  exit: { opacity: 0, y: 24, scale: 0.96 },
-} as const;
+function getViewMetadata(view: ExpensesToolbarView) {
+  switch (view) {
+    case "add_expense":
+      return {
+        title: m.toolbar_title_add_expense(),
+        description: m.toolbar_description_add_expense(),
+      };
+    case "edit_expense":
+      return {
+        title: m.toolbar_title_edit_expense(),
+        description: m.toolbar_description_add_expense(),
+      };
+    case "add_member":
+      return {
+        title: m.toolbar_title_add_member(),
+        description: m.toolbar_description_add_member(),
+      };
+    case "edit_member":
+      return {
+        title: m.toolbar_title_edit_member(),
+        description: m.toolbar_description_edit_member(),
+      };
+    default:
+      return { title: "", description: "" };
+  }
+}
 
 const backdropMotion = {
   initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.2, ease: easeOut } },
+  exit: { opacity: 0, transition: { duration: 0.15, ease: easeOut } },
+} as const;
+
+/** Crossfade between forms; a light blur hides the overlap of two states. */
+const contentMotion = {
+  initial: { opacity: 0, filter: "blur(2px)" },
+  animate: { opacity: 1, filter: "blur(0px)" },
+  exit: { opacity: 0, filter: "blur(2px)" },
+  transition: { duration: 0.2, ease: easeOut },
 } as const;
 
 export function ExpensesToolbar({
@@ -78,10 +82,9 @@ export function ExpensesToolbar({
 
   const hasMembers = members.length > 0;
   const isDefaultView = view === EXPENSES_TOOLBAR_VIEW.DEFAULT;
-  const currentMetadata =
-    viewMetadata[view as keyof typeof viewMetadata] || viewMetadata.default;
+  const currentMetadata = getViewMetadata(view);
 
-  const shellTransition = reduceMotion ? reducedFade : spring;
+  const popup = sheetMotion(reduceMotion);
 
   const renderFormContent = () => {
     const reset = () => setView(EXPENSES_TOOLBAR_VIEW.DEFAULT);
@@ -140,20 +143,18 @@ export function ExpensesToolbar({
               initial={backdropMotion.initial}
               animate={backdropMotion.animate}
               exit={backdropMotion.exit}
-              transition={reducedFade}
             />
           }
           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs"
         />
-        <DialogPrimitive.Viewport className="fixed inset-0 isolate z-50 overflow-y-auto overscroll-contain px-3 py-3 sm:px-4 sm:py-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <DialogPrimitive.Viewport className="fixed inset-0 isolate z-50 overflow-y-auto overscroll-contain px-3 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <div className="flex min-h-full w-full items-end justify-center sm:items-center">
             <DialogPrimitive.Popup
               render={
                 <motion.div
-                  initial={popupMotion.initial}
-                  animate={popupMotion.animate}
-                  exit={popupMotion.exit}
-                  transition={shellTransition}
+                  initial={popup.initial}
+                  animate={popup.animate}
+                  exit={popup.exit}
                 />
               }
               className="relative w-full max-w-md overflow-hidden rounded-[36px] border border-border/50 bg-popover shadow-lg outline-hidden"
@@ -183,10 +184,10 @@ export function ExpensesToolbar({
                 <AnimatePresence initial={false} mode="popLayout">
                   <motion.div
                     key={view}
-                    initial={{ opacity: 0, scale: 0.985 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.985 }}
-                    transition={contentTransition}
+                    initial={contentMotion.initial}
+                    animate={contentMotion.animate}
+                    exit={contentMotion.exit}
+                    transition={contentMotion.transition}
                   >
                     {renderFormContent()}
                   </motion.div>
@@ -208,33 +209,27 @@ export function ExpensesToolbar({
       {isDefaultView ? (
         <motion.div
           key="toolbar"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 16 }}
-          transition={shellTransition}
-          className="fixed inset-x-4 bottom-4 z-20 mx-auto w-fit overflow-hidden rounded-[36px] border border-border/50 bg-popover/95 px-3.5 py-3 shadow-lg backdrop-blur-xl"
+          initial={{
+            opacity: 0,
+            transform: reduceMotion ? "none" : "translateY(16px)",
+          }}
+          animate={{ opacity: 1, transform: "translateY(0px)" }}
+          exit={{
+            opacity: 0,
+            transform: reduceMotion ? "none" : "translateY(16px)",
+            transition: { duration: 0.15, ease: easeOut },
+          }}
+          transition={{ duration: 0.25, ease: easeOut }}
+          className="fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-20 mx-auto w-fit overflow-hidden rounded-full border border-border/50 bg-popover/90 p-1.5 shadow-lg backdrop-blur-xl"
         >
-          <Toolbar
-            aria-label={m.toolbar_title_add_expense()}
-            className="gap-1.5 sm:gap-2"
-          >
+          <Toolbar aria-label={m.toolbar_title_add_expense()}>
             <ToolbarButton
               size="lg"
+              className="h-12 px-6 text-base"
               onClick={() => setView(EXPENSES_TOOLBAR_VIEW.ADD_EXPENSE)}
-              aria-label={m.toolbar_button_add_expense()}
             >
-              <DollarSignIcon data-icon="inline-start" />
+              <PlusIcon data-icon="inline-start" className="size-5" />
               {m.toolbar_button_add_expense()}
-            </ToolbarButton>
-
-            <ToolbarButton
-              variant="ghost"
-              size="lg"
-              onClick={() => setView(EXPENSES_TOOLBAR_VIEW.ADD_MEMBER)}
-              aria-label={m.toolbar_button_add_member()}
-            >
-              <UserPlusIcon data-icon="inline-start" />
-              {m.toolbar_button_add_member()}
             </ToolbarButton>
           </Toolbar>
         </motion.div>

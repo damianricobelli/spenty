@@ -150,5 +150,7 @@
 	"guide_step_members": "Voeg de personen toe",
 	"guide_step_expense": "Registreer je eerste uitgave",
 	"header_name_saved": "Naam opgeslagen",
-	"error_deleting_group": "De groep kon niet worden verwijderd. Controleer het verwijderbeleid (RLS) van de tabel groups."
+	"error_deleting_group": "De groep kon niet worden verwijderd. Controleer het verwijderbeleid (RLS) van de tabel groups.",
+	"common_close": "Sluiten",
+	"content_delete_confirm_tap": "Tik nogmaals om te verwijderen"
 }

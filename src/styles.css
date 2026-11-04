@@ -103,6 +103,10 @@
 
 @theme inline {
     --font-sans: "Inter Variable", sans-serif;
+    /* Stronger curves than the built-ins: instant response, soft landing. */
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -164,6 +168,39 @@
     }
     html {
         @apply font-sans;
+        /* No gray flash on tap, no font inflation in landscape. */
+        -webkit-tap-highlight-color: transparent;
+        -webkit-text-size-adjust: 100%;
+    }
+    /* Controls fire on tap without the double-tap-zoom wait, and a long
+       press doesn't select their label. Content text stays selectable. */
+    button,
+    a,
+    [role="button"],
+    [role="menuitem"],
+    [role="option"],
+    [role="tab"] {
+        touch-action: manipulation;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+    }
+}
+
+/* Shared press feedback for anything tappable that isn't a <Button>. */
+@utility pressable {
+    transition-property: transform, background-color, border-color, color,
+        box-shadow;
+    transition-duration: 160ms;
+    transition-timing-function: var(--ease-out);
+    &:active:not(:disabled) {
+        transform: scale(0.97);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pressable:active:not(:disabled) {
+        transform: none;
     }
 }
 

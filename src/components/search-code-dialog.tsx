@@ -1,4 +1,5 @@
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
+import { useRef } from "react";
 import { CodeSchema } from "@/api/schema";
 import {
   InputOTP,
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/input-otp";
 import { useValidateCode } from "@/hooks/use-validate-code";
 import { m } from "@/paraglide/messages";
+import { ButtonWithSpinner } from "./button-with-spinner";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -23,6 +25,7 @@ import { Label } from "./ui/label";
 
 export const SearchCode = () => {
   const validateCode = useValidateCode();
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,7 +34,7 @@ export const SearchCode = () => {
     const code = formData.get("code");
     const result = CodeSchema.safeParse({ code });
 
-    if (result.success) {
+    if (result.success && !validateCode.isPending) {
       validateCode.mutate({ code: result.data.code });
     } else {
       console.error("Invalid code:", result.error);
@@ -54,7 +57,11 @@ export const SearchCode = () => {
             {m.home_page_search_code_dialog_description()}
           </DialogDescription>
         </DialogHeader>
-        <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+        <form
+          ref={formRef}
+          className="flex flex-col gap-6"
+          onSubmit={handleSubmit}
+        >
           <div className="grid flex-1 gap-2 mx-auto">
             <Label htmlFor="code" className="sr-only">
               {m.home_page_search_code_label_link()}
@@ -63,8 +70,16 @@ export const SearchCode = () => {
               maxLength={8}
               pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
               inputMode="text"
+              autoComplete="off"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              enterKeyHint="go"
+              autoFocus
               required
               name="code"
+              // Typing or pasting the 8th character opens the group right away.
+              onComplete={() => formRef.current?.requestSubmit()}
               onChange={() => {
                 if (validateCode.error) {
                   validateCode.reset();
@@ -86,7 +101,7 @@ export const SearchCode = () => {
               </InputOTPGroup>
             </InputOTP>
             {validateCode.error && (
-              <p className="text-destructive">
+              <p className="animate-in fade-in text-center text-sm text-destructive duration-200">
                 {m.home_page_search_code_not_found()}
               </p>
             )}
@@ -99,7 +114,10 @@ export const SearchCode = () => {
                 </Button>
               }
             />
-            <Button type="submit">{m.home_page_search_code_submit()}</Button>
+            <ButtonWithSpinner
+              text={m.home_page_search_code_submit()}
+              isPending={validateCode.isPending}
+            />
           </DialogFooter>
         </form>
       </DialogContent>

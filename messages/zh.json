@@ -150,5 +150,7 @@
 	"guide_step_members": "添加成员",
 	"guide_step_expense": "记录第一笔支出",
 	"header_name_saved": "名称已保存",
-	"error_deleting_group": "无法删除群组。请检查 groups 表的删除策略（RLS）。"
+	"error_deleting_group": "无法删除群组。请检查 groups 表的删除策略（RLS）。",
+	"common_close": "关闭",
+	"content_delete_confirm_tap": "再点一次即可删除"
 }

@@ -22,16 +22,30 @@ export const CATEGORY_ICONS: Record<string, LucideIcon> = {
   other: MoreHorizontal,
 };
 
-export const categoryLabels: Record<string, string> = {
-  food: m.category_food(),
-  transport: m.category_transport(),
-  housing: m.category_housing(),
-  health: m.category_health(),
-  entertainment: m.category_entertainment(),
-  shopping: m.category_shopping(),
-  subscriptions: m.category_subscriptions(),
-  other: m.category_other(),
-};
+/**
+ * Message functions are resolved on every call (not at import time) so the
+ * label always matches the locale of the current request or page.
+ */
+const CATEGORY_MESSAGES = {
+  food: m.category_food,
+  transport: m.category_transport,
+  housing: m.category_housing,
+  health: m.category_health,
+  entertainment: m.category_entertainment,
+  shopping: m.category_shopping,
+  subscriptions: m.category_subscriptions,
+  other: m.category_other,
+} as const;
+
+export const BASE_CATEGORIES = Object.keys(CATEGORY_MESSAGES) as Array<
+  keyof typeof CATEGORY_MESSAGES
+>;
+
+export function isBaseCategory(
+  value: string,
+): value is keyof typeof CATEGORY_MESSAGES {
+  return Object.hasOwn(CATEGORY_MESSAGES, value);
+}
 
 export function getCategoryIcon(category: string): LucideIcon {
   return CATEGORY_ICONS[category] ?? MoreHorizontal;
@@ -39,10 +53,10 @@ export function getCategoryIcon(category: string): LucideIcon {
 
 export function getCategoryLabel(rawCategory: string): string {
   const category = rawCategory.trim();
-  if (categoryLabels[category]) return categoryLabels[category];
+  if (isBaseCategory(category)) return CATEGORY_MESSAGES[category]();
   if (category.startsWith("category_")) {
     const normalized = category.replace("category_", "");
-    if (categoryLabels[normalized]) return categoryLabels[normalized];
+    if (isBaseCategory(normalized)) return CATEGORY_MESSAGES[normalized]();
     return normalized.replaceAll("_", " ");
   }
   return category;

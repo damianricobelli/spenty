@@ -150,5 +150,7 @@
 	"guide_step_members": "Aggiungi le persone",
 	"guide_step_expense": "Registra la tua prima spesa",
 	"header_name_saved": "Nome salvato",
-	"error_deleting_group": "Impossibile eliminare il gruppo. Controlla la policy di eliminazione (RLS) della tabella groups."
+	"error_deleting_group": "Impossibile eliminare il gruppo. Controlla la policy di eliminazione (RLS) della tabella groups.",
+	"common_close": "Chiudi",
+	"content_delete_confirm_tap": "Tocca di nuovo per rimuovere"
 }

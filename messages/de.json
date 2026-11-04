@@ -150,5 +150,7 @@
 	"guide_step_members": "Füge die Personen hinzu",
 	"guide_step_expense": "Erfasse deine erste Ausgabe",
 	"header_name_saved": "Name gespeichert",
-	"error_deleting_group": "Die Gruppe konnte nicht gelöscht werden. Prüfe die Lösch-Policy (RLS) der Tabelle groups."
+	"error_deleting_group": "Die Gruppe konnte nicht gelöscht werden. Prüfe die Lösch-Policy (RLS) der Tabelle groups.",
+	"common_close": "Schließen",
+	"content_delete_confirm_tap": "Zum Entfernen erneut tippen"
 }

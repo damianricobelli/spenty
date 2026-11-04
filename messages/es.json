@@ -150,5 +150,7 @@
 	"guide_step_members": "Añade a las personas",
 	"guide_step_expense": "Registra tu primer gasto",
 	"header_name_saved": "Nombre guardado",
-	"error_deleting_group": "No se pudo eliminar el grupo. Revisa la política de borrado (RLS) de la tabla groups."
+	"error_deleting_group": "No se pudo eliminar el grupo. Revisa la política de borrado (RLS) de la tabla groups.",
+	"common_close": "Cerrar",
+	"content_delete_confirm_tap": "Tocá de nuevo para eliminar"
 }

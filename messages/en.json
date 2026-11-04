@@ -150,5 +150,7 @@
 	"guide_step_members": "Add the people involved",
 	"guide_step_expense": "Log your first expense",
 	"header_name_saved": "Name saved",
-	"error_deleting_group": "We couldn't delete the group. Check the delete policy (RLS) on the groups table."
+	"error_deleting_group": "We couldn't delete the group. Check the delete policy (RLS) on the groups table.",
+	"common_close": "Close",
+	"content_delete_confirm_tap": "Tap again to remove"
 }

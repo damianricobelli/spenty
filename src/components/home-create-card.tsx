@@ -24,7 +24,8 @@ export function HomeCreateCard({
       type="button"
       onClick={onCreate}
       disabled={isPending}
-      className="group relative flex flex-1 flex-col gap-5 rounded-2xl border border-border/60 bg-card/80 p-6 text-left backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-lg disabled:opacity-50"
+      aria-busy={isPending}
+      className="pressable group relative flex flex-1 flex-col gap-5 rounded-2xl border border-border/60 bg-card/80 p-5 text-left shadow-xs backdrop-blur-xl hover:border-foreground/20 hover:shadow-md disabled:opacity-60 sm:p-6"
     >
       <div className="flex gap-5 items-center sm:justify-between">
         <div className="flex size-12 items-center justify-center rounded-xl bg-foreground text-background shrink-0">
@@ -40,7 +41,7 @@ export function HomeCreateCard({
             {description}
           </p>
         </div>
-        <ArrowRightIcon className="hidden sm:block size-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
+        <ArrowRightIcon className="ml-auto size-5 shrink-0 text-muted-foreground transition-transform duration-200 ease-out group-hover:translate-x-1 sm:ml-0" />
       </div>
       <div className="hidden sm:block">
         <h2 className="text-lg font-semibold text-foreground">{title}</h2>

@@ -1,6 +1,6 @@
 import ExcelJS from "exceljs";
+import { getCategoryLabel } from "@/lib/categories";
 import { formatDate } from "@/lib/format-date";
-import { m } from "@/paraglide/messages";
 
 type ExportExpenseItem = {
   id: string;
@@ -247,17 +247,3 @@ function getMonthKeyFromExpense(expense: ExportExpenseItem) {
   return `${year}-${month}`;
 }
 
-const categoryLabels: Record<string, string> = {
-  food: m.category_food(),
-  transport: m.category_transport(),
-  housing: m.category_housing(),
-  health: m.category_health(),
-  entertainment: m.category_entertainment(),
-  shopping: m.category_shopping(),
-  subscriptions: m.category_subscriptions(),
-  other: m.category_other(),
-};
-
-function getCategoryLabel(category: string) {
-  return categoryLabels[category] ?? category;
-}

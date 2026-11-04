@@ -26,22 +26,28 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
   head: () => ({
     meta: [
-      {
-        charSet: "utf-8",
-      },
+      { charSet: "utf-8" },
       {
         name: "viewport",
-        content: "width=device-width, initial-scale=1",
+        content:
+          "width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content",
+      },
+      { title: "Spenty" },
+      { name: "description", content: "Control your expenses with Spenty" },
+      { name: "keywords", content: "spenty, expenses, control, expenses control" },
+      { name: "author", content: "Spenty" },
+      { name: "robots", content: "index, follow" },
+      { name: "google", content: "notranslate" },
+      { name: "color-scheme", content: "light dark" },
+      {
+        name: "theme-color",
+        media: "(prefers-color-scheme: light)",
+        content: "#fcfcfc",
       },
       {
-        title: "Spenty",
-        description: "Control your expenses with Spenty",
-        keywords: "spenty, expenses, control, expenses control",
-        author: "Spenty",
-        publisher: "Spenty",
-        generator: "Spenty",
-        robots: "index, follow",
-        google: "notranslate",
+        name: "theme-color",
+        media: "(prefers-color-scheme: dark)",
+        content: "#111111",
       },
       // Social sharing (put og-image.png in public/, 1200×630px)
       {

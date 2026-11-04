@@ -2,26 +2,17 @@ import {
   ChevronDownIcon,
   DownloadIcon,
   FilterIcon,
-  PencilIcon,
+  PlusIcon,
   ReceiptIcon,
   SearchIcon,
-  Trash2Icon,
   XIcon,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useExpensesToolbarActions } from "@/components/expenses-toolbar";
+import { useExpensesToolbarActions } from "@/components/expenses-toolbar/toolbar-context";
 import type { ExpensesToolbarMember } from "@/components/expenses-toolbar/types";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -38,14 +29,12 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { useDeleteExpense } from "@/hooks/expenses/use-delete-expense";
 import {
   getCategoryColorClasses,
   getCategoryIcon,
   getCategoryLabel,
 } from "@/lib/categories";
 import { cn } from "@/lib/cn";
-import { exportExpensesToExcel } from "@/lib/export-expenses-excel";
 import { formatCurrency } from "@/lib/format-currency";
 import { formatDate } from "@/lib/format-date";
 import {
@@ -55,7 +44,6 @@ import {
 } from "@/lib/history-filters-search";
 import { expandPanel, listItem, reducedFade, springGentle } from "@/lib/motion";
 import { m } from "@/paraglide/messages";
-import { ButtonWithSpinner } from "../button-with-spinner";
 import {
   Empty,
   EmptyDescription,
@@ -86,7 +74,6 @@ type ExpensesContentProps = {
 };
 
 export function HistorySection({
-  groupId,
   groupName,
   groupCode,
   members,
@@ -96,7 +83,6 @@ export function HistorySection({
 }: ExpensesContentProps) {
   const toolbarActions = useExpensesToolbarActions();
   const reduceMotion = useReducedMotion();
-  const deleteExpenseIdRef = useRef<string>(null);
   const selectedMonths = historyFilters.months ?? [];
   const selectedCategories = historyFilters.categories ?? [];
   const selectedPaidBy = historyFilters.paidBy ?? [];
@@ -104,12 +90,7 @@ export function HistorySection({
   const deferredSearchTerm = useDeferredValue(selectedSearchTerm);
   const normalizedSearchTerm = normalizeHistorySearchText(deferredSearchTerm);
 
-  const [isDeleteExpenseDialogOpen, setIsDeleteExpenseDialogOpen] =
-    useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [expandedExpenseId, setExpandedExpenseId] = useState<string | null>(
-    null,
-  );
   const [isSearchOpen, setIsSearchOpen] = useState(
     () => selectedSearchTerm.length > 0,
   );
@@ -126,13 +107,6 @@ export function HistorySection({
       searchInputRef.current?.focus();
     }
   }, [isSearchOpen]);
-
-  const deleteExpenseMutation = useDeleteExpense(groupId, {
-    onSuccess: () => {
-      deleteExpenseIdRef.current = null;
-      setIsDeleteExpenseDialogOpen(false);
-    },
-  });
 
   const memberById = useMemo(
     () => new Map(members.map((member) => [member.id, member.name])),
@@ -234,12 +208,6 @@ export function HistorySection({
     return { byMonth, totalByMonth, monthKeys: keys };
   }, [filteredExpenses]);
 
-  const handleConfirmDeleteExpense = () => {
-    const expenseId = deleteExpenseIdRef.current;
-    if (!expenseId) return;
-    deleteExpenseMutation.mutate({ groupId, expenseId });
-  };
-
   const toggleMonthFilter = (monthKey: string, checked: boolean) => {
     const nextValues = checked
       ? Array.from(new Set([...selectedMonths, monthKey]))
@@ -273,6 +241,10 @@ export function HistorySection({
   const handleExportExcel = async () => {
     try {
       setIsExporting(true);
+      // exceljs is large, so it only loads when someone actually exports.
+      const { exportExpensesToExcel } = await import(
+        "@/lib/export-expenses-excel"
+      );
       await exportExpensesToExcel({
         groupName,
         groupCode,
@@ -291,7 +263,8 @@ export function HistorySection({
   const hasNoExpenses = expense.length === 0;
   const canExport = filteredExpenses.length > 0;
 
-  const activeFilterChips = useMemo(() => {
+  // The React Compiler memoizes this; no manual useMemo needed.
+  const activeFilterChips = (() => {
     const chips: Array<{ key: string; label: string; onRemove: () => void }> =
       [];
     for (const monthKey of selectedMonths) {
@@ -316,14 +289,12 @@ export function HistorySection({
       });
     }
     return chips;
-    // toggle handlers are stable per render and derived from the same state
-  }, [selectedMonths, selectedCategories, selectedPaidBy, memberById]);
+  })();
 
   const rowTransition = reduceMotion ? reducedFade : springGentle;
 
   return (
-    <>
-      <section className="flex min-h-0 flex-1 flex-col pb-24">
+    <section className="flex min-h-0 flex-1 flex-col pb-28">
         <div className="mb-3 flex items-center justify-between gap-3">
           <h2 className="text-md font-medium text-muted-foreground">
             {m.content_section_history()}
@@ -520,10 +491,14 @@ export function HistorySection({
                   <ReceiptIcon />
                 </EmptyMedia>
                 <EmptyTitle>{m.empty_no_expenses()}</EmptyTitle>
-                <EmptyDescription className="sr-only">
-                  {m.empty_no_expenses()}
-                </EmptyDescription>
+                <EmptyDescription>{m.guide_step_expense()}</EmptyDescription>
               </EmptyHeader>
+              {toolbarActions ? (
+                <Button size="lg" onClick={toolbarActions.openAddExpense}>
+                  <PlusIcon data-icon="inline-start" />
+                  {m.toolbar_button_add_expense()}
+                </Button>
+              ) : null}
             </Empty>
           </div>
         ) : (
@@ -557,23 +532,9 @@ export function HistorySection({
                               key={e.id}
                               expense={e}
                               memberById={memberById}
-                              isExpanded={expandedExpenseId === e.id}
                               transition={rowTransition}
                               reduceMotion={Boolean(reduceMotion)}
-                              onToggle={() =>
-                                setExpandedExpenseId((id) =>
-                                  id === e.id ? null : e.id,
-                                )
-                              }
-                              onEdit={
-                                toolbarActions
-                                  ? () => toolbarActions.openEditExpense(e.id)
-                                  : undefined
-                              }
-                              onDelete={() => {
-                                deleteExpenseIdRef.current = e.id;
-                                setIsDeleteExpenseDialogOpen(true);
-                              }}
+                              onOpen={() => toolbarActions?.openEditExpense(e.id)}
                             />
                           ))}
                         </AnimatePresence>
@@ -585,91 +546,50 @@ export function HistorySection({
             )}
           </div>
         )}
-      </section>
-
-      {/* Delete expense dialog */}
-      <Dialog
-        open={isDeleteExpenseDialogOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            deleteExpenseIdRef.current = null;
-            setIsDeleteExpenseDialogOpen(false);
-          }
-        }}
-      >
-        <DialogContent showCloseButton={true}>
-          <DialogHeader>
-            <DialogTitle>{m.content_delete_expense_title()}</DialogTitle>
-            <DialogDescription>
-              {m.content_delete_expense_description()}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter showCloseButton={false}>
-            <Button
-              variant="ghost"
-              onClick={() => setIsDeleteExpenseDialogOpen(false)}
-              disabled={deleteExpenseMutation.isPending}
-            >
-              {m.content_cancel()}
-            </Button>
-            <ButtonWithSpinner
-              type="button"
-              isPending={deleteExpenseMutation.isPending}
-              text={m.content_delete()}
-              onClick={handleConfirmDeleteExpense}
-            />
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+    </section>
   );
 }
 
 type HistoryRowProps = {
   expense: ExpenseItem;
   memberById: Map<string, string>;
-  isExpanded: boolean;
   transition: typeof springGentle;
   reduceMotion: boolean;
-  onToggle: () => void;
-  onEdit?: () => void;
-  onDelete: () => void;
+  onOpen: () => void;
 };
 
 function HistoryRow({
   expense: e,
   memberById,
-  isExpanded,
   transition,
   reduceMotion,
-  onToggle,
-  onEdit,
-  onDelete,
+  onOpen,
 }: HistoryRowProps) {
   const CategoryIcon = getCategoryIcon(e.category);
   const primaryText =
-    [e.category ? getCategoryLabel(e.category) : null, e.description]
-      .filter(Boolean)
-      .join(" · ") || "—";
+    e.description?.trim() || (e.category ? getCategoryLabel(e.category) : "—");
+  const paidToNames = e.paid_to_member_ids
+    ?.map((id) => memberById.get(id))
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <motion.li
       layout={reduceMotion ? false : "position"}
-      initial={listItem.initial}
+      initial={reduceMotion ? { opacity: 0 } : listItem.initial}
       animate={listItem.animate}
-      exit={listItem.exit}
+      exit={reduceMotion ? { opacity: 0 } : listItem.exit}
       transition={transition}
       className="bg-background"
     >
       <button
         type="button"
-        onClick={onToggle}
-        aria-expanded={isExpanded}
-        className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-muted/30"
+        onClick={onOpen}
+        className="flex w-full items-center gap-3 px-3 py-3 text-left transition-colors duration-150 hover:bg-muted/40 active:bg-muted/60"
       >
         <span
           className={cn(
-            "flex size-8 shrink-0 items-center justify-center rounded-full",
+            "flex size-9 shrink-0 items-center justify-center rounded-full",
             getCategoryColorClasses(e.category),
           )}
         >
@@ -684,138 +604,19 @@ function HistoryRow({
               {formatCurrency(e.amount)}
             </span>
           </div>
-          <p className="mt-0.5 flex flex-wrap items-baseline gap-x-1.5 text-xs text-muted-foreground">
-            {e.expense_date && (
-              <span>
-                {formatDate(new Date(`${e.expense_date}T12:00:00`), "PPP")}
-              </span>
-            )}
-            <span>·</span>
-            <span>{memberById.get(e.paid_by) ?? "—"}</span>
-            {e.paid_to_member_ids?.length ? (
-              <>
-                <span>{m.content_history_paid_to()}</span>
-                <span className="inline-flex flex-wrap gap-x-1 gap-y-0.5">
-                  {e.paid_to_member_ids.map((id) => (
-                    <span
-                      key={id}
-                      className="rounded-md bg-muted/80 px-1.5 py-0.5 text-xs font-medium text-foreground/90"
-                    >
-                      {memberById.get(id) ?? id}
-                    </span>
-                  ))}
-                </span>
-              </>
-            ) : null}
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">
+            {[
+              memberById.get(e.paid_by) ?? "—",
+              paidToNames ? `${m.content_history_paid_to()} ${paidToNames}` : null,
+              e.expense_date
+                ? formatDate(new Date(`${e.expense_date}T12:00:00`), "d MMM")
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
           </p>
         </div>
-        <ChevronDownIcon
-          className={cn(
-            "size-4 shrink-0 text-muted-foreground/60 transition-transform duration-200 ease-out",
-            isExpanded && "rotate-180",
-          )}
-        />
       </button>
-      <AnimatePresence initial={false}>
-        {isExpanded && (
-          <motion.div
-            key="detail"
-            initial={expandPanel.initial}
-            animate={expandPanel.animate}
-            exit={expandPanel.exit}
-            transition={transition}
-            className="overflow-hidden"
-          >
-            <div className="border-t border-border/50 bg-muted/20 px-3 py-3 pl-14 text-sm">
-              <dl className="grid gap-2 sm:grid-cols-2">
-                <div>
-                  <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                    {m.toolbar_field_amount()}
-                  </dt>
-                  <dd className="mt-0.5 font-semibold tabular-nums">
-                    {formatCurrency(e.amount)}
-                  </dd>
-                </div>
-                {e.expense_date && (
-                  <div>
-                    <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                      {m.toolbar_field_payment_date()}
-                    </dt>
-                    <dd className="mt-0.5">
-                      {formatDate(
-                        new Date(`${e.expense_date}T12:00:00`),
-                        "PPP",
-                      )}
-                    </dd>
-                  </div>
-                )}
-                <div className="sm:col-span-2">
-                  <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                    {m.toolbar_field_category()}
-                  </dt>
-                  <dd className="mt-0.5">
-                    {e.category ? getCategoryLabel(e.category) : "—"}
-                  </dd>
-                </div>
-                {e.description && (
-                  <div className="sm:col-span-2">
-                    <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                      {m.toolbar_field_description()}
-                    </dt>
-                    <dd className="mt-0.5">{e.description}</dd>
-                  </div>
-                )}
-                <div className="sm:col-span-2">
-                  <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                    {m.toolbar_field_person()}
-                  </dt>
-                  <dd className="mt-0.5">{memberById.get(e.paid_by) ?? "—"}</dd>
-                </div>
-                {e.paid_to_member_ids?.length ? (
-                  <div className="sm:col-span-2">
-                    <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                      {m.toolbar_field_paid_to()}
-                    </dt>
-                    <dd className="mt-0.5 inline-flex flex-wrap gap-1">
-                      {e.paid_to_member_ids.map((id) => (
-                        <span
-                          key={id}
-                          className="rounded-md bg-muted/80 px-1.5 py-0.5 text-xs font-medium"
-                        >
-                          {memberById.get(id) ?? id}
-                        </span>
-                      ))}
-                    </dd>
-                  </div>
-                ) : null}
-              </dl>
-              <div className="mt-3 flex justify-end gap-2">
-                {onEdit && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={onEdit}
-                  >
-                    <PencilIcon className="size-3.5" />
-                    {m.content_edit()}
-                  </Button>
-                )}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  onClick={onDelete}
-                >
-                  <Trash2Icon className="size-3.5" />
-                  {m.content_delete()}
-                </Button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.li>
   );
 }

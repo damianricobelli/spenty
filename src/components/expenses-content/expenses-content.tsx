@@ -1,9 +1,8 @@
-import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 import type { SplitDebt } from "@/api/splits";
 import type { ExpensesToolbarMember } from "@/components/expenses-toolbar/types";
 import type { HistoryFiltersSearch } from "@/lib/history-filters-search";
-import { springGentle } from "@/lib/motion";
+import { cn } from "@/lib/cn";
 import { DebtsSection } from "./debts-section";
 import { HistorySection } from "./history-section";
 import { MembersSection } from "./members-section";
@@ -31,6 +30,10 @@ type ExpensesContentProps = {
   onHistoryFilterChange: (patch: Partial<HistoryFiltersSearch>) => void;
 };
 
+/**
+ * Sections settle in with a short stagger on page load. CSS (not Motion) so it
+ * plays on the server-rendered HTML right away, before hydration.
+ */
 function StaggeredSection({
   index,
   children,
@@ -40,17 +43,16 @@ function StaggeredSection({
   children: ReactNode;
   className?: string;
 }) {
-  const reduceMotion = useReducedMotion();
-  if (reduceMotion) return <div className={className}>{children}</div>;
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...springGentle, delay: index * 0.05 }}
-      className={className}
+    <div
+      className={cn(
+        "animate-in fade-in slide-in-from-bottom-2 ease-out [animation-duration:300ms] [animation-fill-mode:both] motion-reduce:slide-in-from-bottom-0",
+        className,
+      )}
+      style={{ animationDelay: `${index * 50}ms` }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 

@@ -36,7 +36,6 @@ import { Input } from "@/components/ui/input";
 import { useUpdateGroupName } from "@/hooks/groups/use-update-name";
 import { useEntity } from "@/hooks/use-entity";
 import { localeFlags } from "@/lib/locale-flags";
-import { isGroupUnlocked } from "@/lib/unlocked-groups";
 import { m } from "@/paraglide/messages";
 import {
   getLocale,
@@ -87,39 +86,40 @@ export function Header() {
     });
   };
 
-  const copyShareLink = () => {
+  // Phones get the native share sheet; everything else copies the link.
+  const shareGroup = async () => {
+    const sharePath = from.replace("$id", group.slug);
+    const shareUrl = new URL(sharePath, window.location.origin).toString();
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title: group.name || "Spenty", url: shareUrl });
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      }
+    }
     try {
-      const sharePath = from.replace("$id", group.slug);
-      const shareUrl = new URL(sharePath, window.location.origin).toString();
-      navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(shareUrl);
       toast.success(m.header_copy_code_toast());
     } catch (error) {
       console.error("Failed to copy link:", error);
     }
   };
 
-  if (group.password && !isGroupUnlocked(group.id)) {
-    return (
-      <main className="relative flex min-h-screen flex-col items-center justify-center bg-background px-4">
-        <PasswordDialog defaultOpen={true} />
-      </main>
-    );
-  }
-
   return (
     <React.Fragment>
-      <header className="sticky top-0 z-20 h-(--header-offset) flex items-center border-b border-border/60 bg-background/95 px-4 backdrop-blur-md">
+      <header className="sticky top-0 z-20 box-content flex h-(--header-offset) items-center border-b border-border/60 bg-background/90 px-4 pt-[env(safe-area-inset-top)] backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-2xl items-center gap-3">
           <Link
             to="/"
-            className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="pressable flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={m.header_back_aria_label()}
           >
             <ArrowLeftIcon className="size-5" />
           </Link>
 
           <div className="min-w-0 flex-1 flex flex-col items-center justify-center py-0.5">
-            <div className="group/name relative flex h-8 items-center">
+            <div className="group/name relative flex h-8 w-full max-w-64 items-center">
               <Input
                 ref={nameInputRef}
                 type="text"
@@ -130,7 +130,7 @@ export function Header() {
                   if (e.key === "Enter") e.currentTarget.blur();
                 }}
                 placeholder={m.header_group_name_placeholder()}
-                className="w-64 border-transparent bg-transparent text-center font-semibold text-foreground transition-colors not-focus-within:hover:border-border/60 pr-8"
+                className="w-full max-w-64 border-transparent bg-transparent text-center font-semibold text-foreground transition-colors not-focus-within:hover:border-border/60 pr-8"
                 aria-invalid={
                   !!updateName.error || groupName.trim().length === 0
                 }
@@ -142,6 +142,15 @@ export function Header() {
             </div>
           </div>
 
+          <Button
+            variant="ghost"
+            size="icon-lg"
+            className="rounded-full text-muted-foreground"
+            aria-label={m.header_share_code()}
+            onClick={shareGroup}
+          >
+            <ShareIcon />
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
@@ -155,16 +164,7 @@ export function Header() {
                 </Button>
               }
             />
-            <DropdownMenuContent align="end" side="top" sideOffset={8}>
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.preventDefault();
-                  copyShareLink();
-                }}
-              >
-                <ShareIcon />
-                {m.header_share_code()}
-              </DropdownMenuItem>
+            <DropdownMenuContent align="end" sideOffset={8}>
               <DropdownMenuItem
                 onClick={(e) => {
                   e.preventDefault();

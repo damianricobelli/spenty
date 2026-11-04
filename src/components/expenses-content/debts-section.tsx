@@ -36,9 +36,9 @@ export function DebtsSection({ debts }: { debts: SplitDebt[] }) {
         {m.content_section_who_owes()}
       </h2>
       <ul className="divide-y divide-border/50 overflow-hidden rounded-2xl border border-border/50 shadow-sm">
-        {debts.map((d, i) => (
+        {debts.map((d) => (
           <li
-            key={`${d.fromMemberId}-${d.toMemberId}-${i}`}
+            key={`${d.fromMemberId}-${d.toMemberId}`}
             className="flex items-center justify-between gap-3 px-4 py-3"
           >
             <div className="min-w-0 flex-1 text-sm">

@@ -21,7 +21,12 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Field, FieldError, FieldLabel } from "./ui/field";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "./ui/input-group";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "./ui/input-group";
 
 type Mode = "unlock" | "remove" | "set";
 
@@ -169,20 +174,31 @@ export const PasswordDialog = ({
                   name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder={placeholderByMode[mode]}
+                  autoComplete={mode === "set" ? "new-password" : "current-password"}
+                  autoFocus
                   required
+                  onChange={() => unlockError && setUnlockError(null)}
                   aria-invalid={!!updatePassword.error}
                 />
-                <InputGroupAddon align="inline-end" className="cursor-default">
-                  {showPassword ? (
-                    <EyeOffIcon onClick={() => setShowPassword(false)} />
-                  ) : (
-                    <EyeIcon onClick={() => setShowPassword(true)} />
-                  )}
+                <InputGroupAddon align="inline-end">
+                  <InputGroupButton
+                    size="icon-xs"
+                    aria-label={m.password_label()}
+                    aria-pressed={showPassword}
+                    onClick={() => setShowPassword((value) => !value)}
+                  >
+                    {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                  </InputGroupButton>
                 </InputGroupAddon>
               </InputGroup>
               {(unlockError || updatePassword.error) && (
                 <FieldError
-                  errors={[{ message: getErrorMessage(updatePassword.error) }]}
+                  errors={[
+                    {
+                      message:
+                        unlockError ?? getErrorMessage(updatePassword.error),
+                    },
+                  ]}
                 />
               )}
             </Field>

@@ -36,14 +36,21 @@ import { useCreateGroupCategory } from "@/hooks/categories/use-create-group-cate
 import { useDeleteGroupCategory } from "@/hooks/categories/use-delete-group-category";
 import { useGroupCategories } from "@/hooks/categories/use-group-categories";
 import { useAddExpenseEntry } from "@/hooks/expenses/use-add-expense-entry";
+import { useDeleteExpense } from "@/hooks/expenses/use-delete-expense";
 import { useExpenseWithSplits } from "@/hooks/expenses/use-expense-with-splits";
 import { useUpdateExpenseEntry } from "@/hooks/expenses/use-update-expense-entry";
 import { useEntity } from "@/hooks/use-entity";
+import {
+  BASE_CATEGORIES,
+  getCategoryLabel,
+  isBaseCategory,
+} from "@/lib/categories";
 import { getCurrencySymbol } from "@/lib/format-currency";
 import { dateToLocalISOString, formatDate } from "@/lib/format-date";
 import { getErrorMessage } from "@/lib/get-error-message";
 import { m } from "@/paraglide/messages";
 import { ButtonWithSpinner } from "../button-with-spinner";
+import { ConfirmDeleteButton } from "../confirm-delete-button";
 import { SimpleDatePicker } from "../ui/calendar";
 
 type BaseProps = {
@@ -68,16 +75,6 @@ type CategoryItem = { value: string; label: string; id?: string };
 const capitalizeFirstLetter = (value: string) =>
   value.charAt(0).toUpperCase() + value.slice(1);
 
-const categoryLabels: Record<string, string> = {
-  food: m.category_food(),
-  transport: m.category_transport(),
-  housing: m.category_housing(),
-  health: m.category_health(),
-  entertainment: m.category_entertainment(),
-  shopping: m.category_shopping(),
-  subscriptions: m.category_subscriptions(),
-  other: m.category_other(),
-};
 
 export function ToolbarExpenseForm(props: ToolbarExpenseFormProps) {
   const { intent } = props;
@@ -154,6 +151,9 @@ function ToolbarExpenseFormInner({
 }: ToolbarExpenseFormInnerProps) {
   const { intent, resetToolbar } = props;
   const router = useRouter();
+  const deleteMutation = useDeleteExpense(group.id, {
+    onSuccess: resetToolbar,
+  });
 
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [categoryInputValue, setCategoryInputValue] = useState("");
@@ -163,8 +163,11 @@ function ToolbarExpenseFormInner({
       ? members[0].id
       : (expense?.paid_by ?? ""),
   );
+  // New split expenses are shared by everyone unless the user narrows it down.
   const [paidToMemberIds, setPaidToMemberIds] = useState<string[]>(() =>
-    intent === "edit" && expense ? (expense.paidToMemberIds ?? []) : [],
+    intent === "edit" && expense
+      ? (expense.paidToMemberIds ?? [])
+      : members.map((member) => member.id),
   );
   const [category, setCategory] = useState(() => expense?.category ?? "");
   const [paymentDate, setPaymentDate] = useState<Date | undefined>(() =>
@@ -189,9 +192,9 @@ function ToolbarExpenseFormInner({
 
   const baseCategoryItems: CategoryItem[] = useMemo(
     () =>
-      Object.entries(categoryLabels).map(([value, label]) => ({
+      BASE_CATEGORIES.map((value) => ({
         value,
-        label,
+        label: getCategoryLabel(value),
       })),
     [],
   );
@@ -350,6 +353,17 @@ function ToolbarExpenseFormInner({
         </Field>
 
         <Field>
+          <FieldLabel>{m.toolbar_field_description()}</FieldLabel>
+          <Input
+            name="description"
+            placeholder={m.toolbar_field_description_placeholder()}
+            autoComplete="off"
+            enterKeyHint="done"
+            defaultValue={isAdd ? undefined : (expense?.description ?? "")}
+          />
+        </Field>
+
+        <Field>
           <FieldLabel>{m.toolbar_field_person()}</FieldLabel>
           <Select
             required
@@ -425,7 +439,7 @@ function ToolbarExpenseFormInner({
               }
               const isCreateItem =
                 !item.id &&
-                !Object.hasOwn(categoryLabels, item.value) &&
+                !isBaseCategory(item.value) &&
                 !customCategoryItems.some((c) => c.value === item.value);
               const normalizedValue = isCreateItem
                 ? capitalizeFirstLetter(item.value.trim())
@@ -463,7 +477,7 @@ function ToolbarExpenseFormInner({
                   className="border-input bg-input/30 data-placeholder:text-muted-foreground h-9 w-full justify-between rounded-4xl border px-3 py-2 text-base font-normal"
                 >
                   {category
-                    ? (categoryLabels[category] ?? category)
+                    ? getCategoryLabel(category)
                     : m.toolbar_field_category_placeholder()}
                 </Button>
               }
@@ -516,15 +530,6 @@ function ToolbarExpenseFormInner({
         </Field>
 
         <Field>
-          <FieldLabel>{m.toolbar_field_description()}</FieldLabel>
-          <Input
-            name="description"
-            placeholder={m.toolbar_field_description_placeholder()}
-            defaultValue={isAdd ? undefined : (expense?.description ?? "")}
-          />
-        </Field>
-
-        <Field>
           <FieldLabel>{m.toolbar_field_payment_date()}</FieldLabel>
           <Popover modal>
             <PopoverTrigger
@@ -562,6 +567,15 @@ function ToolbarExpenseFormInner({
         }
         isPending={isAdd ? addMutation.isPending : updateMutation.isPending}
       />
+      {intent === "edit" ? (
+        <ConfirmDeleteButton
+          label={m.content_delete_expense_title()}
+          isPending={deleteMutation.isPending}
+          onConfirm={() =>
+            deleteMutation.mutate({ groupId: group.id, expenseId: props.expenseId })
+          }
+        />
+      ) : null}
     </form>
   );
 }

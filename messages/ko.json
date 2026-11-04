@@ -150,5 +150,7 @@
 	"guide_step_members": "함께할 사람을 추가하세요",
 	"guide_step_expense": "첫 지출을 기록하세요",
 	"header_name_saved": "이름이 저장되었습니다",
-	"error_deleting_group": "그룹을 삭제할 수 없습니다. groups 테이블의 삭제 정책(RLS)을 확인하세요."
+	"error_deleting_group": "그룹을 삭제할 수 없습니다. groups 테이블의 삭제 정책(RLS)을 확인하세요.",
+	"common_close": "닫기",
+	"content_delete_confirm_tap": "한 번 더 탭하여 삭제"
 }

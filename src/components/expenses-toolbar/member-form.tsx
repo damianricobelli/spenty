@@ -4,11 +4,13 @@ import { AddMemberSchema, UpdateMemberSchema } from "@/api/schema";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useAddMember } from "@/hooks/members/use-add-member";
+import { useDeleteMember } from "@/hooks/members/use-delete-member";
 import { useUpdateMember } from "@/hooks/members/use-update-member";
 import { useEntity } from "@/hooks/use-entity";
 import { getErrorMessage } from "@/lib/get-error-message";
 import { m } from "@/paraglide/messages";
 import { ButtonWithSpinner } from "../button-with-spinner";
+import { ConfirmDeleteButton } from "../confirm-delete-button";
 
 type BaseProps = {
   resetToolbar: () => void;
@@ -33,6 +35,7 @@ export function ToolbarMemberForm(props: ToolbarMemberFormProps) {
 
   const addMutation = useAddMember();
   const updateMutation = useUpdateMember();
+  const deleteMutation = useDeleteMember(group.id, { onSuccess: resetToolbar });
 
   const member =
     intent === "edit"
@@ -106,6 +109,10 @@ export function ToolbarMemberForm(props: ToolbarMemberFormProps) {
         <Input
           required
           name="name"
+          autoFocus
+          autoComplete="off"
+          autoCapitalize="words"
+          enterKeyHint="done"
           defaultValue={intent === "edit" ? member?.name : ""}
           aria-invalid={!!mutation.error}
         />
@@ -120,6 +127,16 @@ export function ToolbarMemberForm(props: ToolbarMemberFormProps) {
         }
         isPending={mutation.isPending}
       />
+      {intent === "edit" ? (
+        <ConfirmDeleteButton
+          label={m.content_delete_member_title()}
+          warning={m.content_delete_member_description()}
+          isPending={deleteMutation.isPending}
+          onConfirm={() =>
+            deleteMutation.mutate({ groupId: group.id, memberId: props.memberId })
+          }
+        />
+      ) : null}
     </form>
   );
 }

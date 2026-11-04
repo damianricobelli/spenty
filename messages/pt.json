@@ -150,5 +150,7 @@
 	"guide_step_members": "Adiciona as pessoas",
 	"guide_step_expense": "Regista a primeira despesa",
 	"header_name_saved": "Nome guardado",
-	"error_deleting_group": "Não foi possível eliminar o grupo. Verifica a política de eliminação (RLS) da tabela groups."
+	"error_deleting_group": "Não foi possível eliminar o grupo. Verifica a política de eliminação (RLS) da tabela groups.",
+	"common_close": "Fechar",
+	"content_delete_confirm_tap": "Toque de novo para remover"
 }

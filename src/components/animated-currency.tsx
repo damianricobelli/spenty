@@ -1,40 +1,43 @@
-import { animate, useReducedMotion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import {
+	animate,
+	motion,
+	useMotionValue,
+	useReducedMotion,
+	useTransform,
+} from "motion/react";
+import { useEffect } from "react";
+import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format-currency";
 
 /**
  * Renders a currency amount that counts toward its new value whenever it
- * changes. Falls back to a static value when the user prefers reduced motion.
+ * changes. The count runs on a motion value, so React doesn't re-render on
+ * every frame. Jumps straight to the value when the user prefers reduced motion.
  */
 export function AnimatedCurrency({
-  value,
-  className,
+	value,
+	className,
 }: {
-  value: number;
-  className?: string;
+	value: number;
+	className?: string;
 }) {
-  const reduceMotion = useReducedMotion();
-  const [display, setDisplay] = useState(() => formatCurrency(value));
-  const previousValue = useRef(value);
+	const reduceMotion = useReducedMotion();
+	const amount = useMotionValue(value);
+	const text = useTransform(amount, (latest) => formatCurrency(latest));
 
-  useEffect(() => {
-    const from = previousValue.current;
-    previousValue.current = value;
-    if (from === value) return;
-    if (reduceMotion) {
-      setDisplay(formatCurrency(value));
-      return;
-    }
-    const controls = animate(from, value, {
-      duration: 0.6,
-      ease: [0.22, 1, 0.36, 1],
-      onUpdate: (latest) => setDisplay(formatCurrency(latest)),
-      onComplete: () => setDisplay(formatCurrency(value)),
-    });
-    return () => controls.stop();
-  }, [value, reduceMotion]);
+	useEffect(() => {
+		if (reduceMotion) {
+			amount.jump(value);
+			return;
+		}
+		const controls = animate(amount, value, {
+			duration: 0.6,
+			ease: [0.23, 1, 0.32, 1],
+		});
+		return () => controls.stop();
+	}, [amount, value, reduceMotion]);
 
-  return (
-    <span className={`tabular-nums ${className ?? ""}`}>{display}</span>
-  );
+	return (
+		<motion.span className={cn("tabular-nums", className)}>{text}</motion.span>
+	);
 }

@@ -150,5 +150,7 @@
 	"guide_step_members": "メンバーを追加しましょう",
 	"guide_step_expense": "最初の支出を記録しましょう",
 	"header_name_saved": "名前を保存しました",
-	"error_deleting_group": "グループを削除できませんでした。groupsテーブルの削除ポリシー（RLS）を確認してください。"
+	"error_deleting_group": "グループを削除できませんでした。groupsテーブルの削除ポリシー（RLS）を確認してください。",
+	"common_close": "閉じる",
+	"content_delete_confirm_tap": "もう一度タップして削除"
 }
